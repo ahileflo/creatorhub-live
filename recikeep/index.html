@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Recikeep — rețetele tale, pas cu pas</title>
+<meta name="description" content="Recikeep: păstrează-ți rețetele originale cu poze și video la fiecare pas, ține-ți seria de gătit și transformă-le în produse digitale.">
+<meta name="theme-color" content="#e8603c">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#fff8f2;--card:#ffffff;--line:#f0dfd2;--ink:#2b1d16;--soft:#7d6558;
+    --accent:#e8603c;--accent2:#f4a340;--ok:#2f9e6e;--chip:#fdebdf;--shadow:0 6px 20px rgba(120,60,20,.08);
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#17110e;--card:#221915;--line:#3a2b23;--ink:#f6ebe4;--soft:#b89c8d;
+      --accent:#ff7a52;--accent2:#ffb457;--ok:#46c08b;--chip:#33241c;--shadow:0 6px 20px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17110e;--card:#221915;--line:#3a2b23;--ink:#f6ebe4;--soft:#b89c8d;
+    --accent:#ff7a52;--accent2:#ffb457;--ok:#46c08b;--chip:#33241c;--shadow:0 6px 20px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;padding-bottom:86px;min-height:100vh}
+  h1,h2,h3{font-family:'Fraunces',Georgia,serif;letter-spacing:-.01em;line-height:1.2}
+  button,input,select,textarea{font:inherit;color:inherit}
+  .wrap{max-width:860px;margin:0 auto;padding:0 16px}
+  header.top{display:flex;align-items:center;justify-content:space-between;padding:18px 16px 8px;max-width:860px;margin:0 auto}
+  .logo{font-family:'Fraunces',serif;font-weight:800;font-size:1.5rem;color:var(--accent)}
+  .logo small{display:block;font-family:'Inter';font-weight:600;font-size:.72rem;color:var(--soft);letter-spacing:.04em}
+  .streak-pill{display:flex;align-items:center;gap:6px;background:var(--chip);border-radius:99px;padding:6px 12px;font-weight:700;cursor:pointer;border:0}
+  .btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer;background:var(--accent);color:#fff;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+  .btn.ghost{background:var(--chip);color:var(--ink)}
+  .btn.ok{background:var(--ok)}
+  .btn.sm{padding:7px 11px;font-size:.88rem;border-radius:10px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .search{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);margin:10px 0}
+  .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+  .chip{white-space:nowrap;border:1px solid var(--line);background:var(--card);border-radius:99px;padding:6px 12px;font-size:.88rem;cursor:pointer}
+  .chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin:12px 0 24px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+  .rcard{cursor:pointer;transition:transform .15s}
+  .rcard:hover{transform:translateY(-2px)}
+  .cover{aspect-ratio:16/10;width:100%;object-fit:cover;display:block;background:var(--chip)}
+  .ph{aspect-ratio:16/10;display:flex;align-items:center;justify-content:center;font-size:3.2rem;background:linear-gradient(135deg,var(--accent2),var(--accent))}
+  .rbody{padding:12px 14px}
+  .rbody h3{font-size:1.08rem;margin-bottom:4px}
+  .meta{color:var(--soft);font-size:.82rem;display:flex;gap:10px;flex-wrap:wrap}
+  .badge{display:inline-block;background:var(--chip);border-radius:6px;padding:1px 7px;font-size:.74rem;font-weight:700;color:var(--accent)}
+  section.view{display:none;padding-top:6px}
+  section.view.on{display:block}
+  .hero{border-radius:18px;padding:18px;margin:6px 0 10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+  .hero h1{font-size:1.5rem}
+  .hero p{opacity:.92;font-size:.95rem}
+  nav.bottom{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:20}
+  nav.bottom button{border:0;background:none;display:flex;flex-direction:column;align-items:center;font-size:.72rem;gap:2px;color:var(--soft);cursor:pointer;padding:4px 8px;border-radius:10px;font-weight:600}
+  nav.bottom button span{font-size:1.3rem}
+  nav.bottom button.on{color:var(--accent)}
+  .detail-head{margin:10px 0}
+  .detail-head h1{font-size:1.8rem}
+  .panel{padding:16px;margin-bottom:14px}
+  .panel h2{font-size:1.15rem;margin-bottom:10px}
+  .ing{list-style:none}
+  .ing li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px dashed var(--line)}
+  .ing li:last-child{border:0}
+  .ing input{margin-top:5px;accent-color:var(--accent);width:18px;height:18px}
+  .ing li.done span{text-decoration:line-through;color:var(--soft)}
+  .step{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .step:last-child{border:0}
+  .num{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .media{width:100%;max-height:340px;object-fit:cover;border-radius:12px;margin-top:8px;background:#000}
+  .scaler{display:flex;align-items:center;gap:8px}
+  .scaler button{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--card);cursor:pointer;font-weight:800}
+  label.f{display:block;font-weight:600;font-size:.88rem;margin:12px 0 4px}
+  .in{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
+  textarea.in{min-height:70px;resize:vertical}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .estep{border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px;background:var(--bg)}
+  .estep .hd{display:flex;justify-content:space-between;align-items:center;font-weight:700;margin-bottom:6px}
+  .thumb{margin-top:8px;max-width:100%;max-height:180px;border-radius:10px;display:block}
+  .file-btn{position:relative;overflow:hidden}
+  .file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+  .notice{background:var(--chip);border-radius:12px;padding:12px 14px;font-size:.88rem;color:var(--soft);margin:10px 0}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+  .stat{padding:14px;text-align:center}
+  .stat b{display:block;font-family:'Fraunces',serif;font-size:2rem;color:var(--accent)}
+  .stat small{color:var(--soft);font-size:.8rem}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cal div{aspect-ratio:1;border-radius:8px;background:var(--chip);display:flex;align-items:center;justify-content:center;font-size:.72rem;color:var(--soft)}
+  .cal div.on{background:var(--accent);color:#fff;font-weight:700}
+  .cal div.today{outline:2px solid var(--accent2)}
+  .cal .dn{background:none;font-weight:700}
+  .badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+  .bdg{padding:12px;text-align:center;opacity:.35}
+  .bdg.got{opacity:1}
+  .bdg span{font-size:2rem;display:block}
+  .bdg small{font-size:.78rem;color:var(--soft)}
+  /* mod gătit */
+  #cook{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;flex-direction:column}
+  #cook.on{display:flex}
+  .cook-top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .bar{height:6px;background:var(--chip)}
+  .bar i{display:block;height:100%;background:var(--accent);transition:width .25s}
+  .cook-body{flex:1;overflow:auto;padding:18px 16px;max-width:760px;margin:0 auto;width:100%}
+  .cook-body .big{font-size:1.25rem;line-height:1.6;margin:12px 0}
+  .cook-body .media{max-height:48vh}
+  .timer{font-family:'Fraunces',serif;font-size:2.4rem;text-align:center;margin:10px 0}
+  .cook-nav{display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+  .cook-nav .btn{flex:1;padding:14px}
+  .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;z-index:90;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
+  .toast.on{opacity:1}
+  .prod{padding:16px;margin-bottom:12px}
+  .prod h3{font-size:1.15rem}
+  .price{font-family:'Fraunces',serif;font-size:1.4rem;color:var(--accent)}
+  .pick{max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:6px 10px;background:var(--bg)}
+  .pick label{display:flex;gap:8px;align-items:center;padding:5px 0;font-size:.92rem}
+  .empty{text-align:center;color:var(--soft);padding:30px 10px}
+  @media(max-width:560px){.two,.three{grid-template-columns:1fr}.detail-head h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="logo">Recikeep<small>Rețetele tale, pas cu pas</small></div>
+  <div class="row">
+    <button class="streak-pill" id="pill" title="Seria ta de gătit">🔥 <span id="pillN">0</span></button>
+    <button class="streak-pill" id="themeBtn" title="Temă">🌗</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ACASĂ -->
+  <section class="view on" id="v-home">
+    <div class="hero">
+      <h1 id="heroTitle">Ce gătim azi?</h1>
+      <p id="heroSub">Gătește o rețetă ca să-ți ții seria aprinsă.</p>
+    </div>
+    <input class="search" id="q" placeholder="🔎 Caută rețete, ingrediente…">
+    <div class="chips" id="cats"></div>
+    <div class="grid" id="list"></div>
+  </section>
+
+  <!-- DETALIU -->
+  <section class="view" id="v-detail"></section>
+
+  <!-- ADAUGĂ / EDITEAZĂ -->
+  <section class="view" id="v-edit"></section>
+
+  <!-- SERIE -->
+  <section class="view" id="v-streak"></section>
+
+  <!-- PRODUSE DIGITALE -->
+  <section class="view" id="v-products"></section>
+
+</main>
+
+<div id="cook">
+  <div class="cook-top">
+    <button class="btn ghost sm" id="cookClose">✕ Închide</button>
+    <strong id="cookTitle"></strong>
+    <span id="cookCount" class="meta"></span>
+  </div>
+  <div class="bar"><i id="cookBar"></i></div>
+  <div class="cook-body" id="cookBody"></div>
+  <div class="cook-nav">
+    <button class="btn ghost" id="cookPrev">← Înapoi</button>
+    <button class="btn" id="cookNext">Următorul →</button>
+  </div>
+</div>
+
+<nav class="bottom">
+  <button data-go="home" class="on"><span>🏠</span>Rețete</button>
+  <button data-go="edit"><span>➕</span>Adaugă</button>
+  <button data-go="streak"><span>🔥</span>Serie</button>
+  <button data-go="products"><span>📦</span>Produse</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   Recikeep — totul rulează local în browser.
+   Textul rețetelor e salvat în localStorage, pozele și video-urile
+   în IndexedDB (nu se urcă nicăieri).
+   ============================================================ */
+
+const KEY = 'recikeep_v1';
+const CATS = ['Toate','Ciorbe','Feluri principale','Deserturi','Conserve','Mic dejun','Salate','Altele'];
+const BADGES = [
+  {n:1,  e:'🍳', t:'Prima rețetă'},
+  {n:3,  e:'🔥', t:'3 zile la rând'},
+  {n:7,  e:'⭐', t:'O săptămână'},
+  {n:14, e:'🏅', t:'Două săptămâni'},
+  {n:30, e:'👑', t:'O lună întreagă'},
+  {n:100,e:'💎', t:'100 de zile'}
+];
+
+// Rețete de pornire scrise de la zero pentru Recikeep (text original, fără poze preluate).
+const SEED = [
+  {id:'s1',title:'Sarmale în foi de varză',cat:'Feluri principale',emoji:'🥬',time:180,servings:6,
+   desc:'Sarmale moi, fierte încet, cu carne de porc și orez, așa cum se fac de sărbători.',
+   ingredients:['1 varză murată mare','800 g carne tocată de porc','100 g orez','2 cepe','1 lingură pastă de roșii','200 g afumătură','1 lingură cimbru uscat','2 foi de dafin','sare și piper după gust'],
+   steps:[
+     {text:'Desfă foile de varză, taie cotorul gros din mijloc și pune-le la desărat în apă rece dacă sunt prea sărate.',min:0},
+     {text:'Călește ceapa tocată mărunt în puțin ulei până devine sticloasă. Adaugă orezul spălat și amestecă 2 minute.',min:5},
+     {text:'Amestecă carnea cu ceapa și orezul răcite, pasta de roșii, cimbrul, sare și piper. Frământă bine.',min:0},
+     {text:'Pune câte o lingură de umplutură pe fiecare foaie, rulează strâns și împinge capetele înăuntru.',min:0},
+     {text:'Așază în oală un strat de varză tocată, apoi sarmalele, bucățile de afumătură și foile de dafin. Acoperă cu apă.',min:0},
+     {text:'Fierbe la foc mic, cu capac, cel puțin 2 ore și jumătate. Servește cu smântână și mămăligă.',min:150}
+   ]},
+  {id:'s2',title:'Mămăligă cu brânză și smântână',cat:'Mic dejun',emoji:'🌽',time:30,servings:4,
+   desc:'Mămăligă pufoasă, cu brânză de burduf și smântână groasă. Simplă și sățioasă.',
+   ingredients:['1 l apă','250 g mălai','1 linguriță sare','30 g unt','300 g brânză de burduf','200 g smântână'],
+   steps:[
+     {text:'Pune apa la fiert cu sarea. Când dă în clocot, presară mălaiul în ploaie, amestecând continuu.',min:0},
+     {text:'Lasă la foc mic și amestecă des cu un făcăleț, ca să nu se formeze cocoloașe.',min:20},
+     {text:'Adaugă untul la final și amestecă până se încorporează.',min:0},
+     {text:'Servește mămăliga fierbinte, cu brânză sfărâmată deasupra și o lingură generoasă de smântână.',min:0}
+   ]},
+  {id:'s3',title:'Ciorbă de perișoare',cat:'Ciorbe',emoji:'🍲',time:75,servings:6,
+   desc:'Ciorbă acrișoară cu perișoare fragede, legume și leuștean proaspăt.',
+   ingredients:['500 g carne tocată','50 g orez','1 ou','1 morcov','1 păstârnac','1 ceapă','1 ardei','2 roșii','500 ml borș','1 legătură leuștean','sare și piper'],
+   steps:[
+     {text:'Taie legumele cubulețe și pune-le la fiert în 2,5 l apă cu puțină sare.',min:15},
+     {text:'Amestecă carnea cu orezul, oul, sare și piper. Formează bile mici cu mâinile ude.',min:0},
+     {text:'Lasă perișoarele în ciorbă una câte una, la foc mic, ca să nu se desfacă.',min:25},
+     {text:'Adaugă roșiile tocate și borșul fiert separat. Mai fierbe 5 minute.',min:5},
+     {text:'Stinge focul, presară leușteanul tocat și potrivește de sare și acreală.',min:0}
+   ]},
+  {id:'s4',title:'Papanași cu dulceață',cat:'Deserturi',emoji:'🍩',time:40,servings:4,
+   desc:'Gogoși din brânză dulce de vaci, prăjite, cu smântână și dulceață de afine.',
+   ingredients:['500 g brânză dulce de vaci','2 ouă','3 linguri zahăr','1 plic zahăr vanilat','coaja de la o lămâie','250 g făină','1/2 linguriță bicarbonat','ulei pentru prăjit','smântână și dulceață pentru servire'],
+   steps:[
+     {text:'Amestecă brânza cu ouăle, zahărul, vanilia și coaja de lămâie.',min:0},
+     {text:'Adaugă făina amestecată cu bicarbonatul până obții un aluat moale care nu se lipește.',min:0},
+     {text:'Formează gogoși cu gaură și bile mici pentru „căciulițe”.',min:0},
+     {text:'Prăjește-le în ulei încins la foc mediu până devin aurii pe ambele părți.',min:6},
+     {text:'Pune papanașii pe hârtie absorbantă, apoi servește-i cu smântână și dulceață.',min:0}
+   ]},
+  {id:'s5',title:'Zacuscă de vinete',cat:'Conserve',emoji:'🫙',time:150,servings:10,
+   desc:'Zacuscă de casă cu vinete coapte și ardei copți, pentru cămară.',
+   ingredients:['2 kg vinete','2 kg ardei kapia','1 kg ceapă','500 ml bulion','400 ml ulei','3 foi de dafin','sare și piper boabe'],
+   steps:[
+     {text:'Coace vinetele și ardeii pe plită sau în cuptor, apoi curăță-i de coajă.',min:40},
+     {text:'Toacă vinetele cu un cuțit de lemn și taie ardeii mărunt.',min:0},
+     {text:'Călește ceapa tocată în ulei până se înmoaie bine.',min:15},
+     {text:'Adaugă ardeii, apoi vinetele, bulionul, dafinul, sare și piper. Fierbe la foc mic, amestecând des.',min:60},
+     {text:'Pune zacusca fierbinte în borcane sterilizate, închide-le și lasă-le la răcit învelite.',min:0}
+   ]}
+];
+
+/* ---------- stare ---------- */
+let S = load();
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  return {recipes:SEED.map(r=>({...r,author:'Recikeep',license:'CC0',steps:r.steps.map(s=>({...s,media:null,mediaType:null})),cover:null,fav:false,created:Date.now()})),
+          log:{}, products:[], theme:null};
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch(e){ toast('⚠️ Nu am putut salva (spațiu plin?)'); }
+}
+
+/* ---------- IndexedDB pentru poze/video ---------- */
+let dbP = null;
+function db(){
+  if(dbP) return dbP;
+  dbP = new Promise((res,rej)=>{
+    const r = indexedDB.open('recikeep_media',1);
+    r.onupgradeneeded = ()=> r.result.createObjectStore('m');
+    r.onsuccess = ()=> res(r.result);
+    r.onerror = ()=> rej(r.error);
+  });
+  return dbP;
+}
+async function putMedia(blob){
+  const id = 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  const d = await db();
+  await new Promise((res,rej)=>{const t=d.transaction('m','readwrite');t.objectStore('m').put(blob,id);t.oncomplete=res;t.onerror=()=>rej(t.error);});
+  return id;
+}
+async function getMedia(id){
+  if(!id) return null;
+  try{
+    const d = await db();
+    return await new Promise(res=>{const q=d.transaction('m').objectStore('m').get(id);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null);});
+  }catch(e){return null;}
+}
+async function delMedia(id){
+  if(!id) return;
+  try{const d=await db();d.transaction('m','readwrite').objectStore('m').delete(id);}catch(e){}
+}
+const urlCache = {};
+async function mediaURL(id){
+  if(!id) return null;
+  if(urlCache[id]) return urlCache[id];
+  const b = await getMedia(id);
+  if(!b) return null;
+  return urlCache[id] = URL.createObjectURL(b);
+}
+// Completează asincron toate elementele cu data-media="id"
+async function hydrate(root){
+  for(const el of root.querySelectorAll('[data-media]')){
+    const u = await mediaURL(el.dataset.media);
+    if(u) el.src = u; else el.remove();
+  }
+}
+
+/* ---------- utilitare ---------- */
+const $ = s=>document.querySelector(s);
+const esc = s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = ()=> 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const dkey = d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');};
+const today = ()=> dkey(new Date());
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2400);}
+function fmtTime(min){if(!min)return '';return min>=60?Math.floor(min/60)+' h'+(min%60?' '+min%60+' min':''):min+' min';}
+const byId = id=> S.recipes.find(r=>r.id===id);
+
+/* ---------- serie (streak) ---------- */
+function streak(){
+  const days = new Set(Object.keys(S.log).filter(k=>S.log[k]?.length));
+  let cur=0, d=new Date();
+  if(!days.has(dkey(d))) d.setDate(d.getDate()-1); // seria rămâne vie până la finalul zilei de azi
+  while(days.has(dkey(d))){cur++;d.setDate(d.getDate()-1);}
+  // cea mai lungă serie
+  const sorted=[...days].sort(); let best=0,run=0,prev=null;
+  for(const k of sorted){
+    const t=new Date(k+'T12:00:00');
+    run = prev && (t-prev)/864e5<1.5 ? run+1 : 1;
+    best=Math.max(best,run); prev=t;
+  }
+  const total = Object.values(S.log).reduce((a,v)=>a+(v?.length||0),0);
+  return {cur,best,total,days,cookedToday:days.has(today())};
+}
+function markCooked(id){
+  const k=today(); S.log[k]=S.log[k]||[];
+  const before=streak().cur;
+  S.log[k].push(id); save();
+  const st=streak();
+  const nb=BADGES.find(b=>b.n===st.cur && b.n>before);
+  toast(nb ? `${nb.e} Insignă nouă: ${nb.t}!` : `🔥 Serie: ${st.cur} ${st.cur===1?'zi':'zile'}`);
+  refreshPill();
+}
+function refreshPill(){
+  const st=streak();
+  $('#pillN').textContent=st.cur;
+  $('#heroTitle').textContent = st.cookedToday ? `🔥 ${st.cur} ${st.cur===1?'zi':'zile'} la rând!` : 'Ce gătim azi?';
+  $('#heroSub').textContent = st.cookedToday ? 'Ai gătit azi. Revino mâine ca să crească seria.'
+    : st.cur ? `Seria ta de ${st.cur} ${st.cur===1?'zi':'zile'} se pierde la miezul nopții — gătește ceva azi!`
+    : 'Gătește o rețetă ca să-ți aprinzi seria.';
+}
+
+/* ---------- navigare ---------- */
+let curCat='Toate';
+function go(v,arg){
+  document.querySelectorAll('section.view').forEach(s=>s.classList.remove('on'));
+  $('#v-'+v).classList.add('on');
+  document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on',b.dataset.go===v||(v==='detail'&&b.dataset.go==='home')));
+  window.scrollTo(0,0);
+  if(v==='home') renderHome();
+  if(v==='detail'){scale=1;renderDetail(arg);}
+  if(v==='edit') renderEdit(arg);
+  if(v==='streak') renderStreak();
+  if(v==='products') renderProducts();
+}
+document.querySelectorAll('nav.bottom button').forEach(b=>b.onclick=()=>go(b.dataset.go));
+$('#pill').onclick=()=>go('streak');
+
+/* ---------- temă ---------- */
+function applyTheme(){ if(S.theme) document.documentElement.dataset.theme=S.theme; else delete document.documentElement.dataset.theme; }
+$('#themeBtn').onclick=()=>{
+  const dark = S.theme ? S.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  S.theme = dark?'light':'dark'; save(); applyTheme();
+};
+
+/* ---------- ACASĂ ---------- */
+function renderHome(){
+  $('#cats').innerHTML = ['❤️ Favorite',...CATS].map(c=>`<button class="chip ${c===curCat?'on':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+  $('#cats').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{curCat=b.dataset.c;renderHome();});
+  const q=$('#q').value.trim().toLowerCase();
+  const items=S.recipes.filter(r=>{
+    if(curCat==='❤️ Favorite' && !r.fav) return false;
+    if(curCat!=='Toate' && curCat!=='❤️ Favorite' && r.cat!==curCat) return false;
+    if(!q) return true;
+    return (r.title+' '+r.desc+' '+r.ingredients.join(' ')).toLowerCase().includes(q);
+  });
+  const L=$('#list');
+  if(!items.length){L.innerHTML=`<div class="empty" style="grid-column:1/-1">Nicio rețetă aici încă.<br><br><button class="btn" onclick="go('edit')">➕ Adaugă prima rețetă</button></div>`;return;}
+  L.innerHTML=items.map(r=>{
+    const media=r.steps.filter(s=>s.media);
+    const vids=media.filter(s=>s.mediaType==='video').length, pics=media.length-vids;
+    return `<div class="card rcard" data-id="${r.id}">
+      ${r.cover?`<img class="cover" data-media="${r.cover}" alt="">`:`<div class="ph">${esc(r.emoji||'🍽️')}</div>`}
+      <div class="rbody">
+        <h3>${r.fav?'❤️ ':''}${esc(r.title)}</h3>
+        <div class="meta"><span>⏱ ${fmtTime(r.time)||'—'}</span><span>👥 ${r.servings||'—'}</span><span>📋 ${r.steps.length} pași</span>${pics?`<span>📷 ${pics}</span>`:''}${vids?`<span>🎬 ${vids}</span>`:''}</div>
+        <div style="margin-top:6px"><span class="badge">${esc(r.cat)}</span></div>
+      </div></div>`;
+  }).join('');
+  L.querySelectorAll('.rcard').forEach(c=>c.onclick=()=>go('detail',c.dataset.id));
+  hydrate(L);
+}
+$('#q').oninput=renderHome;
+
+/* ---------- DETALIU ---------- */
+let scale=1;
+function scaleLine(line,f){
+  if(f===1) return line;
+  return line.replace(/^(\d+(?:[.,]\d+)?)(?:\/(\d+))?/,(m,a,b)=>{
+    let v=parseFloat(a.replace(',','.')); if(b) v=v/parseFloat(b);
+    v=Math.round(v*f*100)/100;
+    return String(v).replace('.',',');
+  });
+}
+function renderDetail(id){
+  const r=byId(id); if(!r) return go('home');
+  scale = scale||1;
+  const V=$('#v-detail');
+  const serv=Math.max(1,Math.round((r.servings||1)*scale));
+  V.innerHTML=`
+    <div class="row" style="justify-content:space-between;margin-top:8px">
+      <button class="btn ghost sm" id="back">← Rețete</button>
+      <div class="row">
+        <button class="btn ghost sm" id="fav">${r.fav?'❤️':'🤍'}</button>
+        <button class="btn ghost sm" id="edit">✏️ Editează</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      ${r.cover?`<img class="cover" data-media="${r.cover}" alt="">`:`<div class="ph" style="font-size:4.5rem">${esc(r.emoji||'🍽️')}</div>`}
+      <div class="panel">
+        <div class="detail-head">
+          <span class="badge">${esc(r.cat)}</span>
+          <h1>${esc(r.title)}</h1>
+          <p style="color:var(--soft)">${esc(r.desc)}</p>
+        </div>
+        <div class="meta"><span>⏱ ${fmtTime(r.time)||'—'}</span><span>📋 ${r.steps.length} pași</span><span>✍️ ${esc(r.author||'Eu')}</span><span>📜 ${esc(licName(r.license))}</span></div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn" id="startCook" style="flex:1">👩‍🍳 Gătește pas cu pas</button>
+          <button class="btn ok" id="cooked">✅ Am gătit-o</button>
+        </div>
+      </div>
+    </div>
+    <div class="card panel" style="margin-top:14px">
+      <div class="row" style="justify-content:space-between">
+        <h2>🧺 Ingrediente</h2>
+        <div class="scaler"><button id="sm">−</button><b>${serv} porții</b><button id="sp">+</button></div>
+      </div>
+      <ul class="ing">${r.ingredients.map((i,k)=>`<li><input type="checkbox" id="i${k}"><span>${esc(scaleLine(i,scale))}</span></li>`).join('')}</ul>
+    </div>
+    <div class="card panel">
+      <h2>📋 Pași</h2>
+      ${r.steps.map((s,k)=>`<div class="step"><div class="num">${k+1}</div><div>
+        <div>${esc(s.text)}</div>
+        ${s.min?`<div class="meta" style="margin-top:4px">⏲ ${fmtTime(s.min)}</div>`:''}
+        ${s.media?(s.mediaType==='video'?`<video class="media" controls playsinline preload="metadata" data-media="${s.media}"></video>`:`<img class="media" data-media="${s.media}" alt="Pasul ${k+1}">`):''}
+      </div></div>`).join('')}
+    </div>
+    <div class="row" style="margin-bottom:24px">
+      <button class="btn ghost sm" id="del">🗑 Șterge rețeta</button>
+    </div>`;
+  const base=r.servings||1;
+  $('#sm').onclick=()=>{scale=Math.max(1/base,scale-1/base);renderDetail(id);};
+  $('#sp').onclick=()=>{scale=scale+1/base;renderDetail(id);};
+  V.querySelectorAll('.ing input').forEach(c=>c.onchange=()=>c.parentElement.classList.toggle('done',c.checked));
+  $('#back').onclick=()=>{scale=1;go('home');};
+  $('#edit').onclick=()=>go('edit',id);
+  $('#fav').onclick=()=>{r.fav=!r.fav;save();renderDetail(id);};
+  $('#startCook').onclick=()=>openCook(id);
+  $('#cooked').onclick=()=>markCooked(id);
+  $('#del').onclick=()=>{
+    if(!confirm('Ștergi rețeta „'+r.title+'”?')) return;
+    [r.cover,...r.steps.map(s=>s.media)].forEach(delMedia);
+    S.recipes=S.recipes.filter(x=>x.id!==id);
+    S.products.forEach(p=>p.recipes=p.recipes.filter(x=>x!==id));
+    save(); scale=1; go('home'); toast('Rețetă ștearsă');
+  };
+  hydrate(V);
+}
+
+/* ---------- MOD GĂTIT pas cu pas ---------- */
+let ck={id:null,i:0,timer:null,left:0};
+function openCook(id){ ck={id,i:0,timer:null,left:0}; $('#cook').classList.add('on'); document.body.style.overflow='hidden'; drawCook(); try{navigator.wakeLock?.request('screen').then(l=>ck.lock=l).catch(()=>{});}catch(e){} }
+function closeCook(){ clearInterval(ck.timer); ck.lock?.release?.(); $('#cook').classList.remove('on'); document.body.style.overflow=''; }
+function drawCook(){
+  const r=byId(ck.id), n=r.steps.length, last=ck.i===n;
+  clearInterval(ck.timer); ck.timer=null;
+  $('#cookTitle').textContent=r.title;
+  $('#cookCount').textContent= last?'Gata!':`Pasul ${ck.i+1} / ${n}`;
+  $('#cookBar').style.width=(ck.i/n*100)+'%';
+  $('#cookPrev').disabled=ck.i===0;
+  const B=$('#cookBody');
+  if(last){
+    B.innerHTML=`<div style="text-align:center;padding-top:30px"><div style="font-size:4rem">🎉</div><h2>Poftă bună!</h2>
+      <p class="big">Ai terminat <b>${esc(r.title)}</b>.</p>
+      <button class="btn ok" id="ckDone" style="padding:16px 26px">🔥 Bifează în serie</button></div>`;
+    $('#ckDone').onclick=()=>{markCooked(r.id);closeCook();renderDetail(r.id);};
+    $('#cookNext').textContent='Închide'; return;
+  }
+  const s=r.steps[ck.i];
+  $('#cookNext').textContent= ck.i===n-1 ? 'Termină ✓' : 'Următorul →';
+  B.innerHTML=`<div class="num" style="width:46px;height:46px;font-size:1.3rem">${ck.i+1}</div>
+    <p class="big">${esc(s.text)}</p>
+    ${s.media?(s.mediaType==='video'?`<video class="media" controls playsinline autoplay muted loop data-media="${s.media}"></video>`:`<img class="media" data-media="${s.media}" alt="">`):''}
+    ${s.min?`<div class="card panel" style="margin-top:14px;text-align:center"><div class="timer" id="tm">${mmss(s.min*60)}</div>
+      <button class="btn" id="tmBtn">▶ Pornește cronometrul</button></div>`:''}`;
+  if(s.min){
+    ck.left=s.min*60;
+    $('#tmBtn').onclick=()=>{
+      if(ck.timer){clearInterval(ck.timer);ck.timer=null;$('#tmBtn').textContent='▶ Continuă';return;}
+      $('#tmBtn').textContent='⏸ Pauză';
+      ck.timer=setInterval(()=>{
+        ck.left--; const el=$('#tm'); if(el) el.textContent=mmss(Math.max(0,ck.left));
+        if(ck.left<=0){clearInterval(ck.timer);ck.timer=null;beep();toast('⏰ Timpul a expirat!');if($('#tmBtn'))$('#tmBtn').textContent='✓ Gata';}
+      },1000);
+    };
+  }
+  hydrate(B);
+}
+const mmss=t=>String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+function beep(){try{const a=new AudioContext(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;o.start();g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+1.2);o.stop(a.currentTime+1.2);navigator.vibrate?.([300,150,300]);}catch(e){}}
+$('#cookClose').onclick=closeCook;
+$('#cookPrev').onclick=()=>{if(ck.i>0){ck.i--;drawCook();}};
+$('#cookNext').onclick=()=>{const n=byId(ck.id).steps.length; if(ck.i===n){closeCook();return;} ck.i++;drawCook();};
+
+/* ---------- ADAUGĂ / EDITEAZĂ ---------- */
+const LICENSES={own:'Toate drepturile rezervate (autorul)',CCBY:'CC BY 4.0 — liber cu menționarea autorului',CC0:'CC0 — domeniu public, fără drepturi rezervate'};
+const licName=k=>LICENSES[k]||LICENSES.own;
+let draft=null;
+function renderEdit(id){
+  const r=id?byId(id):null;
+  draft = r ? JSON.parse(JSON.stringify(r)) : {id:null,title:'',desc:'',cat:'Feluri principale',emoji:'🍽️',time:30,servings:4,ingredients:[],steps:[{text:'',min:0,media:null,mediaType:null}],cover:null,author:'',license:'own',fav:false};
+  draft._orig = r ? [r.cover,...r.steps.map(s=>s.media)].filter(Boolean) : [];
+  draft._new = [];
+  const V=$('#v-edit');
+  V.innerHTML=`
+    <h1 style="margin:10px 0">${r?'✏️ Editează rețeta':'➕ Rețetă nouă'}</h1>
+    <div class="card panel">
+      <label class="f">Titlu *</label><input class="in" id="eT" value="${esc(draft.title)}" placeholder="ex: Tochitură moldovenească">
+      <label class="f">Descriere scurtă</label><textarea class="in" id="eD" placeholder="Ce o face specială?">${esc(draft.desc)}</textarea>
+      <div class="three">
+        <div><label class="f">Categorie</label><select class="in" id="eC">${CATS.slice(1).map(c=>`<option ${c===draft.cat?'selected':''}>${c}</option>`).join('')}</select></div>
+        <div><label class="f">Timp total (min)</label><input class="in" type="number" min="0" id="eTm" value="${draft.time}"></div>
+        <div><label class="f">Porții</label><input class="in" type="number" min="1" id="eS" value="${draft.servings}"></div>
+      </div>
+      <div class="two">
+        <div><label class="f">Emoji (dacă nu ai poză)</label><input class="in" id="eE" maxlength="4" value="${esc(draft.emoji)}"></div>
+        <div><label class="f">Autor</label><input class="in" id="eA" value="${esc(draft.author)}" placeholder="Numele tău"></div>
+      </div>
+      <label class="f">Poza principală</label>
+      <div class="row"><span class="btn ghost sm file-btn">📷 Alege / fă o poză<input type="file" accept="image/*" id="eCov"></span>
+      ${draft.cover?'<button class="btn ghost sm" id="eCovX">✕ Scoate</button>':''}</div>
+      <div id="covPrev">${draft.cover?`<img class="thumb" data-media="${draft.cover}">`:''}</div>
+    </div>
+    <div class="card panel">
+      <h2>🧺 Ingrediente</h2>
+      <p class="meta">Câte unul pe rând. Începe cu cantitatea (ex: „250 g făină”) ca să poți scala porțiile.</p>
+      <textarea class="in" id="eI" style="min-height:140px" placeholder="500 g carne tocată&#10;2 cepe&#10;1 linguriță sare">${esc(draft.ingredients.join('\n'))}</textarea>
+    </div>
+    <div class="card panel">
+      <h2>📋 Pași cu poze și video</h2>
+      <p class="meta">La fiecare pas poți adăuga o poză sau un clip video filmat de tine.</p>
+      <div id="eSteps"></div>
+      <button class="btn ghost" id="addStep" style="margin-top:12px;width:100%">➕ Adaugă pas</button>
+    </div>
+    <div class="card panel">
+      <h2>📜 Drepturi de autor</h2>
+      <label class="f">Licența rețetei tale</label>
+      <select class="in" id="eL">${Object.entries(LICENSES).map(([k,v])=>`<option value="${k}" ${k===draft.license?'selected':''}>${v}</option>`).join('')}</select>
+      <label style="display:flex;gap:10px;margin-top:14px;font-size:.92rem;align-items:flex-start">
+        <input type="checkbox" id="eOk" style="margin-top:4px;width:18px;height:18px;accent-color:var(--accent)" ${r?'checked':''}>
+        <span>Confirm că textul, pozele și video-urile sunt create de mine sau am dreptul să le folosesc. Nu copiez rețete, poze sau clipuri protejate de pe alte site-uri.</span>
+      </label>
+    </div>
+    <div class="row" style="margin-bottom:28px">
+      <button class="btn" id="eSave" style="flex:1">💾 Salvează rețeta</button>
+      <button class="btn ghost" id="eCancel">Renunță</button>
+    </div>`;
+  drawSteps(); hydrate(V);
+  $('#eCov').onchange=async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const id=await putMedia(await shrink(f)); draft._new.push(id); draft.cover=id;
+    syncDraft(); renderEditKeep();
+  };
+  if($('#eCovX')) $('#eCovX').onclick=()=>{draft.cover=null;syncDraft();renderEditKeep();};
+  $('#addStep').onclick=()=>{syncDraft();draft.steps.push({text:'',min:0,media:null,mediaType:null});drawSteps();};
+  $('#eSave').onclick=saveDraft;
+  $('#eCancel').onclick=()=>{draft._new.forEach(delMedia);go(r?'detail':'home',r?.id);};
+}
+// redesenează formularul păstrând ciorna curentă
+function renderEditKeep(){
+  const keep=draft; const id=keep.id;
+  renderEdit(id); // recreează schelet
+  Object.assign(draft,keep); // păstrează modificările
+  const V=$('#v-edit');
+  $('#eT').value=draft.title;$('#eD').value=draft.desc;$('#eC').value=draft.cat;$('#eTm').value=draft.time;$('#eS').value=draft.servings;
+  $('#eE').value=draft.emoji;$('#eA').value=draft.author;$('#eI').value=draft.ingredients.join('\n');$('#eL').value=draft.license;
+  $('#eOk').checked=!!draft._ok;
+  $('#covPrev').innerHTML=draft.cover?`<img class="thumb" data-media="${draft.cover}">`:'';
+  const row=$('#eCov').closest('.row');
+  if(draft.cover && !$('#eCovX')){row.insertAdjacentHTML('beforeend','<button class="btn ghost sm" id="eCovX">✕ Scoate</button>');}
+  if(!draft.cover && $('#eCovX')) $('#eCovX').remove();
+  if($('#eCovX')) $('#eCovX').onclick=()=>{draft.cover=null;syncDraft();renderEditKeep();};
+  drawSteps(); hydrate(V);
+}
+function syncDraft(){
+  if(!$('#eT')) return;
+  draft.title=$('#eT').value.trim(); draft.desc=$('#eD').value.trim(); draft.cat=$('#eC').value;
+  draft.time=+$('#eTm').value||0; draft.servings=Math.max(1,+$('#eS').value||1);
+  draft.emoji=$('#eE').value.trim()||'🍽️'; draft.author=$('#eA').value.trim();
+  draft.ingredients=$('#eI').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  draft.license=$('#eL').value; draft._ok=$('#eOk').checked;
+  document.querySelectorAll('.estep').forEach((el,k)=>{
+    draft.steps[k].text=el.querySelector('textarea').value.trim();
+    draft.steps[k].min=+el.querySelector('input[type=number]').value||0;
+  });
+}
+function drawSteps(){
+  const W=$('#eSteps');
+  W.innerHTML=draft.steps.map((s,k)=>`<div class="estep" data-k="${k}">
+    <div class="hd"><span>Pasul ${k+1}</span><span class="row">
+      <button class="btn ghost sm" data-a="up" ${k===0?'disabled':''}>↑</button>
+      <button class="btn ghost sm" data-a="down" ${k===draft.steps.length-1?'disabled':''}>↓</button>
+      <button class="btn ghost sm" data-a="del" ${draft.steps.length===1?'disabled':''}>🗑</button></span></div>
+    <textarea class="in" placeholder="Descrie ce se face la acest pas…">${esc(s.text)}</textarea>
+    <div class="row" style="margin-top:8px">
+      <label class="meta">⏲ Cronometru (min) <input type="number" min="0" class="in" style="width:80px;display:inline-block;padding:6px 8px" value="${s.min||0}"></label>
+      <span class="btn ghost sm file-btn">📷 Poză<input type="file" accept="image/*" data-a="img"></span>
+      <span class="btn ghost sm file-btn">🎬 Video<input type="file" accept="video/*" data-a="vid"></span>
+      ${s.media?'<button class="btn ghost sm" data-a="rm">✕ Scoate media</button>':''}
+    </div>
+    ${s.media?(s.mediaType==='video'?`<video class="thumb" controls playsinline preload="metadata" data-media="${s.media}"></video>`:`<img class="thumb" data-media="${s.media}">`):''}
+  </div>`).join('');
+  W.querySelectorAll('.estep').forEach(el=>{
+    const k=+el.dataset.k;
+    el.querySelectorAll('button[data-a]').forEach(b=>b.onclick=()=>{
+      syncDraft(); const a=b.dataset.a, st=draft.steps;
+      if(a==='up'){[st[k-1],st[k]]=[st[k],st[k-1]];}
+      if(a==='down'){[st[k+1],st[k]]=[st[k],st[k+1]];}
+      if(a==='del'){st.splice(k,1);}
+      if(a==='rm'){st[k].media=null;st[k].mediaType=null;}
+      drawSteps();
+    });
+    el.querySelectorAll('input[type=file]').forEach(inp=>inp.onchange=async e=>{
+      const f=e.target.files[0]; if(!f) return;
+      const isVid=inp.dataset.a==='vid';
+      if(isVid && f.size>200*1024*1024){toast('Video prea mare (max 200 MB)');return;}
+      toast(isVid?'Se salvează clipul…':'Se salvează poza…');
+      syncDraft();
+      const id=await putMedia(isVid?f:await shrink(f)); draft._new.push(id);
+      draft.steps[k].media=id; draft.steps[k].mediaType=isVid?'video':'image';
+      drawSteps(); hydrate(W);
+    });
+  });
+  hydrate(W);
+}
+// micșorează pozele mari ca să nu umple memoria
+function shrink(file,max=1600){
+  return new Promise(res=>{
+    const img=new Image(), u=URL.createObjectURL(file);
+    img.onload=()=>{
+      const k=Math.min(1,max/Math.max(img.width,img.height));
+      if(k===1 && file.size<1.5e6){URL.revokeObjectURL(u);return res(file);}
+      const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      URL.revokeObjectURL(u); c.toBlob(b=>res(b||file),'image/jpeg',.85);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(u);res(file);};
+    img.src=u;
+  });
+}
+function saveDraft(){
+  syncDraft();
+  if(!draft.title) return toast('Pune un titlu rețetei');
+  if(!draft.steps.some(s=>s.text)) return toast('Adaugă cel puțin un pas');
+  if(!draft._ok) return toast('Bifează confirmarea de originalitate');
+  draft.steps=draft.steps.filter(s=>s.text||s.media);
+  const used=new Set([draft.cover,...draft.steps.map(s=>s.media)].filter(Boolean));
+  [...draft._orig,...draft._new].forEach(m=>{if(!used.has(m)) delMedia(m);});
+  const {_orig,_new,_ok,...clean}=draft;
+  if(clean.id){ S.recipes=S.recipes.map(x=>x.id===clean.id?{...x,...clean}:x); }
+  else { clean.id=uid(); clean.created=Date.now(); S.recipes.unshift(clean); }
+  save(); toast('✅ Rețetă salvată'); go('detail',clean.id);
+}
+
+/* ---------- SERIE ---------- */
+function renderStreak(){
+  const st=streak();
+  const cells=[]; const d=new Date(); d.setDate(d.getDate()-34);
+  const off=(d.getDay()+6)%7; // luni = prima zi
+  for(let i=0;i<off;i++) cells.push('<div class="dn"></div>');
+  for(let i=0;i<35;i++){
+    const k=dkey(d); const n=S.log[k]?.length||0;
+    cells.push(`<div class="${n?'on':''} ${k===today()?'today':''}" title="${k}${n?' · '+n+' rețete':''}">${d.getDate()}</div>`);
+    d.setDate(d.getDate()+1);
+  }
+  const recent=Object.entries(S.log).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,8);
+  $('#v-streak').innerHTML=`
+    <h1 style="margin:10px 0">🔥 Seria ta</h1>
+    <div class="stats">
+      <div class="card stat"><b>${st.cur}</b><small>zile la rând</small></div>
+      <div class="card stat"><b>${st.best}</b><small>record</small></div>
+      <div class="card stat"><b>${st.total}</b><small>rețete gătite</small></div>
+    </div>
+    <div class="notice">${st.cookedToday?'✅ Ai gătit azi — seria e în siguranță. Ne vedem mâine!':'⏳ Încă n-ai gătit azi. Deschide o rețetă și apasă „Am gătit-o” sau termină modul pas cu pas.'}</div>
+    <div class="card panel">
+      <h2>📅 Ultimele 5 săptămâni</h2>
+      <div class="cal">${['L','Ma','Mi','J','V','S','D'].map(x=>`<div class="dn">${x}</div>`).join('')}${cells.join('')}</div>
+    </div>
+    <div class="card panel">
+      <h2>🏆 Insigne</h2>
+      <div class="badges">${BADGES.map(b=>`<div class="card bdg ${st.best>=b.n?'got':''}"><span>${b.e}</span><b>${b.t}</b><br><small>${b.n} ${b.n===1?'zi':'zile'}</small></div>`).join('')}</div>
+    </div>
+    <div class="card panel">
+      <h2>🕘 Istoric</h2>
+      ${recent.length?recent.map(([k,ids])=>`<div class="step" style="grid-template-columns:90px 1fr"><b>${k.split('-').reverse().join('.')}</b><div>${ids.map(i=>esc(byId(i)?.title||'(rețetă ștearsă)')).join(', ')}</div></div>`).join(''):'<p class="empty">Încă nimic. Prima rețetă gătită îți aprinde seria!</p>'}
+    </div>
+    <div class="card panel" style="margin-bottom:24px">
+      <h2>💾 Backup</h2>
+      <p class="meta" style="margin-bottom:10px">Datele stau doar pe acest dispozitiv. Exportă o copie (include pozele, fără video-uri) ca să nu le pierzi.</p>
+      <div class="row">
+        <button class="btn ghost sm" id="bkExp">⬇️ Exportă backup</button>
+        <span class="btn ghost sm file-btn">⬆️ Importă backup<input type="file" accept="application/json" id="bkImp"></span>
+      </div>
+    </div>`;
+  $('#bkExp').onclick=exportBackup;
+  $('#bkImp').onchange=importBackup;
+}
+const blobToData=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b);});
+async function exportBackup(){
+  toast('Se pregătește backup-ul…');
+  const media={};
+  for(const r of S.recipes){
+    for(const id of [r.cover,...r.steps.filter(s=>s.mediaType!=='video').map(s=>s.media)]){
+      if(id&&!media[id]){const b=await getMedia(id);if(b) media[id]=await blobToData(b);}
+    }
+  }
+  download(new Blob([JSON.stringify({app:'recikeep',v:1,data:S,media})],{type:'application/json'}),'recikeep-backup-'+today()+'.json');
+}
+async function importBackup(e){
+  const f=e.target.files[0]; if(!f) return;
+  try{
+    const j=JSON.parse(await f.text());
+    if(j.app!=='recikeep') throw 0;
+    if(!confirm('Înlocuiești datele actuale cu cele din backup?')) return;
+    const d=await db();
+    for(const [id,data] of Object.entries(j.media||{})){
+      const b=await (await fetch(data)).blob();
+      await new Promise(res=>{const t=d.transaction('m','readwrite');t.objectStore('m').put(b,id);t.oncomplete=res;t.onerror=res;});
+    }
+    S=j.data; save(); applyTheme(); refreshPill(); toast('✅ Backup importat'); go('home');
+  }catch(err){toast('Fișier de backup invalid');}
+}
+function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
+
+/* ---------- PRODUSE DIGITALE ---------- */
+function renderProducts(){
+  const V=$('#v-products');
+  V.innerHTML=`
+    <h1 style="margin:10px 0">📦 Produse digitale</h1>
+    <div class="notice">Transformă rețetele tale originale în cărți de bucate digitale (e-book HTML / PDF) pe care le poți vinde pe Gumroad, Etsy, Payhip sau propriul site. Recikeep nu procesează plăți — tu încarci fișierul exportat unde vrei.</div>
+    <div class="card panel">
+      <h2>✨ Pachet nou</h2>
+      <label class="f">Nume produs</label><input class="in" id="pT" placeholder="ex: 10 rețete de la bunica">
+      <label class="f">Descriere pentru cumpărători</label><textarea class="in" id="pD" placeholder="Ce primesc cei care cumpără?"></textarea>
+      <div class="two">
+        <div><label class="f">Preț (lei)</label><input class="in" type="number" min="0" step="0.5" id="pP" value="29"></div>
+        <div><label class="f">Autor / brand</label><input class="in" id="pA" placeholder="@numele.tau"></div>
+      </div>
+      <label class="f">Alege rețetele incluse</label>
+      <div class="pick">${S.recipes.map(r=>`<label><input type="checkbox" value="${r.id}"> ${esc(r.title)} <span class="meta">· ${esc(licName(r.license).split(' —')[0])}</span></label>`).join('')||'<p class="meta">Nu ai rețete încă.</p>'}</div>
+      <button class="btn" id="pSave" style="margin-top:14px;width:100%">➕ Creează produsul</button>
+    </div>
+    <div id="pList"></div>`;
+  $('#pSave').onclick=()=>{
+    const ids=[...V.querySelectorAll('.pick input:checked')].map(c=>c.value);
+    const t=$('#pT').value.trim();
+    if(!t) return toast('Pune un nume produsului');
+    if(!ids.length) return toast('Alege cel puțin o rețetă');
+    S.products.unshift({id:uid(),title:t,desc:$('#pD').value.trim(),price:+$('#pP').value||0,author:$('#pA').value.trim(),recipes:ids,created:Date.now()});
+    save(); toast('📦 Produs creat'); renderProducts();
+  };
+  const L=$('#pList');
+  L.innerHTML=S.products.length?S.products.map(p=>`<div class="card prod">
+      <div class="row" style="justify-content:space-between"><h3>${esc(p.title)}</h3><span class="price">${p.price.toLocaleString('ro-RO')} lei</span></div>
+      <p class="meta" style="margin:4px 0 8px">${p.recipes.length} rețete · ${esc(p.author||'fără autor')}</p>
+      ${p.desc?`<p style="margin-bottom:8px">${esc(p.desc)}</p>`:''}
+      <p class="meta" style="margin-bottom:10px">${p.recipes.map(i=>esc(byId(i)?.title)).filter(Boolean).join(' · ')}</p>
+      <div class="row">
+        <button class="btn sm" data-x="html" data-id="${p.id}">⬇️ E-book HTML</button>
+        <button class="btn ghost sm" data-x="pdf" data-id="${p.id}">🖨 PDF</button>
+        <button class="btn ghost sm" data-x="del" data-id="${p.id}">🗑</button>
+      </div></div>`).join(''):'<p class="empty">Niciun produs încă. Creează primul pachet mai sus.</p>';
+  L.querySelectorAll('button[data-x]').forEach(b=>b.onclick=async()=>{
+    const p=S.products.find(x=>x.id===b.dataset.id);
+    if(b.dataset.x==='del'){if(confirm('Ștergi produsul?')){S.products=S.products.filter(x=>x!==p);save();renderProducts();}return;}
+    toast('Se generează e-book-ul…');
+    const html=await buildEbook(p, b.dataset.x==='pdf');
+    if(b.dataset.x==='html') download(new Blob([html],{type:'text/html'}),slug(p.title)+'.html');
+    else { const w=window.open('','_blank'); if(!w) return toast('Permite ferestrele pop-up'); w.document.write(html); w.document.close(); }
+  });
+}
+const slug=s=>s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'ebook';
+async function buildEbook(p,forPrint){
+  const rs=p.recipes.map(byId).filter(Boolean);
+  const data=async id=>{const b=id&&await getMedia(id);return b?blobToData(b):null;};
+  let body='';
+  for(const r of rs){
+    const cov=await data(r.cover);
+    let steps='';
+    for(const [k,s] of r.steps.entries()){
+      let m='';
+      if(s.media){
+        if(s.mediaType==='video'){
+          const b=await getMedia(s.media);
+          // în PDF nu se pot reda clipuri; în HTML le includem dacă nu sunt uriașe
+          if(b && !forPrint && b.size<25e6) m=`<video controls playsinline src="${await blobToData(b)}"></video>`;
+          else if(b) m=`<p class="vnote">🎬 Acest pas are un clip video în versiunea digitală.</p>`;
+        } else { const u=await data(s.media); if(u) m=`<img src="${u}" alt="">`; }
+      }
+      steps+=`<li><div>${esc(s.text)}${s.min?` <em>(${fmtTime(s.min)})</em>`:''}</div>${m}</li>`;
+    }
+    body+=`<article>
+      ${cov?`<img class="cov" src="${cov}" alt="">`:`<div class="ph">${esc(r.emoji||'🍽️')}</div>`}
+      <h2>${esc(r.title)}</h2><p class="d">${esc(r.desc)}</p>
+      <p class="m">⏱ ${fmtTime(r.time)||'—'} · 👥 ${r.servings} porții · ${esc(r.cat)}</p>
+      <h3>Ingrediente</h3><ul>${r.ingredients.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>
+      <h3>Mod de preparare</h3><ol>${steps}</ol>
+      <p class="lic">Rețetă de ${esc(r.author||p.author||'autor')} · ${esc(licName(r.license))}</p>
+    </article>`;
+  }
+  const year=new Date().getFullYear();
+  return `<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(p.title)}</title><style>
+body{font-family:Georgia,serif;max-width:760px;margin:0 auto;padding:24px 16px;color:#2b1d16;background:#fffaf5;line-height:1.6}
+.title{text-align:center;padding:60px 0;border-bottom:3px solid #e8603c;margin-bottom:30px}
+.title h1{font-size:2.4rem;color:#e8603c;margin:0 0 10px}
+article{page-break-before:always;margin-bottom:50px}
+h2{color:#e8603c;font-size:1.7rem;margin:16px 0 4px}.d{font-style:italic}.m{color:#7d6558;font-size:.9rem}
+img,video{max-width:100%;border-radius:10px;display:block;margin:8px 0}.cov{width:100%;max-height:380px;object-fit:cover}
+.ph{font-size:4rem;text-align:center;background:#fdebdf;border-radius:12px;padding:30px}
+ol li{margin-bottom:14px}.lic,.vnote{color:#7d6558;font-size:.82rem}
+.toc a{color:#2b1d16}footer{text-align:center;color:#7d6558;font-size:.8rem;border-top:1px solid #f0dfd2;padding-top:14px}
+@media print{body{background:#fff}video{display:none}}
+</style></head><body>
+<div class="title"><h1>${esc(p.title)}</h1><p>${esc(p.desc)}</p><p><b>${esc(p.author)}</b></p></div>
+<div class="toc"><h3>Cuprins</h3><ol>${rs.map(r=>`<li>${esc(r.title)}</li>`).join('')}</ol></div>
+${body}
+<footer>© ${year} ${esc(p.author||'Autorul')} · Creat cu Recikeep</footer>
+${forPrint?'<script>window.onload=()=>setTimeout(()=>print(),400)<\/script>':''}
+</body></html>`;
+}
+
+/* ---------- pornire ---------- */
+applyTheme(); refreshPill(); renderHome();
+</script>
+</body>
+</html>
