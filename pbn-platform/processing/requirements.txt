@@ -1,0 +1,11 @@
+numpy>=1.26
+opencv-python-headless>=4.9
+scikit-learn>=1.4
+scikit-image>=0.22
+Pillow>=10.2
+# Opțional: export PDF vectorial (necesită biblioteca nativă libcairo2)
+cairosvg>=2.7
+# Opțional: citire HEIC (poze iPhone / iCloud)
+pillow-heif>=0.16
+# Dezvoltare
+pytest>=8.0
