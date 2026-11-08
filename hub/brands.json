@@ -1,0 +1,71 @@
+{
+  "_doc": "Registrul central al afacerilor. Fiecare brand e separat (cont, domeniu, ton), dar toate sunt legate aici: conținut, monitorizare, linkuri încrucișate.",
+  "brands": {
+    "pbn": {
+      "name": "Tablou din Poza Ta (nume de lucru)",
+      "site": "",
+      "health_url": "",
+      "audience": "Români 25-55 care caută un cadou personal (aniversări, Ziua Mamei, Crăciun) sau un hobby relaxant",
+      "offer": "Kit pictură pe numere din poza ta: Standard 189 lei, Premium (import Google Photos/iCloud, pânză pe șasiu, 36-48 culori) 289 lei",
+      "voice": "cald, sentimental, concret; fără superlative goale",
+      "platforms": ["instagram", "tiktok", "facebook", "pinterest"],
+      "pillars": ["înainte/după (poză -> tablou)", "timelapse pictură", "povești de cadou", "tips pictură", "catalog nou"],
+      "cta": "Comandă din link din bio — previzualizare gratuită în 24h"
+    },
+    "aaa": {
+      "name": "Agenție automatizare AI — clinici dentare RO",
+      "site": "",
+      "health_url": "",
+      "audience": "Proprietari / manageri de clinici dentare private din România",
+      "offer": "Asistent WhatsApp care programează, confirmă și reamintește + CRM; setup 4.900 lei + 1.490 lei/lună",
+      "voice": "profesionist, cifre concrete, zero hype",
+      "platforms": ["linkedin", "facebook"],
+      "pillars": ["cost programări ratate", "studii de caz", "demo 60s", "GDPR pe scurt"],
+      "cta": "Audit gratuit de 20 de minute"
+    },
+    "community": {
+      "name": "Comunitate Skool — Gătit sănătos pentru oameni ocupați",
+      "site": "",
+      "health_url": "",
+      "audience": "Profesioniști 25-45, fără timp, vor să mănânce sănătos fără să numere tot",
+      "offer": "Comunitate 49 lei/lună (Founding: 29 lei pe viață, primii 50)",
+      "voice": "prietenos, practic, fără vină și fără diete extreme",
+      "platforms": ["instagram", "tiktok"],
+      "pillars": ["meal-prep 30 min", "listă cumpărături", "rețete 5 ingrediente", "rezultate membri"],
+      "cta": "Ghid gratuit: 7 cine în 20 de minute (link în bio)"
+    },
+    "faceless": {
+      "name": "Cont faceless — Educație financiară RO",
+      "site": "",
+      "health_url": "",
+      "audience": "Tineri 18-35 din România care vor să înțeleagă banii",
+      "offer": "Template buget Notion/Sheets 39 lei + afiliere (cărți, aplicații broker reglementate)",
+      "voice": "direct, cifre reale în lei, fără promisiuni de îmbogățire",
+      "platforms": ["tiktok", "instagram", "youtube_shorts"],
+      "pillars": ["mituri despre bani", "calcule simple", "greșeli frecvente", "concepte în 30s"],
+      "cta": "Template-ul de buget e în bio"
+    },
+    "copy": {
+      "name": "Studio copywriting cu AI",
+      "site": "",
+      "health_url": "",
+      "audience": "Branduri e-commerce mici din RO/UE",
+      "offer": "Pachet lansare: landing page + 3 emailuri + ghid de ton, 2.500 lei, livrare 5 zile",
+      "voice": "sigur pe el, exemple înainte/după",
+      "platforms": ["linkedin", "instagram"],
+      "pillars": ["rescrieri înainte/după", "teardown landing pages", "rezultate clienți"],
+      "cta": "Trimite-mi pagina ta, îți dau 3 îmbunătățiri gratuit"
+    },
+    "creator": {
+      "name": "Brand fitness & lifestyle (persona anonimă)",
+      "site": "",
+      "health_url": "",
+      "audience": "Adulți 21-40 interesați de fitness, glow-up, ASMR relaxant, estetică festival/country",
+      "offer": "Ghiduri DIY 19-29$ + abonament lunar (vezi businesses/creator-brand.md)",
+      "voice": "încrezător, cald, jucăuș — sugestiv, niciodată explicit pe rețelele publice",
+      "platforms": ["instagram", "tiktok", "youtube_shorts"],
+      "pillars": ["antrenament 60s", "ASMR satisfying (lemne, curățenie, organizare)", "nutriție glow-up", "outfit festival/country"],
+      "cta": "Planul complet de 4 săptămâni e în bio"
+    }
+  }
+}

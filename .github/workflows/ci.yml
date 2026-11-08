@@ -1,0 +1,30 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  engine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install numpy opencv-python-headless scikit-learn Pillow pytest
+      - run: python -m pytest -q pbn/tests
+  api:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: pbn/api } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - run: npm install --no-audit --no-fund
+      - run: npm run check
+  hub:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: python -m py_compile hub/content/content_calendar.py ops/healthcheck.py
+      - run: python -c "import json; json.load(open('hub/brands.json'))"
