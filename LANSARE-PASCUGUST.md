@@ -38,6 +38,10 @@ Mai trebuie făcut de tine în https://supabase.com/dashboard/project/ttvdkkmjbo
    ```
 3. (Când ai mai mulți utilizatori) **Authentication → SMTP**: un server de email propriu. Serverul implicit trimite doar câteva emailuri pe oră.
 
+Linkul public de rețetă (`?r=…`) folosește tabelul `shared_recipes` și bucket-ul public `pascugust-public` din `supabase/migrations/20261108000000_shared_recipes.sql`, deja aplicate. Linkurile sunt nelistate: doar cine are linkul vede rețeta.
+
+> ℹ️ Supabase afișează o avertizare și pentru `get_shared_recipe`: o poate apela oricine. E intenționat: așa se deschide un link fără cont, și funcția întoarce doar rețeta cu id-ul cerut.
+
 > ⚠️ Pe planul Free, proiectele se **pun pe pauză după ~7 zile fără activitate** (cum e acum `memoryflow`). Pentru o aplicație publică în magazine ia în calcul planul Pro sau intră săptămânal.
 
 > ℹ️ Supabase afișează o avertizare pentru `delete_my_account`: utilizatorii logați o pot apela. E intenționat: funcția șterge doar contul celui care o apelează.

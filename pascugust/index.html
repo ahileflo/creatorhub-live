@@ -131,6 +131,11 @@
   .pick label{display:flex;gap:8px;align-items:center;padding:5px 0;font-size:.92rem}
   .empty{text-align:center;color:var(--soft);padding:30px 10px}
   video.gif{cursor:pointer}
+  .sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:70;display:none;align-items:flex-end}
+  .sheet.on{display:flex}
+  .sheet-card{width:100%;max-width:560px;margin:0 auto;border-radius:18px 18px 0 0;max-height:88vh;overflow:auto;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+  .linkbox{display:flex;gap:6px;margin:10px 0}
+  .linkbox input{flex:1;min-width:0;font-size:.85rem}
   /* animație rețetă */
   #anim{position:fixed;inset:0;background:#000;z-index:60;display:none;flex-direction:column;color:#fff}
   #anim.on{display:flex}
@@ -225,6 +230,8 @@
   <button data-go="streak"><span>🔥</span>Serie</button>
   <button data-go="products"><span>📦</span>Produse</button>
 </nav>
+
+<div class="sheet" id="sheet"><div class="card panel sheet-card" id="sheetBody"></div></div>
 
 <div class="toast" id="toast"></div>
 
@@ -354,6 +361,7 @@ async function delMedia(id){
 const urlCache = {};
 async function mediaURL(id){
   if(!id) return null;
+  if(/^https:\/\//.test(id)) return id; // poze/clipuri din rețetele distribuite
   if(urlCache[id]) return urlCache[id];
   const b = await getMedia(id);
   if(!b) return null;
@@ -375,7 +383,7 @@ const dkey = d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMont
 const today = ()=> dkey(new Date());
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2400);}
 function fmtTime(min){if(!min)return '';return min>=60?Math.floor(min/60)+' h'+(min%60?' '+min%60+' min':''):min+' min';}
-const byId = id=> S.recipes.find(r=>r.id===id);
+const byId = id=> S.recipes.find(r=>r.id===id) || (SHARED && SHARED.id===id ? SHARED : null);
 
 /* ---------- serie (streak) ---------- */
 function streak(){
@@ -414,6 +422,7 @@ function refreshPill(){
 /* ---------- navigare ---------- */
 let curCat='Toate';
 function go(v,arg){
+  if(SHARED && !(v==='detail' && arg===SHARED.id)) closeShared();
   document.querySelectorAll('section.view').forEach(s=>s.classList.remove('on'));
   $('#v-'+v).classList.add('on');
   document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on',b.dataset.go===v||(v==='detail'&&b.dataset.go==='home')));
@@ -482,12 +491,15 @@ function renderDetail(id){
   const serv=Math.max(1,Math.round((r.servings||1)*scale));
   V.innerHTML=`
     <div class="row" style="justify-content:space-between;margin-top:8px">
-      <button class="btn ghost sm" id="back">← Rețete</button>
+      <button class="btn ghost sm" id="back">← ${r._shared?'Rețetele mele':'Rețete'}</button>
       <div class="row">
+        ${r._shared?`<button class="btn ghost sm" id="fwd">📤 Trimite</button>`:`
         <button class="btn ghost sm" id="fav">${r.fav?'❤️':'🤍'}</button>
-        <button class="btn ghost sm" id="edit">✏️ Editează</button>
+        <button class="btn ghost sm" id="share">🔗 Distribuie</button>
+        <button class="btn ghost sm" id="edit">✏️</button>`}
       </div>
     </div>
+    ${r._shared?`<div class="notice" style="margin-top:12px">👋 Rețetă trimisă de <b>${esc(r.author||'un prieten')}</b> cu Pas cu Gust. O poți găti pas cu pas chiar acum sau o poți salva în rețetele tale.</div>`:''}
     <div class="card" style="margin-top:12px">
       ${r.cover?`<img class="cover" data-media="${r.cover}" alt="">`:`<div class="ph" style="font-size:4.5rem">${esc(r.emoji||'🍽️')}</div>`}
       <div class="panel">
@@ -499,7 +511,7 @@ function renderDetail(id){
         <div class="meta"><span>⏱ ${fmtTime(r.time)||'—'}</span><span>📋 ${r.steps.length} pași</span><span>✍️ ${esc(r.author||'Eu')}</span><span>📜 ${esc(licName(r.license))}</span></div>
         <div class="row" style="margin-top:14px">
           <button class="btn" id="startCook" style="flex:1">👩‍🍳 Gătește pas cu pas</button>
-          <button class="btn ok" id="cooked">✅ Am gătit-o</button>
+          ${r._shared?`<button class="btn ok" id="saveShared">💾 Salvează</button>`:`<button class="btn ok" id="cooked">✅ Am gătit-o</button>`}
         </div>
         <div class="row" style="margin-top:8px">
           <button class="btn ghost" id="playAnim" style="flex:1">🎞️ Animație pas cu pas</button>
@@ -522,23 +534,38 @@ function renderDetail(id){
         ${s.media?(s.mediaType==='video'?`<video class="media gif" autoplay muted loop playsinline data-media="${s.media}" title="Atinge pentru sunet"></video>`:`<img class="media" data-media="${s.media}" alt="Pasul ${k+1}">`):''}
       </div></div>`).join('')}
     </div>
+    ${r._shared?`<div class="card panel" style="margin-bottom:24px;text-align:center">
+      <h2>Ți-a plăcut?</h2>
+      <p class="meta" style="margin-bottom:12px">Pas cu Gust e gratuit: rețetele tale cu poze și video la fiecare pas, seria de gătit și GIF-uri de trimis prietenilor.</p>
+      <button class="btn" id="ctaNew">➕ Fă-ți prima rețetă</button></div>`:`
     <div class="row" style="margin-bottom:24px">
       <button class="btn ghost sm" id="del">🗑 Șterge rețeta</button>
-    </div>`;
+    </div>`}`;
   const base=r.servings||1;
   $('#sm').onclick=()=>{scale=Math.max(1/base,scale-1/base);renderDetail(id);};
   $('#sp').onclick=()=>{scale=scale+1/base;renderDetail(id);};
   V.querySelectorAll('.ing input').forEach(c=>c.onchange=()=>c.parentElement.classList.toggle('done',c.checked));
   $('#back').onclick=()=>{scale=1;go('home');};
-  $('#edit').onclick=()=>go('edit',id);
-  $('#fav').onclick=()=>{r.fav=!r.fav;save();renderDetail(id);};
   $('#startCook').onclick=()=>openCook(id);
+  if(r._shared){
+    $('#fwd').onclick=()=>shareLink(location.href,r.title);
+    $('#saveShared').onclick=async()=>{const nid=await saveShared(); if(nid) go('detail',nid);};
+    $('#ctaNew').onclick=()=>go('edit');
+    hydrate(V); V.querySelectorAll('video.gif').forEach(gifVideo);
+    $('#playAnim').onclick=()=>openAnim(id);
+    $('#mkGif').onclick=()=>exportGif(id,$('#mkGif'));
+    return;
+  }
+  $('#edit').onclick=()=>go('edit',id);
+  $('#share').onclick=()=>openShare(id);
+  $('#fav').onclick=()=>{r.fav=!r.fav;save();renderDetail(id);};
   $('#cooked').onclick=()=>markCooked(id);
   $('#playAnim').onclick=()=>openAnim(id);
   $('#mkGif').onclick=()=>exportGif(id,$('#mkGif'));
   V.querySelectorAll('video.gif').forEach(gifVideo);
   $('#del').onclick=()=>{
     if(!confirm('Ștergi rețeta „'+r.title+'”?')) return;
+    if(r.share && cloudUser) unshareRecipe(r).catch(()=>{}); // linkul public dispare odată cu rețeta
     [r.cover,...r.steps.map(s=>s.media)].forEach(delMedia);
     S.recipes=S.recipes.filter(x=>x.id!==id); S.deleted[id]=Date.now();
     S.products.forEach(p=>p.recipes=p.recipes.filter(x=>x!==id));
@@ -563,7 +590,11 @@ function drawCook(){
     B.innerHTML=`<div style="text-align:center;padding-top:30px"><div style="font-size:4rem">🎉</div><h2>Poftă bună!</h2>
       <p class="big">Ai terminat <b>${esc(r.title)}</b>.</p>
       <button class="btn ok" id="ckDone" style="padding:16px 26px">🔥 Bifează în serie</button></div>`;
-    $('#ckDone').onclick=()=>{markCooked(r.id);closeCook();renderDetail(r.id);};
+    if(r._shared) $('#ckDone').textContent='💾 Salvează și bifează în serie';
+    $('#ckDone').onclick=async()=>{
+      const id = r._shared ? await saveShared() : r.id; if(!id) return;
+      markCooked(id); closeCook(); go('detail',id);
+    };
     $('#cookNext').textContent='Închide'; return;
   }
   const s=r.steps[ck.i];
@@ -839,7 +870,8 @@ function renderProducts(){
         <div><label class="f">Autor / brand</label><input class="in" id="pA" placeholder="@numele.tau"></div>
       </div>
       <label class="f">Alege rețetele incluse</label>
-      <div class="pick">${S.recipes.map(r=>`<label><input type="checkbox" value="${r.id}"> ${esc(r.title)} <span class="meta">· ${esc(licName(r.license).split(' —')[0])}</span></label>`).join('')||'<p class="meta">Nu ai rețete încă.</p>'}</div>
+      <div class="pick">${S.recipes.map(r=>{const no=r.imported && r.license==='own';
+        return `<label ${no?'style="opacity:.5"':''}><input type="checkbox" value="${r.id}" ${no?'disabled':''}> ${esc(r.title)} <span class="meta">· ${no?'rețeta altcuiva, drepturi rezervate — nu se poate vinde':esc(licName(r.license).split(' —')[0])}</span></label>`;}).join('')||'<p class="meta">Nu ai rețete încă.</p>'}</div>
       <button class="btn" id="pSave" style="margin-top:14px;width:100%">➕ Creează produsul</button>
     </div>
     <div id="pList"></div>`;
@@ -974,8 +1006,8 @@ $('#animPause').onclick=()=>{
 $('#animStage').onclick=e=>{ const w=e.currentTarget.clientWidth; animStep(e.offsetX<w/3 ? an.i-1 : an.i+1); };
 $('#animGif').onclick=()=>exportGif(an.id,$('#animGif'));
 
-const loadImg=src=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src;});
-const loadVid=src=>new Promise((res,rej)=>{const v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='auto';v.onloadeddata=()=>res(v);v.onerror=rej;v.src=src;});
+const loadImg=src=>new Promise((res,rej)=>{const i=new Image();if(/^https:/.test(src))i.crossOrigin='anonymous';i.onload=()=>res(i);i.onerror=rej;i.src=src;});
+const loadVid=src=>new Promise((res,rej)=>{const v=document.createElement('video');if(/^https:/.test(src))v.crossOrigin='anonymous';v.muted=true;v.playsInline=true;v.preload='auto';v.onloadeddata=()=>res(v);v.onerror=rej;v.src=src;});
 const seek=(v,t)=>new Promise(res=>{const done=()=>{clearTimeout(h);res();};const h=setTimeout(res,1500);v.addEventListener('seeked',done,{once:true});v.currentTime=t;});
 
 // Creează un GIF animat cu toți pașii rețetei (480×480), bun pentru Instagram, TikTok, WhatsApp.
@@ -1213,14 +1245,196 @@ function renderAccount(){
         await sb.storage.from(BUCKET).remove(fl.map(f=>`${me}/${f.name}`));
         if(fl.length<1000) break;
       }
+      const {data:sh}=await sb.from('shared_recipes').select('id');
+      for(const x of sh||[]) await clearPublicFolder(`${me}/${x.id}`);
       const {error}=await sb.rpc('delete_my_account'); if(error) throw error;
       await sb.auth.signOut(); toast('Contul a fost șters');
     }catch(e){ toast('⚠️ '+(e.message||e)); }
   });
 }
 
+/* ---------- LINK PUBLIC DE REȚETĂ ---------- */
+// Cu cont: rețeta + pozele/clipurile se publică „nelistat” (doar cine are linkul o vede): ?r=ID
+// Fără cont: link rapid, doar text, cu rețeta comprimată în adresă: #p=...
+const PUBLIC_BASE='https://ahileflo.github.io/creatorhub-live/pascugust/';
+const PUB_BUCKET='pascugust-public';
+let SHARED=null;
+function appBase(){
+  const ok=location.protocol.startsWith('http') && !/claude/.test(location.hostname);
+  return ok ? location.origin+location.pathname : PUBLIC_BASE;
+}
+const shareId=()=>{const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';return [...crypto.getRandomValues(new Uint8Array(10))].map(x=>a[x%a.length]).join('');};
+const pubPrefix=()=>{const c=cloudCfg();return c?`${c.url}/storage/v1/object/public/${PUB_BUCKET}/`:null;};
+
+// Datele dintr-un link vin de la oricine: le validăm și le tăiem la dimensiuni rezonabile.
+function cleanShared(o,meta={}){
+  const pre=pubPrefix();
+  const okUrl=u=>typeof u==='string' && pre && u.startsWith(pre) && /^[\w\-.:/%]+$/.test(u) ? u : null;
+  const str=(x,n)=>String(x??'').slice(0,n);
+  const steps=(Array.isArray(o.steps)?o.steps:[]).slice(0,100).map(st=>{
+    const m=okUrl(st?.media);
+    return {text:str(st?.text,3000),min:Math.max(0,Math.min(1440,+st?.min||0)),media:m,mediaType:m?(st.mediaType==='video'?'video':'image'):null};
+  });
+  return {id:'shared',_shared:true,...meta,
+    title:str(o.title,200)||'Rețetă',desc:str(o.desc,1000),cat:CATS.includes(o.cat)?o.cat:'Altele',emoji:str(o.emoji,8)||'🍽️',
+    time:Math.max(0,+o.time||0),servings:Math.max(1,Math.min(100,+o.servings||1)),
+    ingredients:(Array.isArray(o.ingredients)?o.ingredients:[]).slice(0,200).map(x=>str(x,300)),
+    steps:steps.length?steps:[{text:'(rețeta nu are pași)',min:0,media:null,mediaType:null}],
+    cover:okUrl(o.cover),author:str(o.author,100),license:LICENSES[o.license]?o.license:'own'};
+}
+const b64u=bytes=>{let b='';bytes.forEach(x=>b+=String.fromCharCode(x));return btoa(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');};
+const unb64u=str=>Uint8Array.from(atob(str.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
+const pipe=async(bytes,t)=>new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(t)).arrayBuffer());
+async function packText(r){
+  const o={t:r.title,d:r.desc,c:r.cat,e:r.emoji,m:r.time,s:r.servings,i:r.ingredients,p:r.steps.map(x=>[x.text,x.min||0]),a:r.author,l:r.license};
+  const raw=new TextEncoder().encode(JSON.stringify(o));
+  return window.CompressionStream ? '1'+b64u(await pipe(raw,new CompressionStream('deflate-raw'))) : '0'+b64u(raw);
+}
+async function unpackText(z){
+  const bytes=unb64u(z.slice(1));
+  const raw = z[0]==='1' ? await pipe(bytes,new DecompressionStream('deflate-raw')) : bytes;
+  const o=JSON.parse(new TextDecoder().decode(raw));
+  return cleanShared({title:o.t,desc:o.d,cat:o.c,emoji:o.e,time:o.m,servings:o.s,ingredients:o.i,
+    steps:(o.p||[]).map(([text,min])=>({text,min})),author:o.a,license:o.l});
+}
+
+async function shareLink(url,title){
+  if(navigator.share){ try{ await navigator.share({title,text:`Rețeta „${title}” pe Pas cu Gust`,url}); return; }catch(e){ if(e.name==='AbortError') return; } }
+  try{ await navigator.clipboard.writeText(url); toast('📋 Link copiat'); }catch(e){ toast('Copiază linkul din căsuță'); }
+}
+function closeSheet(){ $('#sheet').classList.remove('on'); }
+$('#sheet').onclick=e=>{ if(e.target.id==='sheet') closeSheet(); };
+
+function openShare(id){
+  const r=byId(id); if(!r) return;
+  const link=r.share?appBase()+'?r='+r.share.id:null;
+  const stale=r.share && (r.updated||r.created||0)>r.share.at;
+  const B=$('#sheetBody');
+  const box=u=>`<div class="linkbox"><input class="in" readonly value="${esc(u)}" onclick="this.select()"><button class="btn sm" data-copy="${esc(u)}">📤</button></div>`;
+  let h=`<div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:flex-start"><h2 style="flex:1;min-width:0">🔗 Distribuie „${esc(r.title)}”</h2><button class="btn ghost sm" id="shX">✕</button></div>
+    <p class="meta">Oricine are linkul vede rețeta, o poate găti pas cu pas și o poate salva, fără cont. Nu apare în nicio listă publică.</p>`;
+  if(cloudUser){
+    if(link){
+      h+=box(link)+(stale?`<div class="notice">✏️ Ai modificat rețeta după ce ai distribuit-o.</div>
+        <button class="btn" id="shPub" style="width:100%">⟳ Actualizează linkul</button>`:'')+
+        `<button class="btn ghost sm" id="shStop" style="margin-top:10px">🚫 Oprește distribuirea</button>`;
+    } else {
+      h+=`<button class="btn" id="shPub" style="width:100%;margin-top:6px">🔗 Creează link cu poze și video</button>`;
+    }
+  } else {
+    h+=`<div class="notice">Pentru un link cu poze, GIF-uri și clipuri, intră în cont (☁️). Durează un minut.</div>
+      <div class="row"><button class="btn" id="shLogin" style="flex:1">☁️ Intră în cont</button>
+      <button class="btn ghost" id="shText" style="flex:1">⚡ Link rapid, doar text</button></div><div id="shOut"></div>`;
+  }
+  h+=`<p class="meta" style="margin-top:12px">📜 Licența: ${esc(licName(r.license))}. O schimbi din ✏️ Editează.</p>`;
+  B.innerHTML=h; $('#sheet').classList.add('on');
+  const bindCopy=()=>B.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>shareLink(b.dataset.copy,r.title));
+  bindCopy();
+  $('#shX').onclick=closeSheet;
+  if($('#shPub')) $('#shPub').onclick=async()=>{
+    const b=$('#shPub'); b.disabled=true; b.textContent='⏳ Se publică…';
+    try{ await publishShare(r,t=>b.textContent=t); openShare(id); toast('✅ Linkul e gata'); }
+    catch(e){ console.error(e); b.disabled=false; b.textContent='🔗 Încearcă din nou'; toast('⚠️ '+(e.message||'Nu am putut publica')); }
+  };
+  if($('#shStop')) $('#shStop').onclick=async()=>{
+    if(!confirm('Oprești distribuirea? Linkul nu va mai funcționa.')) return;
+    try{ await unshareRecipe(r); openShare(id); toast('Linkul a fost oprit'); }catch(e){ toast('⚠️ '+(e.message||e)); }
+  };
+  if($('#shLogin')) $('#shLogin').onclick=()=>{closeSheet();go('account');};
+  if($('#shText')) $('#shText').onclick=async()=>{
+    const u=appBase()+'#p='+await packText(r);
+    $('#shOut').innerHTML=box(u)+`<p class="meta">Linkul conține doar textul rețetei, fără poze și clipuri.</p>`; bindCopy();
+  };
+}
+
+async function clearPublicFolder(folder){
+  const {data:fl}=await sb.storage.from(PUB_BUCKET).list(folder,{limit:1000});
+  if(fl?.length) await sb.storage.from(PUB_BUCKET).remove(fl.map(f=>`${folder}/${f.name}`));
+}
+async function publishShare(r,progress){
+  const me=cloudUser.id;
+  let sid=r.share?.id;
+  if(!sid){ // poate a fost distribuită de pe alt dispozitiv
+    const {data,error}=await sb.from('shared_recipes').select('id').eq('recipe_id',r.id).maybeSingle();
+    if(error) throw error;
+    sid=data?.id||shareId();
+  }
+  const folder=`${me}/${sid}`;
+  const {data:ex,error:le}=await sb.storage.from(PUB_BUCKET).list(folder,{limit:1000});
+  if(le) throw le;
+  const have=new Set((ex||[]).map(f=>f.name)), used=new Set();
+  const all=[r.cover,...r.steps.map(x=>x.media)].filter(Boolean); let n=0;
+  const up=async mid=>{
+    if(!mid) return null;
+    const path=`${folder}/${mid}`; used.add(mid);
+    if(!have.has(mid)){ // id-urile media nu se schimbă, deci ce e deja urcat nu se mai urcă
+      const b=await getMedia(mid); if(!b) return null;
+      progress?.(`⏳ Se urcă ${++n}/${all.length}…`);
+      const {error}=await sb.storage.from(PUB_BUCKET).upload(path,b,{contentType:b.type||'application/octet-stream',upsert:true});
+      if(error) throw error;
+    }
+    return sb.storage.from(PUB_BUCKET).getPublicUrl(path).data.publicUrl;
+  };
+  const data={title:r.title,desc:r.desc,cat:r.cat,emoji:r.emoji,time:r.time,servings:r.servings,ingredients:r.ingredients,
+    cover:await up(r.cover),author:r.author,license:r.license,steps:[]};
+  for(const x of r.steps) data.steps.push({text:x.text,min:x.min||0,mediaType:x.mediaType,media:await up(x.media)});
+  const {error}=await sb.from('shared_recipes').upsert({id:sid,owner:me,recipe_id:r.id,data,updated_at:new Date().toISOString()});
+  if(error) throw error;
+  const stale=[...have].filter(f=>!used.has(f)).map(f=>`${folder}/${f}`);
+  if(stale.length) await sb.storage.from(PUB_BUCKET).remove(stale);
+  r.share={id:sid,at:Date.now()}; save();
+}
+async function unshareRecipe(r){
+  const sid=r.share?.id; if(!sid) return;
+  const {error}=await sb.from('shared_recipes').delete().eq('id',sid);
+  if(error) throw error;
+  await clearPublicFolder(`${cloudUser.id}/${sid}`);
+  delete r.share; save();
+}
+
+// Salvează rețeta primită în rețetele mele (cu tot cu poze/clipuri).
+async function saveShared(){
+  const r=SHARED; if(!r) return null;
+  if(r._savedAs && S.recipes.some(x=>x.id===r._savedAs)) return r._savedAs;
+  toast('💾 Se salvează…');
+  const grab=async u=>{ if(!u) return null; try{ const res=await fetch(u); if(!res.ok) return null; return await putMedia(await res.blob()); }catch(e){ return null; } };
+  const copy={id:uid(),title:r.title,desc:r.desc,cat:r.cat,emoji:r.emoji,time:r.time,servings:r.servings,ingredients:[...r.ingredients],
+    cover:await grab(r.cover),author:r.author,license:r.license,fav:false,imported:true,from:r._shareId||null,steps:[],created:Date.now(),updated:Date.now()};
+  for(const x of r.steps){ const m=await grab(x.media); copy.steps.push({text:x.text,min:x.min,media:m,mediaType:m?x.mediaType:null}); }
+  S.recipes.unshift(copy); save(); r._savedAs=copy.id;
+  toast('✅ Salvată în rețetele tale');
+  return copy.id;
+}
+function closeShared(){
+  SHARED=null;
+  if(location.search.includes('r=')||location.hash.startsWith('#p=')) history.replaceState(null,'',location.pathname);
+}
+async function openSharedFromUrl(){
+  const q=new URLSearchParams(location.search).get('r');
+  const h=location.hash.startsWith('#p=')?location.hash.slice(3):null;
+  if(!q && !h) return;
+  try{
+    if(h) SHARED=await unpackText(h);
+    else {
+      if(!/^[A-Za-z0-9]{8,16}$/.test(q)) throw 0;
+      await cloudReady; if(!sb) throw new Error('offline');
+      const {data,error}=await sb.rpc('get_shared_recipe',{share_id:q});
+      if(error) throw error; if(!data) throw 0;
+      SHARED=cleanShared(data,{_shareId:q});
+    }
+    document.title=SHARED.title+' — Pas cu Gust';
+    go('detail','shared');
+  }catch(e){
+    if(e instanceof Error) console.error(e);
+    toast(e?.message==='offline'?'Fără internet: linkul nu se poate deschide acum':'Linkul nu mai există sau e greșit');
+    history.replaceState(null,'',location.pathname);
+  }
+}
+
 /* ---------- pornire ---------- */
-applyTheme(); refreshPill(); renderHome(); cloudInit();
+applyTheme(); refreshPill(); renderHome();
+const cloudReady=cloudInit();
+openSharedFromUrl();
 if(location.hash==='#adauga') go('edit');
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
