@@ -21,24 +21,26 @@ Pașii de mai jos se fac **în ordine**. Pașii 1–3 fac aplicația publică pe
 
 Din acest moment oricine o poate deschide și instala pe Android, iPhone și Windows.
 
-## 2. Pornește cloud-ul (Supabase, plan Free) — 10 minute
+## 2. Cloud-ul (Supabase) — ✅ creat, mai ai 2 setări de făcut
 
-1. https://supabase.com/dashboard → **New project** → nume `recikeep`, regiune **Frankfurt (eu-central-1)**.
-2. **SQL Editor** → lipește și rulează `supabase/migrations/20261025000000_recikeep.sql`.
-3. **Authentication → Emails → Magic Link**: adaugă codul în mesaj, ca să meargă și în aplicațiile instalate:
-   ```
-   <p>Codul tău Recikeep: <b>{{ .Token }}</b></p>
-   <p>sau <a href="{{ .ConfirmationURL }}">intră direct</a></p>
-   ```
-4. **Authentication → URL Configuration**: Site URL = `https://ahileflo.github.io/creatorhub-live/recikeep/` (și adaugă-l la Redirect URLs).
-5. **Project Settings → API**: copiază *Project URL* și cheia *anon / publishable* în `recikeep/index.html`:
-   ```js
-   const RK_CLOUD_DEFAULT = {url:'https://XXXX.supabase.co', key:'eyJ...'};
-   ```
-   Cheia anon e publică prin design: datele sunt protejate de politicile RLS din fișierul SQL.
-6. Pentru mai mult de câțiva utilizatori, setează un SMTP propriu (Authentication → SMTP). Serverul de email implicit al Supabase trimite doar câteva emailuri pe oră.
+Deja făcut: proiectul `recikeep` (Frankfurt, plan Free, id `ttvdkkmjboivafypztnk`), tabelul cu RLS, bucket-ul privat pentru poze/clipuri (50 MB/fișier), funcția de ștergere a contului și cheile puse în `recikeep/index.html`.
 
-> ⚠️ Proiectele de pe planul Free se **pun pe pauză după ~7 zile fără activitate** (proiectul tău `memoryflow` e deja pe pauză). Pentru o aplicație publică în magazine ia în calcul planul Pro sau verifică săptămânal.
+Mai trebuie făcut de tine în https://supabase.com/dashboard/project/ttvdkkmjboivafypztnk (aceste setări nu se pot schimba din acest mediu):
+
+1. **Authentication → URL Configuration**
+   - Site URL: `https://ahileflo.github.io/creatorhub-live/recikeep/`
+   - Redirect URLs: adaugă același link.
+2. **Authentication → Emails → Magic Link**: pune codul în email, ca să meargă și în aplicațiile instalate:
+   ```
+   <h2>Codul tău Recikeep</h2>
+   <p style="font-size:28px;letter-spacing:4px"><b>{{ .Token }}</b></p>
+   <p>sau <a href="{{ .ConfirmationURL }}">intră direct în aplicație</a></p>
+   ```
+3. (Când ai mai mulți utilizatori) **Authentication → SMTP**: un server de email propriu. Serverul implicit trimite doar câteva emailuri pe oră.
+
+> ⚠️ Pe planul Free, proiectele se **pun pe pauză după ~7 zile fără activitate** (cum e acum `memoryflow`). Pentru o aplicație publică în magazine ia în calcul planul Pro sau intră săptămânal.
+
+> ℹ️ Supabase afișează o avertizare pentru `delete_my_account`: utilizatorii logați o pot apela. E intenționat: funcția șterge doar contul celui care o apelează.
 
 ## 3. Verifică înainte de magazine
 

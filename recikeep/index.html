@@ -1052,7 +1052,7 @@ async function exportGif(id,btn){
 /* ---------- CLOUD: cont + sincronizare (Supabase) ---------- */
 // Completează după ce creezi proiectul Supabase (vezi LANSARE.md). Cheia anon/publishable este publică
 // prin design; fiecare utilizator își vede doar datele lui datorită politicilor RLS din supabase/.
-const RK_CLOUD_DEFAULT = {url:'', key:''};
+const RK_CLOUD_DEFAULT = {url:'https://ttvdkkmjboivafypztnk.supabase.co', key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0dmRra21qYm9pdmFmeXB6dG5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNTQ4MTQsImV4cCI6MjEwOTczMDgxNH0.5fR0H3nGsTVwelRz1Sh19mnNRc2q82MaodZPyh55quU'};
 const CKEY='recikeep_cloud', BUCKET='recikeep-media';
 let sb=null, cloudUser=null, syncT=null, syncing=false, syncAgain=false, lastSync=null, cloudErr='', otpEmail='';
 function cloudCfg(){
