@@ -317,14 +317,23 @@ const SEED = [
    ]}
 ];
 
+// Pozele rețetelor de pornire: generate cu AI pentru Pas cu Gust (vezi img/SURSE.md), servite cu aplicația.
+const SEED_COVERS={s1:'img/sarmale.jpg',s2:'img/mamaliga.jpg',s3:'img/ciorba.jpg',s4:'img/papanasi.jpg',s5:'img/zacusca.jpg'};
+const isAsset=id=>typeof id==='string' && /^img\/[\w-]+\.jpg$/.test(id);
+
 /* ---------- stare ---------- */
 let S = load();
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
-    if(raw){ const d=JSON.parse(raw); d.deleted=d.deleted||{}; d.recipes.forEach(r=>{if(r.author==='Recikeep') r.author='Pas cu Gust';}); return d; }
+    if(raw){ const d=JSON.parse(raw); d.deleted=d.deleted||{};
+      d.recipes.forEach(r=>{
+        if(r.author==='Recikeep') r.author='Pas cu Gust';
+        if(!r.cover && SEED_COVERS[r.id] && !r.imported) r.cover=SEED_COVERS[r.id]; // pozele noi ajung și la cine are deja aplicația
+      });
+      return d; }
   }catch(e){}
-  return {recipes:SEED.map(r=>({...r,author:'Pas cu Gust',license:'CC0',steps:r.steps.map(s=>({...s,media:null,mediaType:null})),cover:null,fav:false,created:Date.now()})),
+  return {recipes:SEED.map(r=>({...r,author:'Pas cu Gust',license:'CC0',steps:r.steps.map(s=>({...s,media:null,mediaType:null})),cover:SEED_COVERS[r.id]||null,fav:false,created:Date.now()})),
           log:{}, products:[], deleted:{}, theme:null};
 }
 function save(){
@@ -357,6 +366,7 @@ async function putMediaId(id,blob){
 }
 async function getMedia(id){
   if(!id) return null;
+  if(isAsset(id)){ try{ const r=await fetch(id); return r.ok?await r.blob():null; }catch(e){ return null; } }
   try{
     const d = await db();
     return await new Promise(res=>{const q=d.transaction('m').objectStore('m').get(id);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null);});
@@ -369,7 +379,7 @@ async function delMedia(id){
 const urlCache = {};
 async function mediaURL(id){
   if(!id) return null;
-  if(/^https:\/\//.test(id)) return id; // poze/clipuri din rețetele distribuite
+  if(/^https:\/\//.test(id) || isAsset(id)) return id; // poze din rețetele distribuite / pozele aplicației
   if(urlCache[id]) return urlCache[id];
   const b = await getMedia(id);
   if(!b) return null;
@@ -842,7 +852,7 @@ async function exportBackup(){
   const media={};
   for(const r of S.recipes){
     for(const id of [r.cover,...r.steps.filter(s=>s.mediaType!=='video').map(s=>s.media)]){
-      if(id&&!media[id]){const b=await getMedia(id);if(b) media[id]=await blobToData(b);}
+      if(id&&!isAsset(id)&&!media[id]){const b=await getMedia(id);if(b) media[id]=await blobToData(b);}
     }
   }
   download(new Blob([JSON.stringify({app:'pascugust',v:1,data:S,media})],{type:'application/json'}),'pascugust-backup-'+today()+'.json');
@@ -1150,7 +1160,7 @@ async function syncNow(){
     if(e1) throw e1;
     const M=mergeState(S,row?.data||{});
     const used=new Set();
-    M.recipes.forEach(r=>[r.cover,...r.steps.map(s=>s.media)].forEach(m=>m&&used.add(m)));
+    M.recipes.forEach(r=>[r.cover,...r.steps.map(s=>s.media)].forEach(m=>m&&!isAsset(m)&&used.add(m))); // pozele aplicației nu se copiază în cloud
     const remote=new Map();
     for(let off=0;;off+=1000){
       const {data:fl,error}=await sb.storage.from(BUCKET).list(me,{limit:1000,offset:off});
@@ -1378,8 +1388,8 @@ async function publishShare(r,progress){
   const all=[r.cover,...r.steps.map(x=>x.media)].filter(Boolean); let n=0;
   const up=async mid=>{
     if(!mid) return null;
-    const path=`${folder}/${mid}`; used.add(mid);
-    if(!have.has(mid)){ // id-urile media nu se schimbă, deci ce e deja urcat nu se mai urcă
+    const name=mid.replace(/[^\w.-]/g,'_'), path=`${folder}/${name}`; used.add(name);
+    if(!have.has(name)){ // id-urile media nu se schimbă, deci ce e deja urcat nu se mai urcă
       const b=await getMedia(mid); if(!b) return null;
       progress?.(`⏳ Se urcă ${++n}/${all.length}…`);
       const {error}=await sb.storage.from(PUB_BUCKET).upload(path,b,{contentType:b.type||'application/octet-stream',upsert:true});
