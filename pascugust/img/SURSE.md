@@ -12,6 +12,9 @@ Toate cele 5 poze sunt **generate cu inteligență artificială** pentru Pas cu 
 
 Optimizate pentru telefon: 1600 px lățime, JPEG, 120–280 KB.
 
+## Pozele pașilor
+`s1-1.jpg` … `s5-5.jpg`: câte o poză pentru fiecare pas al celor 5 rețete (25 de poze; `s1` = sarmale, `s2` = mămăligă, `s3` = ciorbă, `s4` = papanași, `s5` = zacuscă). Toate sunt generate cu **Figma AI · GPT Image 2.5 Sunburst**, pe 8 noiembrie 2026, în același stil pentru toată rețeta: bucătărie românească, lumină naturală, se văd doar mâinile. Au 1200 px lățime, JPEG, ~150 KB fiecare.
+
 `../icons/og-app.jpg` (previzualizarea generală a aplicației) e făcută din `sarmale.jpg`, `papanasi.jpg` și `ciorba.jpg`.
 
 ## ⚠️ De verificat înainte de lansarea în magazine

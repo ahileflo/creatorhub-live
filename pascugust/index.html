@@ -320,6 +320,7 @@ const SEED = [
 // Pozele rețetelor de pornire: generate cu AI pentru Pas cu Gust (vezi img/SURSE.md), servite cu aplicația.
 const SEED_COVERS={s1:'img/sarmale.jpg',s2:'img/mamaliga.jpg',s3:'img/ciorba.jpg',s4:'img/papanasi.jpg',s5:'img/zacusca.jpg'};
 const isAsset=id=>typeof id==='string' && /^img\/[\w-]+\.jpg$/.test(id);
+const seedStepPhoto=(rid,i)=>`img/${rid}-${i+1}.jpg`; // câte o poză pentru fiecare pas al rețetelor de pornire
 
 /* ---------- stare ---------- */
 let S = load();
@@ -330,10 +331,14 @@ function load(){
       d.recipes.forEach(r=>{
         if(r.author==='Recikeep') r.author='Pas cu Gust';
         if(!r.cover && SEED_COVERS[r.id] && !r.imported) r.cover=SEED_COVERS[r.id]; // pozele noi ajung și la cine are deja aplicația
+        const seed=!r.imported && SEED.find(x=>x.id===r.id);
+        if(seed) r.steps.forEach((st,i)=>{ // doar pașii nemodificați, fără poză proprie
+          if(!st.media && seed.steps[i] && seed.steps[i].text===st.text){ st.media=seedStepPhoto(r.id,i); st.mediaType='image'; }
+        });
       });
       return d; }
   }catch(e){}
-  return {recipes:SEED.map(r=>({...r,author:'Pas cu Gust',license:'CC0',steps:r.steps.map(s=>({...s,media:null,mediaType:null})),cover:SEED_COVERS[r.id]||null,fav:false,created:Date.now()})),
+  return {recipes:SEED.map(r=>({...r,author:'Pas cu Gust',license:'CC0',steps:r.steps.map((s,i)=>({...s,media:seedStepPhoto(r.id,i),mediaType:'image'})),cover:SEED_COVERS[r.id]||null,fav:false,created:Date.now()})),
           log:{}, products:[], deleted:{}, theme:null};
 }
 function save(){
