@@ -1,7 +1,8 @@
 # Platforma POD „Paint by Numbers" — Arhitectura generală
 
-> Pasul 1 din livrare: arhitectura + motorul Python de procesare (`processing/`) + schema DB (`db/schema.sql`).
-> Pasul 2 (următorul): API-ul Node.js — OAuth Google Photos Picker, upload securizat iCloud/Web Crypto, producătorii BullMQ și ingestorul de catalog.
+> Livrat: arhitectura, motorul Python (`processing/pbn_engine`), worker-ul de coadă Python (`processing/pbn_worker`),
+> API-ul Node.js (`api/`: OAuth Google Photos Picker, upload criptat iCloud/Web Crypto, cozi BullMQ, ingestorul de catalog),
+> schema PostgreSQL (`db/schema.sql`) și CI (`.github/workflows/pbn-platform.yml`).
 
 ---
 
@@ -292,11 +293,35 @@ De ce așa:
 
 ```
 pbn-platform/
-  ARCHITECTURE.md          acest document
-  db/schema.sql            schema PostgreSQL (validată pe PG 16)
+  ARCHITECTURE.md              acest document
+  docker-compose.yml           PostgreSQL + Redis + API + workeri (dev)
+  db/schema.sql                schema PostgreSQL (>= 15)
+  api/                         Node.js 22 · Fastify 5 · BullMQ 6
+    src/server.js              API HTTP (buildApp injectabil pentru teste)
+    src/routes/                google.js · uploads.js · orders.js (comenzi, job-uri, catalog)
+    src/integrations/google/   oauth.js (PKCE, token-uri criptate) · picker.js (Picker API)
+    src/integrations/icloud/   uploads.js (ticket presigned, finalizare + decriptare)
+    src/catalog/               stockSources.js (Unsplash, Pexels) · ingest.js · cli.js
+    src/jobs/processingJobs.js creare idempotentă de job-uri + reaper
+    src/crypto/keys.js         envelope encryption + cheia RSA de upload (local / KMS)
+    src/storage/index.js       organizarea cheilor S3 + drivere S3 / local
+    src/workers/ingestWorker.js worker-ul Node (coada pbn-ingest)
+    web/secure-upload.js       modulul de browser (Web Crypto) pentru upload criptat
+    test/                      unitare + integrare (PG, Redis, worker Python real)
   processing/
-    pbn_engine/            motorul Python (config, quantize, regions, vectorize, paint, mockup, pipeline)
-    tests/                 teste end-to-end (pytest)
-    requirements.txt
-    README.md              utilizare CLI și API Python
+    pbn_engine/                motorul de procesare a imaginii
+    pbn_worker/                consumatorul BullMQ (Python) pentru pbn-orders / pbn-catalog
+    tests/                     pytest
 ```
+
+## 9. Contractul dintre componente
+
+| De la → la | Canal | Conținut |
+|---|---|---|
+| API → worker Python | BullMQ `pbn-orders` / `pbn-catalog` | `{ jobId }` — restul se citește din `processing_jobs` |
+| API → worker Node | BullMQ `pbn-ingest` | `google-picker-poll`, `icloud-finalize`, `catalog-ingest`, `reap` |
+| Worker Python → API | PostgreSQL | `processing_jobs.status/stats`, `job_artifacts`, `paint_recipes`, `orders.status` |
+| Toți | Bucket-uri logice `sources` / `artifacts` | chei construite DOAR de `api/src/storage/index.js` (`output_prefix` salvat în DB) |
+
+Versiunea motorului (`ENGINE_VERSION` în API, `pbn_engine.__version__` în worker) intră în cheia de idempotență:
+o versiune nouă a algoritmului produce job-uri noi, nu suprascrie rezultatele vechi.

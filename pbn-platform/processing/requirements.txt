@@ -7,5 +7,9 @@ Pillow>=10.2
 cairosvg>=2.7
 # Opțional: citire HEIC (poze iPhone / iCloud)
 pillow-heif>=0.16
+# Worker de coadă (pbn_worker)
+bullmq>=3.5,<4  # compatibil cu bullmq 6.x (Node), testat împreună
+psycopg[binary]>=3.2
+boto3>=1.35
 # Dezvoltare
 pytest>=8.0

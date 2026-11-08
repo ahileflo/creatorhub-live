@@ -1,0 +1,45 @@
+name: pbn-platform
+
+on:
+  push:
+    paths: ["pbn-platform/**", ".github/workflows/pbn-platform.yml"]
+  pull_request:
+    paths: ["pbn-platform/**", ".github/workflows/pbn-platform.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_PASSWORD: postgres }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip, cache-dependency-path: pbn-platform/processing/requirements.txt }
+      - name: Install Python deps
+        run: |
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends libcairo2
+          pip install -r pbn-platform/processing/requirements.txt
+      - name: Python tests (pbn_engine)
+        working-directory: pbn-platform/processing
+        run: python -m pytest -q
+
+      - uses: actions/setup-node@v4
+        with: { node-version: "22", cache: npm, cache-dependency-path: pbn-platform/api/package-lock.json }
+      - name: Install Node deps
+        working-directory: pbn-platform/api
+        run: npm ci
+      - name: API tests (unit + integration with Postgres, Redis and the Python worker)
+        working-directory: pbn-platform/api
+        env:
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+          TEST_REDIS_URL: redis://localhost:6379
+        run: npm test

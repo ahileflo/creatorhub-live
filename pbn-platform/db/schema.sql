@@ -1,5 +1,5 @@
 -- =============================================================================
--- Schema PostgreSQL (>= 14) pentru platforma POD Paint-by-Numbers
+-- Schema PostgreSQL (>= 15, pentru UNIQUE NULLS NOT DISTINCT) pentru platforma POD Paint-by-Numbers
 --
 -- Principiu: PostgreSQL este SURSA DE ADEVĂR pentru starea job-urilor.
 -- Redis/BullMQ (sau SQS) este doar mecanismul de livrare: dacă Redis se pierde,
@@ -65,13 +65,15 @@ CREATE TABLE source_images (
     license           text,             -- ex. 'Unsplash License', 'Pexels License'
     attribution_url   text,
     storage_key       text NOT NULL,    -- s3://.../sources/<sha256>.<ext>
-    sha256            char(64) NOT NULL UNIQUE,
-    width_px          int NOT NULL,
-    height_px         int NOT NULL,
+    sha256            char(64) NOT NULL,
+    width_px          int,              -- completat de worker dacă sursa nu îl declară
+    height_px         int,
     has_people        boolean,          -- portrete: necesită verificare drepturi (model release)
     moderation        moderation_state NOT NULL DEFAULT 'pending',
     created_at        timestamptz NOT NULL DEFAULT now(),
-    UNIQUE (origin, external_id)
+    UNIQUE (origin, external_id),
+    -- Dedup per proprietar (stocul are owner NULL => dedup global pe stoc).
+    UNIQUE NULLS NOT DISTINCT (owner_user_id, sha256)
 );
 
 -- ---------------------------------------------------------------------------
@@ -129,6 +131,7 @@ CREATE TABLE processing_jobs (
     order_id           uuid REFERENCES orders(id) ON DELETE CASCADE,
     catalog_design_id  uuid REFERENCES catalog_designs(id) ON DELETE CASCADE,
     params             jsonb NOT NULL,                -- ProcessingConfig serializat
+    output_prefix      text NOT NULL,                 -- prefixul S3 al rezultatelor (decis de API)
     -- Idempotență: același input + aceiași parametri + aceeași versiune de motor
     -- => același rezultat; nu reprocesăm (sha256(source) || sha256(params) || versiune).
     idempotency_key    text NOT NULL UNIQUE,
@@ -169,6 +172,41 @@ CREATE TABLE paint_recipes (
     total_paint_ml  numeric(7,1) NOT NULL,
     colors          jsonb NOT NULL   -- [{number, hex, rgb, cmyk, area_cm2, paint_ml, pot_ml}]
 );
+
+-- ---------------------------------------------------------------------------
+-- Modulul 2: sesiuni Google Photos Picker și upload-uri criptate (iCloud/web)
+-- ---------------------------------------------------------------------------
+CREATE TABLE picker_sessions (
+    id                text PRIMARY KEY,               -- ID-ul sesiunii Google
+    user_id           uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status            text NOT NULL DEFAULT 'pending'
+                      CHECK (status IN ('pending', 'ingesting', 'ingested', 'expired', 'failed')),
+    expire_time       timestamptz,
+    source_image_ids  uuid[] NOT NULL DEFAULT '{}',
+    error             text,
+    created_at        timestamptz NOT NULL DEFAULT now(),
+    updated_at        timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE pending_uploads (
+    id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id           uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status            text NOT NULL DEFAULT 'issued'
+                      CHECK (status IN ('issued', 'uploaded', 'ingested', 'failed', 'expired')),
+    storage_key       text NOT NULL,                  -- incoming/<id>.bin (ciphertext)
+    ciphertext_bytes  bigint NOT NULL,
+    key_id            text NOT NULL,                  -- cheia RSA folosită la wrap
+    wrapped_key       bytea,
+    iv                bytea,
+    plaintext_sha256  char(64),
+    mime_type         text,
+    original_filename text,
+    source_image_id   uuid REFERENCES source_images(id),
+    error             text,
+    expires_at        timestamptz NOT NULL,
+    created_at        timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX pending_uploads_user_idx ON pending_uploads (user_id, created_at DESC);
 
 -- Istoricul tranzițiilor de stare (audit + debugging).
 CREATE TABLE job_events (

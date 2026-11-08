@@ -1,0 +1,50 @@
+# Mediu local complet: PostgreSQL + Redis + API + worker de ingestie + worker Python.
+#   docker compose up --build        → API pe http://localhost:8080
+#
+# Stocarea folosește driverul `local` pe un volum partajat (același cod testat în CI).
+# Pentru S3 real sau un serviciu compatibil S3: STORAGE_DRIVER=s3 (+ S3_ENDPOINT opțional)
+# și credențiale AWS standard (rol IAM în producție).
+x-app-env: &app-env
+  DATABASE_URL: postgres://postgres:postgres@postgres:5432/pbn
+  REDIS_URL: redis://redis:6379
+  STORAGE_DRIVER: local
+  LOCAL_STORAGE_DIR: /data/storage
+
+services:
+  postgres:
+    image: postgres:16
+    environment: { POSTGRES_PASSWORD: postgres, POSTGRES_DB: pbn }
+    ports: ["5432:5432"]
+    volumes: ["./db/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro"]
+    healthcheck: { test: ["CMD", "pg_isready", "-U", "postgres"], interval: 5s }
+
+  redis:
+    image: redis:7
+    command: ["redis-server", "--maxmemory-policy", "noeviction"]  # BullMQ cere noeviction
+    ports: ["6379:6379"]
+
+  api:
+    build: ./api
+    env_file: ./api/.env.example
+    environment: *app-env
+    ports: ["8080:8080"]
+    volumes: ["storage:/data/storage", "keys:/app/.data/keys"]
+    depends_on: { postgres: { condition: service_healthy }, redis: { condition: service_started } }
+
+  ingest-worker:
+    build: ./api
+    command: ["node", "src/workers/ingestWorker.js"]
+    env_file: ./api/.env.example
+    environment: *app-env
+    volumes: ["storage:/data/storage", "keys:/app/.data/keys"]  # aceleași chei dev ca API-ul
+    depends_on: { postgres: { condition: service_healthy }, redis: { condition: service_started } }
+
+  processing-worker:
+    build: ./processing
+    environment: *app-env
+    volumes: ["storage:/data/storage"]
+    depends_on: { postgres: { condition: service_healthy }, redis: { condition: service_started } }
+
+volumes:
+  storage:
+  keys:

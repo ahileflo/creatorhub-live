@@ -60,6 +60,20 @@ Exemplu de intrare din `recipe.json`:
 }
 ```
 
+## Worker de coadă (`pbn_worker`)
+
+Consumă cozile BullMQ produse de API (`pbn-orders`, `pbn-catalog`) și scrie rezultatele în PostgreSQL + stocare.
+
+```bash
+DATABASE_URL=postgres://... REDIS_URL=redis://... \
+STORAGE_DRIVER=s3 S3_BUCKET_SOURCES=... S3_BUCKET_ARTIFACTS=... \
+WORKER_QUEUES=pbn-orders,pbn-catalog WORKER_CONCURRENCY=1 \
+python -m pbn_worker
+```
+
+Un proces = un job CPU la un moment dat per coadă; scalarea se face pe orizontală (mai multe containere,
+autoscalate după adâncimea cozii). La `SIGTERM` termină job-ul curent înainte de oprire.
+
 ## Teste
 
 ```bash
