@@ -1,0 +1,9 @@
+name = "pascugust"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+
+[vars]
+SUPABASE_URL = "https://ttvdkkmjboivafypztnk.supabase.co"
+# Cheia anon e publică prin design (e și în aplicație); datele sunt protejate de RLS.
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0dmRra21qYm9pdmFmeXB6dG5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQxNTQ4MTQsImV4cCI6MjEwOTczMDgxNH0.5fR0H3nGsTVwelRz1Sh19mnNRc2q82MaodZPyh55quU"
+APP_URL = "https://ahileflo.github.io/creatorhub-live/pascugust/"

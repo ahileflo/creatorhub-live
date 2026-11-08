@@ -6,6 +6,14 @@
 <title>Pas cu Gust — rețetele tale, pas cu pas</title>
 <meta name="description" content="Pas cu Gust: păstrează-ți rețetele originale cu poze și video la fiecare pas, ține-ți seria de gătit și transformă-le în produse digitale.">
 <meta name="theme-color" content="#e8603c">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Pas cu Gust">
+<meta property="og:title" content="Pas cu Gust — rețetele tale, pas cu pas">
+<meta property="og:description" content="Rețete cu poze și video la fiecare pas, seria de gătit și GIF-uri de trimis prietenilor. Gratuit, în română.">
+<meta property="og:image" content="https://ahileflo.github.io/creatorhub-live/pascugust/icons/og-app.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -548,7 +556,7 @@ function renderDetail(id){
   $('#back').onclick=()=>{scale=1;go('home');};
   $('#startCook').onclick=()=>openCook(id);
   if(r._shared){
-    $('#fwd').onclick=()=>shareLink(location.href,r.title);
+    $('#fwd').onclick=()=>shareLink(r._shareId?shareUrl(r._shareId):location.href,r.title);
     $('#saveShared').onclick=async()=>{const nid=await saveShared(); if(nid) go('detail',nid);};
     $('#ctaNew').onclick=()=>go('edit');
     hydrate(V); V.querySelectorAll('video.gif').forEach(gifVideo);
@@ -1257,6 +1265,10 @@ function renderAccount(){
 // Cu cont: rețeta + pozele/clipurile se publică „nelistat” (doar cine are linkul o vede): ?r=ID
 // Fără cont: link rapid, doar text, cu rețeta comprimată în adresă: #p=...
 const PUBLIC_BASE='https://ahileflo.github.io/creatorhub-live/pascugust/';
+// Adresa serverului de previzualizare (share-preview/worker.js). Cât timp e goală, linkurile duc direct în aplicație,
+// dar WhatsApp arată doar previzualizarea generală a aplicației, nu poza rețetei.
+const RK_SHARE_BASE='';
+const shareUrl=id=>RK_SHARE_BASE ? RK_SHARE_BASE.replace(/\/$/,'')+'/r/'+id : appBase()+'?r='+id;
 const PUB_BUCKET='pascugust-public';
 let SHARED=null;
 function appBase(){
@@ -1307,7 +1319,7 @@ $('#sheet').onclick=e=>{ if(e.target.id==='sheet') closeSheet(); };
 
 function openShare(id){
   const r=byId(id); if(!r) return;
-  const link=r.share?appBase()+'?r='+r.share.id:null;
+  const link=r.share?shareUrl(r.share.id):null;
   const stale=r.share && (r.updated||r.created||0)>r.share.at;
   const B=$('#sheetBody');
   const box=u=>`<div class="linkbox"><input class="in" readonly value="${esc(u)}" onclick="this.select()"><button class="btn sm" data-copy="${esc(u)}">📤</button></div>`;
@@ -1378,11 +1390,57 @@ async function publishShare(r,progress){
   const data={title:r.title,desc:r.desc,cat:r.cat,emoji:r.emoji,time:r.time,servings:r.servings,ingredients:r.ingredients,
     cover:await up(r.cover),author:r.author,license:r.license,steps:[]};
   for(const x of r.steps) data.steps.push({text:x.text,min:x.min||0,mediaType:x.mediaType,media:await up(x.media)});
+  // imaginea de previzualizare pentru WhatsApp / Facebook / Telegram, refăcută la fiecare publicare
+  progress?.('⏳ Se face imaginea de previzualizare…');
+  const og=await makeOgImage(r); used.add('og.jpg');
+  if(og){
+    const {error}=await sb.storage.from(PUB_BUCKET).upload(`${folder}/og.jpg`,og,{contentType:'image/jpeg',upsert:true});
+    if(error) throw error;
+    data.og=sb.storage.from(PUB_BUCKET).getPublicUrl(`${folder}/og.jpg`).data.publicUrl+'?v='+Date.now(); // altfel aplicațiile țin minte poza veche
+  }
   const {error}=await sb.from('shared_recipes').upsert({id:sid,owner:me,recipe_id:r.id,data,updated_at:new Date().toISOString()});
   if(error) throw error;
   const stale=[...have].filter(f=>!used.has(f)).map(f=>`${folder}/${f}`);
   if(stale.length) await sb.storage.from(PUB_BUCKET).remove(stale);
   r.share={id:sid,at:Date.now()}; save();
+}
+// 1200×630, formatul pe care WhatsApp îl afișează ca previzualizare mare; JPEG ~100 KB.
+async function makeOgImage(r){
+  try{
+    const W=1200,H=630,c=document.createElement('canvas'); c.width=W; c.height=H;
+    const x=c.getContext('2d');
+    const g=x.createLinearGradient(0,0,W,H); g.addColorStop(0,'#f4a340'); g.addColorStop(1,'#e8603c');
+    x.fillStyle=g; x.fillRect(0,0,W,H);
+    let src=null;
+    const pic=r.cover || r.steps.find(s=>s.media && s.mediaType!=='video')?.media;
+    if(pic) src=await loadImg(await mediaURL(pic)).catch(()=>null);
+    if(!src){ const v=r.steps.find(s=>s.media && s.mediaType==='video')?.media;
+      if(v){ src=await loadVid(await mediaURL(v)).catch(()=>null); if(src) await seek(src,Math.min(1,(src.duration||2)/2)); } }
+    if(src){
+      const sw=src.videoWidth||src.naturalWidth, sh=src.videoHeight||src.naturalHeight, k=Math.max(W/sw,H/sh);
+      x.drawImage(src,(W-sw*k)/2,(H-sh*k)/2,sw*k,sh*k);
+      const d=x.createLinearGradient(0,H*.35,0,H); d.addColorStop(0,'rgba(0,0,0,0)'); d.addColorStop(1,'rgba(0,0,0,.82)');
+      x.fillStyle=d; x.fillRect(0,0,W,H);
+    } else {
+      x.font='300px serif'; x.textAlign='center'; x.textBaseline='middle'; x.fillText(r.emoji||'🍽️',W*.78,H*.42);
+    }
+    // eticheta mărcii
+    x.font='800 34px Fraunces, Georgia, serif'; x.textAlign='left'; x.textBaseline='middle';
+    const tag='Pas cu Gust', tw=x.measureText(tag).width;
+    x.fillStyle='#fff'; x.beginPath(); x.roundRect(48,44,tw+48,62,31); x.fill();
+    x.fillStyle='#e8603c'; x.fillText(tag,72,76);
+    // titlul (max. 2 rânduri) și detaliile
+    x.fillStyle='#fff'; x.textBaseline='alphabetic'; x.font='800 68px Fraunces, Georgia, serif';
+    const maxW=src?W-96:W*.58, words=String(r.title||'Rețetă').split(/\s+/), lines=[]; let line='';
+    for(const w of words){ const t=line?line+' '+w:w; if(x.measureText(t).width>maxW && line){lines.push(line);line=w;} else line=t; }
+    lines.push(line);
+    if(lines.length>2){ lines.length=2; lines[1]=lines[1].replace(/\s*\S*$/,'')+'…'; }
+    const sub=[`${r.steps.length} pași`,fmtTime(r.time),r.author?'de '+r.author:''].filter(Boolean).join('  ·  ');
+    const y0=H-70-(lines.length-1)*78-58;
+    lines.forEach((l,k)=>x.fillText(l,48,y0+k*78));
+    x.font='600 32px Inter, sans-serif'; x.globalAlpha=.92; x.fillText(sub,48,H-58); x.globalAlpha=1;
+    return await new Promise(res=>c.toBlob(b=>res(b),'image/jpeg',.82));
+  }catch(e){ console.error(e); return null; }
 }
 async function unshareRecipe(r){
   const sid=r.share?.id; if(!sid) return;

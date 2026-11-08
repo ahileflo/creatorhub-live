@@ -1,6 +1,6 @@
 // Pas cu Gust — service worker: aplicația merge și fără internet.
 // Rețeaua are prioritate (ca să vină mereu ultima versiune); cache-ul e plasa de siguranță.
-const CACHE = 'pascugust-v6';
+const CACHE = 'pascugust-v7';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'confidentialitate.html',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png',

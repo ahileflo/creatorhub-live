@@ -40,6 +40,8 @@ Mai trebuie făcut de tine în https://supabase.com/dashboard/project/ttvdkkmjbo
 
 Linkul public de rețetă (`?r=…`) folosește tabelul `shared_recipes` și bucket-ul public `pascugust-public` din `supabase/migrations/20261108000000_shared_recipes.sql`, deja aplicate. Linkurile sunt nelistate: doar cine are linkul vede rețeta.
 
+**Previzualizarea pe WhatsApp (poza rețetei):** publică serverul mic din `share-preview/` pe Cloudflare Workers (gratuit, ~5 minute, pașii sunt în `share-preview/README.md`), apoi pune adresa lui în `RK_SHARE_BASE` din `pascugust/index.html`. Până atunci, linkurile merg, dar WhatsApp arată doar previzualizarea generală a aplicației.
+
 > ℹ️ Supabase afișează o avertizare și pentru `get_shared_recipe`: o poate apela oricine. E intenționat: așa se deschide un link fără cont, și funcția întoarce doar rețeta cu id-ul cerut.
 
 > ⚠️ Pe planul Free, proiectele se **pun pe pauză după ~7 zile fără activitate** (cum e acum `memoryflow`). Pentru o aplicație publică în magazine ia în calcul planul Pro sau intră săptămânal.
