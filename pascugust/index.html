@@ -358,7 +358,16 @@ const SEED = [
 // Pozele rețetelor de pornire: generate cu AI pentru Pas cu Gust (vezi img/SURSE.md), servite cu aplicația.
 const SEED_COVERS={s1:'img/sarmale.jpg',s2:'img/mamaliga.jpg',s3:'img/ciorba.jpg',s4:'img/papanasi.jpg',s5:'img/zacusca.jpg'};
 const isAsset=id=>typeof id==='string' && /^img\/[\w-]+\.jpg$/.test(id);
-const seedStepPhoto=(rid,i)=>`img/${rid}-${i+1}.jpg`; // câte o poză pentru fiecare pas al rețetelor de pornire
+const seedStepPhoto=(rid,i)=>`img/${rid}-${i+1}.jpg`;
+// Clipurile verticale ale rețetelor de pornire (video/*.mp4, făcute din pozele pașilor + voce).
+// cues = secunda la care începe fiecare bucată: copertă, pașii, final.
+const VIDEOS={"s1-ro":{"cues":[0,5.19,8.95,13.15,17.31,22.25,28.71,34.93],"voice":true},"s2-ro":{"cues":[0,3.51,10.28,15.14,19.49,24.28],"voice":true},"s2-en":{"cues":[0,3.57,9.55,14.95,19.08,25.02],"voice":true},"s3-ro":{"cues":[0,3.62,7.5,12.39,16.92,21.16,24.16],"voice":true},"s4":{"cues":[0,3.6,7.2,10.8,14.4,18,21.6],"voice":false},"s5":{"cues":[0,3.6,7.2,10.8,14.4,18,21.6],"voice":false}};
+function videoOf(r){
+  if(!r || r.imported || !SEED.some(x=>x.id===r.id)) return null;
+  for(const k of [`${r.id}-${LANG}`,`${r.id}-ro`,r.id]) if(VIDEOS[k]) return {key:k,src:`video/${k}.mp4`,poster:`video/${k}.jpg`,...VIDEOS[k]};
+  return null;
+}
+let feedSound=false; // browserele pornesc clipurile doar fără sunet; un tap pe 🔊 dă drumul vocii // câte o poză pentru fiecare pas al rețetelor de pornire
 
 /* ---------- stare ---------- */
 let S = load();
@@ -575,8 +584,9 @@ function feedOrder(){
 function renderFeed(){
   const V=$('#v-feed'), list=feedOrder();
   V.innerHTML=`<div class="feed" id="feed">${list.map((r,k)=>{
-    const layers=[r.cover,...r.steps.map(s=>s.media)].filter(Boolean);
-    const lay=layers.length?layers.map((m,i)=>{
+    const vid=videoOf(r);
+    const layers=vid?vid.cues.map(()=>vid.src):[r.cover,...r.steps.map(s=>s.media)].filter(Boolean);
+    const lay=vid?`<video class="layer on fvid" muted loop playsinline preload="${k<2?'auto':'none'}" poster="${vid.poster}" src="${vid.src}"></video>`:layers.length?layers.map((m,i)=>{
       const st=i===0&&r.cover?null:r.steps.find(s=>s.media===m);
       return st&&st.mediaType==='video'
         ? `<video class="layer ${i?'':'on'}" muted loop playsinline preload="none" data-media="${m}"></video>`
@@ -599,6 +609,7 @@ function renderFeed(){
         <button data-act="cook"><span>👩‍🍳</span>Gătește</button>
         <button data-act="anim"><span>🎞️</span>Animație</button>
         <button data-act="share"><span>📤</span>Trimite</button>
+        ${vid&&vid.voice?`<button data-act="sound"><span>${feedSound?'🔊':'🔇'}</span>Voce</button>`:''}
       </div>
       ${k===0?'<div class="fhint">⌃ Glisează în sus pentru următoarea rețetă</div>':''}
     </article>`;}).join('')}
@@ -615,6 +626,8 @@ function renderFeed(){
     if(act==='fav'){ r.fav=!r.fav; save(); b.classList.toggle('liked',r.fav); if(r.fav) heartPop(card); toast(r.fav?'❤️ Salvată la favorite':'Scoasă de la favorite'); }
     if(act==='cook') openCook(id);
     if(act==='anim') openAnim(id);
+    if(act==='sound'){ feedSound=!feedSound; F.querySelectorAll('[data-act=sound] span').forEach(s=>s.textContent=feedSound?'🔊':'🔇');
+      const v=card.querySelector('video.fvid'); if(v){ v.muted=!feedSound; v.play().catch(()=>{}); } }
     if(act==='share'){ if(cloudUser||r.share) openShare(id); else shareFeed(r); }
   };
   // dublu-tap pe poză = îmi place
@@ -639,6 +652,18 @@ function playCard(card){
   if(feedCur===card) return;
   stopFeed(); feedCur=card;
   const r=byId(card.dataset.id); if(!r) return;
+  const vidEl=card.querySelector('video.fvid'), vid=videoOf(r);
+  if(vidEl && vid){ // clip: textul pasului urmează vocea
+    const dots=[...card.querySelectorAll('.fdots i')], cap=card.querySelector('.fstep'), n=r.steps.length;
+    vidEl.muted=!feedSound; vidEl.currentTime=0; vidEl.play().catch(()=>{});
+    vidEl.ontimeupdate=()=>{
+      let seg=0; vid.cues.forEach((c,i)=>{ if(vidEl.currentTime>=c) seg=i; });
+      dots.forEach((d,i)=>d.classList.toggle('on',i<=seg));
+      const k=seg-1; // 0 = copertă, 1..n = pașii, n+1 = final
+      if(k>=0 && k<n){ cap.hidden=false; const tx=`${k+1}. ${r.steps[k].text}`; if(cap.textContent!==tx) cap.textContent=tx; } else cap.hidden=true;
+    };
+    return;
+  }
   const layers=[...card.querySelectorAll('.layer')], dots=[...card.querySelectorAll('.fdots i')], cap=card.querySelector('.fstep');
   const stepOf=i=>{ const m=layers[i]?.dataset.media; const k=r.steps.findIndex(s=>s.media===m); return k<0?null:k; };
   let i=0;
@@ -654,8 +679,21 @@ function playCard(card){
 }
 function stopFeed(){
   clearInterval(feedTimer); feedTimer=null;
-  feedCur?.querySelectorAll('video').forEach(v=>v.pause());
+  feedCur?.querySelectorAll('video').forEach(v=>{ v.pause(); v.ontimeupdate=null; });
   feedCur=null;
+}
+
+// Clipul gata de pus pe TikTok / Instagram / WhatsApp: pe telefon se deschide meniul de partajare.
+async function shareVideo(r){
+  const v=videoOf(r); if(!v) return;
+  try{
+    const blob=await (await fetch(v.src)).blob(), name=slug(r.title)+'.mp4';
+    const file=new File([blob],name,{type:'video/mp4'});
+    if(navigator.canShare?.({files:[file]}) && matchMedia('(pointer:coarse)').matches){
+      try{ await navigator.share({files:[file],title:r.title,text:t(`Rețeta „${r.title}” pe Pas cu Gust`)+' '+appBase()}); return; }catch(e){ if(e.name==='AbortError') return; }
+    }
+    download(blob,name); toast('✅ Video salvat');
+  }catch(e){ toast('Nu am putut salva clipul'); }
 }
 
 /* ---------- DETALIU ---------- */
@@ -687,7 +725,8 @@ function renderDetail(id){
     </div>
     ${r._shared?`<div class="notice" style="margin-top:12px">👋 Rețetă trimisă de <b>${esc(r.author||'un prieten')}</b> cu Pas cu Gust. O poți găti pas cu pas chiar acum sau o poți salva în rețetele tale.</div>`:''}
     <div class="card" style="margin-top:12px">
-      ${r.cover?`<img class="cover" data-media="${r.cover}" alt="">`:`<div class="ph" style="font-size:4.5rem">${esc(r.emoji||'🍽️')}</div>`}
+      ${videoOf(r)?`<video class="cover dvid" controls playsinline preload="metadata" poster="${videoOf(r).poster}" src="${videoOf(r).src}" style="aspect-ratio:9/16;max-height:70vh;object-fit:contain;background:#000"></video>`
+        :r.cover?`<img class="cover" data-media="${r.cover}" alt="">`:`<div class="ph" style="font-size:4.5rem">${esc(r.emoji||'🍽️')}</div>`}
       <div class="panel">
         <div class="detail-head">
           <span class="badge">${esc(r.cat)}</span>
@@ -702,9 +741,11 @@ function renderDetail(id){
         <div class="row" style="margin-top:8px">
           <button class="btn ghost" id="playAnim" style="flex:1">🎞️ Animație pas cu pas</button>
           <button class="btn ghost" id="mkGif">⬇️ GIF</button>
+          ${videoOf(r)?`<button class="btn ghost" id="dlVid">⬇️ Video</button>`:''}
         </div>
       </div>
     </div>
+    ${inspoCard(r)?`<div style="margin-top:14px">${inspoCard(r)}</div>`:''}
     <div class="card panel" style="margin-top:14px">
       <div class="row" style="justify-content:space-between">
         <h2>🧺 Ingrediente</h2>
@@ -732,6 +773,8 @@ function renderDetail(id){
   $('#sp').onclick=()=>{scale=scale+1/base;renderDetail(id);};
   V.querySelectorAll('.ing input').forEach(c=>c.onchange=()=>c.parentElement.classList.toggle('done',c.checked));
   $('#back').onclick=()=>{scale=1;go('home');};
+  if($('#dlVid')) $('#dlVid').onclick=()=>shareVideo(r);
+  bindInspo(r);
   $('#startCook').onclick=()=>openCook(id);
   if(r._shared){
     $('#fwd').onclick=()=>shareLink(r._shareId?shareUrl(r._shareId):location.href,r.title);
@@ -814,9 +857,41 @@ $('#cookNext').onclick=()=>{const n=byId(ck.id).steps.length; if(ck.i===n){close
 const LICENSES={own:'Toate drepturile rezervate (autorul)',CCBY:'CC BY 4.0 — liber cu menționarea autorului',CC0:'CC0 — domeniu public, fără drepturi rezervate'};
 const licName=k=>LICENSES[k]||LICENSES.own;
 let draft=null;
-function renderEdit(id){
+/* ---------- INSPIRAȚIE din TikTok / Instagram / YouTube ---------- */
+// Păstrăm doar linkul și creditul; clipul original rămâne la autor (player oficial, încărcat doar la cerere).
+function parseInspo(u){
+  try{
+    const x=new URL(String(u).trim()); if(!/^https?:$/.test(x.protocol)) return null;
+    const h=x.hostname.replace(/^(www|m|vm|vt)\./,'');
+    if(/(^|\.)tiktok\.com$/.test(h)){ const id=x.pathname.match(/\/video\/(\d{5,25})/)?.[1]; return {platform:'TikTok',url:x.href,embed:id?`https://www.tiktok.com/embed/v2/${id}`:null}; }
+    if(h==='instagram.com'){ const m=x.pathname.match(/\/(p|reel|tv)\/([\w-]{5,40})/); return {platform:'Instagram',url:x.href,embed:m?`https://www.instagram.com/${m[1]}/${m[2]}/embed`:null}; }
+    if(h==='youtube.com'||h==='youtu.be'){ const id=(h==='youtu.be'?x.pathname.slice(1):(x.searchParams.get('v')||x.pathname.match(/\/shorts\/([\w-]+)/)?.[1]))||''; return {platform:'YouTube',url:x.href,embed:/^[\w-]{6,20}$/.test(id)?`https://www.youtube-nocookie.com/embed/${id}`:null}; }
+    return {platform:h,url:x.href,embed:null};
+  }catch(e){ return null; }
+}
+const firstUrl=s=>String(s||'').match(/https?:\/\/\S+/)?.[0]||'';
+const INSPO_ICON={TikTok:'🎵',Instagram:'📸',YouTube:'▶️'};
+function inspoCard(r){
+  const p=r.inspo&&parseInspo(r.inspo.url); if(!p) return '';
+  return `<div class="card panel" id="inspoBox"><h2>✨ Inspirat de</h2>
+    <p class="meta" style="margin-bottom:10px">${INSPO_ICON[p.platform]||'🔗'} <a href="${esc(p.url)}" target="_blank" rel="noopener nofollow" style="color:var(--accent)" class="nt">${esc(p.platform)}${r.inspo.author?' · '+esc(r.inspo.author):''}</a></p>
+    ${p.embed?`<button class="btn ghost sm" id="inspoPlay">▶ Arată clipul original</button><div id="inspoFrame"></div>
+      <p class="meta" style="margin-top:8px">Clipul se încarcă de pe ${esc(p.platform)} doar când apeși.</p>`:''}</div>`;
+}
+function bindInspo(r){
+  const b=$('#inspoPlay'); if(!b) return;
+  b.onclick=()=>{ const p=parseInspo(r.inspo.url); if(!p?.embed) return;
+    $('#inspoFrame').innerHTML=`<iframe src="${esc(p.embed)}" style="width:100%;aspect-ratio:${p.platform==='YouTube'?'16/9':'9/16'};max-height:75vh;border:0;border-radius:12px;margin-top:10px" allow="encrypted-media; picture-in-picture; fullscreen" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+    b.remove(); };
+}
+// Titlul și autorul clipului, ca punct de pornire (serviciul public noembed; dacă nu răspunde, scrii tu).
+async function inspoMeta(url){
+  try{ const j=await (await fetch('https://noembed.com/embed?url='+encodeURIComponent(url))).json(); return j&&!j.error?{title:j.title||'',author:j.author_name||''}:null; }catch(e){ return null; }
+}
+
+function renderEdit(id,prefill){
   const r=id?byId(id):null;
-  draft = r ? JSON.parse(JSON.stringify(r)) : {id:null,title:'',desc:'',cat:'Feluri principale',emoji:'🍽️',time:30,servings:4,ingredients:[],steps:[{text:'',min:0,media:null,mediaType:null}],cover:null,author:'',license:'own',fav:false};
+  draft = r ? JSON.parse(JSON.stringify(r)) : {id:null,title:'',desc:'',cat:'Feluri principale',emoji:'🍽️',time:30,servings:4,ingredients:[],steps:[{text:'',min:0,media:null,mediaType:null}],cover:null,author:'',license:'own',fav:false,inspo:null,...(prefill||{})};
   draft._orig = r ? [r.cover,...r.steps.map(s=>s.media)].filter(Boolean) : [];
   draft._new = [];
   const V=$('#v-edit');
@@ -825,6 +900,9 @@ function renderEdit(id){
     <div class="card panel">
       <label class="f">Titlu *</label><input class="in" id="eT" value="${esc(draft.title)}" placeholder="ex: Tochitură moldovenească">
       <label class="f">Descriere scurtă</label><textarea class="in" id="eD" placeholder="Ce o face specială?">${esc(draft.desc)}</textarea>
+      <label class="f">✨ Inspirație (opțional): link TikTok, Instagram sau YouTube</label>
+      <input class="in" id="eInspo" inputmode="url" value="${esc(draft.inspo?.url||'')}" placeholder="https://www.tiktok.com/@…/video/…">
+      <p class="meta" style="margin-top:4px">Linkul apare ca sursă de inspirație, cu credit pentru autor. Rețeta ta trebuie să fie a ta: alt text, pozele și clipurile tale, varianta ta îmbunătățită.</p>
       <div class="three">
         <div><label class="f">Categorie</label><select class="in" id="eC">${CATS.slice(1).map(c=>`<option value="${c}" ${c===draft.cat?'selected':''}>${c}</option>`).join('')}</select></div>
         <div><label class="f">Timp total (min)</label><input class="in" type="number" min="0" id="eTm" value="${draft.time}"></div>
@@ -882,7 +960,7 @@ function renderEditKeep(){
   const V=$('#v-edit');
   $('#eT').value=draft.title;$('#eD').value=draft.desc;$('#eC').value=draft.cat;$('#eTm').value=draft.time;$('#eS').value=draft.servings;
   $('#eE').value=draft.emoji;$('#eA').value=draft.author;$('#eI').value=draft.ingredients.join('\n');$('#eL').value=draft.license;
-  $('#eOk').checked=!!draft._ok;
+  $('#eOk').checked=!!draft._ok; $('#eInspo').value=draft.inspo?.url||'';
   $('#covPrev').innerHTML=draft.cover?`<img class="thumb" data-media="${draft.cover}">`:'';
   const row=$('#eCov').closest('.row');
   if(draft.cover && !$('#eCovX')){row.insertAdjacentHTML('beforeend','<button class="btn ghost sm" id="eCovX">✕ Scoate</button>');}
@@ -897,6 +975,9 @@ function syncDraft(){
   draft.emoji=$('#eE').value.trim()||'🍽️'; draft.author=$('#eA').value.trim();
   draft.ingredients=$('#eI').value.split('\n').map(x=>x.trim()).filter(Boolean);
   draft.license=$('#eL').value; draft._ok=$('#eOk').checked;
+  const iv=$('#eInspo').value.trim(), ip=iv&&parseInspo(iv);
+  draft.inspo=ip?{url:ip.url,platform:ip.platform,author:draft.inspo?.url===ip.url?draft.inspo.author||'':''}:null;
+  draft._badInspo=!!iv&&!ip;
   document.querySelectorAll('.estep').forEach((el,k)=>{
     draft.steps[k].text=el.querySelector('textarea').value.trim();
     draft.steps[k].min=+el.querySelector('input[type=number]').value||0;
@@ -965,7 +1046,8 @@ function saveDraft(){
   draft.steps=draft.steps.filter(s=>s.text||s.media);
   const used=new Set([draft.cover,...draft.steps.map(s=>s.media)].filter(Boolean));
   [...draft._orig,...draft._new].forEach(m=>{if(!used.has(m)) delMedia(m);});
-  const {_orig,_new,_ok,...clean}=draft; clean.updated=Date.now();
+  if(draft._badInspo) return toast('Linkul de inspirație nu e valid');
+  const {_orig,_new,_ok,_badInspo,...clean}=draft; clean.updated=Date.now();
   if(clean.id){ S.recipes=S.recipes.map(x=>x.id===clean.id?{...x,...clean}:x); }
   else { clean.id=uid(); clean.created=Date.now(); S.recipes.unshift(clean); }
   save(); toast('✅ Rețetă salvată'); go('detail',clean.id);
@@ -1472,7 +1554,8 @@ function cleanShared(o,meta={}){
     time:Math.max(0,+o.time||0),servings:Math.max(1,Math.min(100,+o.servings||1)),
     ingredients:(Array.isArray(o.ingredients)?o.ingredients:[]).slice(0,200).map(x=>str(x,300)),
     steps:steps.length?steps:[{text:'(rețeta nu are pași)',min:0,media:null,mediaType:null}],
-    cover:okUrl(o.cover),author:str(o.author,100),license:LICENSES[o.license]?o.license:'own'};
+    cover:okUrl(o.cover),author:str(o.author,100),license:LICENSES[o.license]?o.license:'own',
+    inspo:o.inspo&&parseInspo(o.inspo.url)?{url:parseInspo(o.inspo.url).url,author:str(o.inspo.author,80)}:null};
 }
 const b64u=bytes=>{let b='';bytes.forEach(x=>b+=String.fromCharCode(x));return btoa(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');};
 const unb64u=str=>Uint8Array.from(atob(str.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
@@ -1568,7 +1651,7 @@ async function publishShare(r,progress){
     return sb.storage.from(PUB_BUCKET).getPublicUrl(path).data.publicUrl;
   };
   const data={title:r.title,desc:r.desc,cat:r.cat,emoji:r.emoji,time:r.time,servings:r.servings,ingredients:r.ingredients,
-    cover:await up(r.cover),author:r.author,license:r.license,steps:[]};
+    cover:await up(r.cover),author:r.author,license:r.license,inspo:r.inspo?{url:r.inspo.url,author:r.inspo.author||''}:null,steps:[]};
   for(const x of r.steps) data.steps.push({text:x.text,min:x.min||0,mediaType:x.mediaType,media:await up(x.media)});
   // imaginea de previzualizare pentru WhatsApp / Facebook / Telegram, refăcută la fiecare publicare
   progress?.('⏳ Se face imaginea de previzualizare…');
@@ -1637,7 +1720,7 @@ async function saveShared(){
   toast('💾 Se salvează…');
   const grab=async u=>{ if(!u) return null; try{ const res=await fetch(u); if(!res.ok) return null; return await putMedia(await res.blob()); }catch(e){ return null; } };
   const copy={id:uid(),title:r.title,desc:r.desc,cat:r.cat,emoji:r.emoji,time:r.time,servings:r.servings,ingredients:[...r.ingredients],
-    cover:await grab(r.cover),author:r.author,license:r.license,fav:false,imported:true,from:r._shareId||null,steps:[],created:Date.now(),updated:Date.now()};
+    cover:await grab(r.cover),author:r.author,license:r.license,inspo:r.inspo||null,fav:false,imported:true,from:r._shareId||null,steps:[],created:Date.now(),updated:Date.now()};
   for(const x of r.steps){ const m=await grab(x.media); copy.steps.push({text:x.text,min:x.min,media:m,mediaType:m?x.mediaType:null}); }
   S.recipes.unshift(copy); save(); r._savedAs=copy.id;
   toast('✅ Salvată în rețetele tale');
@@ -1646,6 +1729,16 @@ async function saveShared(){
 function closeShared(){
   SHARED=null;
   if(location.search.includes('r=')||location.hash.startsWith('#p=')) history.replaceState(null,'',location.pathname);
+}
+async function openShareTarget(){
+  const q=new URLSearchParams(location.search); if(!q.has('share')) return false;
+  const url=firstUrl(q.get('url'))||firstUrl(q.get('text'))||firstUrl(q.get('title'));
+  history.replaceState(null,'',location.pathname);
+  const p=url&&parseInspo(url); if(!p){ go('edit'); return true; }
+  const meta=await inspoMeta(p.url);
+  go('edit'); renderEdit(null,{inspo:{url:p.url,platform:p.platform,author:meta?.author||''},title:'',desc:''});
+  toast('✨ Inspirație adăugată. Acum scrie varianta ta!');
+  return true;
 }
 async function openSharedFromUrl(){
   const q=new URLSearchParams(location.search).get('r');
@@ -1672,7 +1765,7 @@ async function openSharedFromUrl(){
 /* ---------- pornire ---------- */
 localizeSeeds(); applyTheme(); refreshPill(); renderHome(); startI18n();
 const cloudReady=cloudInit();
-openSharedFromUrl();
+openShareTarget().then(done=>{ if(!done) openSharedFromUrl(); });
 if(location.hash==='#adauga') go('edit');
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>

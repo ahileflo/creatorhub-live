@@ -248,6 +248,16 @@ const UI_ROWS = [
   ['Salvează', 'Save', 'Guardar', 'Salva', 'Enregistrer', 'Speichern'],
   ['Trimite', 'Send', 'Enviar', 'Invia', 'Envoyer', 'Senden'],
   ['Animație', 'Animation', 'Animación', 'Animazione', 'Animation', 'Animation'],
+  ['Voce', 'Voice', 'Voz', 'Voce', 'Voix', 'Stimme'],
+  ['✨ Inspirație (opțional): link TikTok, Instagram sau YouTube', '✨ Inspiration (optional): TikTok, Instagram or YouTube link', '✨ Inspiración (opcional): enlace de TikTok, Instagram o YouTube', '✨ Ispirazione (facoltativa): link TikTok, Instagram o YouTube', '✨ Inspiration (facultatif) : lien TikTok, Instagram ou YouTube', '✨ Inspiration (optional): TikTok-, Instagram- oder YouTube-Link'],
+  ['Linkul apare ca sursă de inspirație, cu credit pentru autor. Rețeta ta trebuie să fie a ta: alt text, pozele și clipurile tale, varianta ta îmbunătățită.', 'The link is shown as your inspiration, credited to its creator. Your recipe must be your own: your words, your photos and clips, your improved version.', 'El enlace aparece como inspiración, con crédito a su autor. Tu receta debe ser tuya: tu texto, tus fotos y clips, tu versión mejorada.', 'Il link appare come fonte d’ispirazione, con credito all’autore. La tua ricetta dev’essere tua: testo, foto e video tuoi, la tua versione migliorata.', 'Le lien apparaît comme source d’inspiration, avec crédit à son auteur. Ta recette doit être la tienne : ton texte, tes photos et clips, ta version améliorée.', 'Der Link wird als Inspiration mit Namensnennung gezeigt. Dein Rezept muss deins sein: eigener Text, eigene Fotos und Clips, deine verbesserte Version.'],
+  ['✨ Inspirat de', '✨ Inspired by', '✨ Inspirado en', '✨ Ispirato a', '✨ Inspiré de', '✨ Inspiriert von'],
+  ['▶ Arată clipul original', '▶ Show the original clip', '▶ Ver el clip original', '▶ Mostra il video originale', '▶ Voir le clip original', '▶ Originalclip zeigen'],
+  ['Linkul de inspirație nu e valid', 'The inspiration link isn’t valid', 'El enlace de inspiración no es válido', 'Il link d’ispirazione non è valido', 'Le lien d’inspiration n’est pas valide', 'Der Inspirationslink ist ungültig'],
+  ['✨ Inspirație adăugată. Acum scrie varianta ta!', '✨ Inspiration added. Now write your own version!', '✨ Inspiración añadida. ¡Ahora escribe tu versión!', '✨ Ispirazione aggiunta. Ora scrivi la tua versione!', '✨ Inspiration ajoutée. Écris maintenant ta version !', '✨ Inspiration hinzugefügt. Jetzt schreib deine Version!'],
+  ['⬇️ Video', '⬇️ Video', '⬇️ Vídeo', '⬇️ Video', '⬇️ Vidéo', '⬇️ Video'],
+  ['✅ Video salvat', '✅ Video saved', '✅ Vídeo guardado', '✅ Video salvato', '✅ Vidéo enregistrée', '✅ Video gespeichert'],
+  ['Nu am putut salva clipul', 'Couldn’t save the video', 'No se pudo guardar el vídeo', 'Impossibile salvare il video', 'Impossible d’enregistrer la vidéo', 'Video konnte nicht gespeichert werden'],
   ['❤️ Salvată la favorite', '❤️ Saved to favourites', '❤️ Guardada en favoritas', '❤️ Salvata nelle preferite', '❤️ Ajoutée aux favoris', '❤️ Zu Favoriten hinzugefügt'],
   ['Scoasă de la favorite', 'Removed from favourites', 'Quitada de favoritas', 'Rimossa dalle preferite', 'Retirée des favoris', 'Aus Favoriten entfernt'],
   ['🌍 Rețete din toată lumea', '🌍 Recipes from around the world', '🌍 Recetas de todo el mundo', '🌍 Ricette da tutto il mondo', '🌍 Recettes du monde entier', '🌍 Rezepte aus aller Welt'],
@@ -256,6 +266,7 @@ const UI_ROWS = [
 
 // Texte cu valori variabile. Ordinea contează: cele mai specifice primele.
 const UI_PATTERNS = [
+  ['Clipul se încarcă de pe {0} doar când apeși.', 'The clip loads from {0} only when you tap.', 'El clip se carga desde {0} solo al tocar.', 'Il video si carica da {0} solo quando tocchi.', 'Le clip se charge depuis {0} seulement quand tu touches.', 'Der Clip wird erst beim Tippen von {0} geladen.'],
   ['Pasul {0} / {1}', 'Step {0} / {1}', 'Paso {0} / {1}', 'Passaggio {0} / {1}', 'Étape {0} / {1}', 'Schritt {0} / {1}'],
   ['⏳ Pasul {0}/{1}', '⏳ Step {0}/{1}', '⏳ Paso {0}/{1}', '⏳ Passaggio {0}/{1}', '⏳ Étape {0}/{1}', '⏳ Schritt {0}/{1}'],
   ['Pasul {0}', 'Step {0}', 'Paso {0}', 'Passaggio {0}', 'Étape {0}', 'Schritt {0}'],

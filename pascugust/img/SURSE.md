@@ -23,3 +23,10 @@ Drepturile de folosire comercială a imaginilor generate depind de planul fiecă
 - **Figma AI:** generate pe planul Starter al echipei tale. Verifică termenii Figma AI.
 
 Descrierile folosite pentru fiecare poză sunt salvate în fluxul ElevenLabs și în fișierul Figma „Pas cu Gust — poze rețete”.
+
+## Clipurile video (`../video/`)
+Clipuri verticale 9:16 (720×1280, H.264), montate cu ffmpeg din pozele de mai sus: panoramare lentă peste fiecare poză, tranziții line și eticheta „Pas cu Gust”. Fiecare poză apare exact cât durează propoziția care o descrie.
+- **Vocea:** ElevenLabs, vocea „Anca – Warm Voice for Every Story”, modelul Multilingual v2, plan gratuit (8 noiembrie 2026). Există pentru `s1-ro`, `s2-ro`, `s2-en`, `s3-ro`.
+- `s4.mp4` și `s5.mp4` nu au voce: ElevenLabs a blocat planul gratuit înainte să le pot genera. Aplicația afișează textul pașilor peste clip.
+- `*.jpg` din același folder sunt imaginile de previzualizare ale clipurilor.
+- Aceeași verificare de licență ca la poze: vocea ElevenLabs de pe planul gratuit poate avea restricții de folosire comercială.

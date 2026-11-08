@@ -1,6 +1,6 @@
 // Pas cu Gust — service worker: aplicația merge și fără internet.
 // Rețeaua are prioritate (ca să vină mereu ultima versiune); cache-ul e plasa de siguranță.
-const CACHE = 'pascugust-v10';
+const CACHE = 'pascugust-v12';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'confidentialitate.html',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png',
@@ -27,7 +27,8 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     fetch(e.request)
       .then(res => {
-        if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }
+        // clipurile vin pe bucăți (206) și nu se pot pune în cache așa; restul da
+        if (res.status === 200 && !e.request.headers.has('range')) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {}); }
         return res;
       })
       .catch(() => caches.match(e.request, { ignoreSearch: true })
