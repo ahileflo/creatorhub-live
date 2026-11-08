@@ -1,6 +1,6 @@
-// Recikeep service worker: aplicația merge și fără internet.
+// Pas cu Gust — service worker: aplicația merge și fără internet.
 // Rețeaua are prioritate (ca să vină mereu ultima versiune); cache-ul e plasa de siguranță.
-const CACHE = 'recikeep-v3';
+const CACHE = 'pascugust-v4';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'confidentialitate.html',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png',

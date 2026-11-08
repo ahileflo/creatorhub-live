@@ -1,4 +1,4 @@
--- Recikeep: cont + sincronizare în cloud.
+-- Pas cu Gust: cont + sincronizare în cloud (identificatorii tehnici păstrează numele vechi „recikeep”).
 -- Rulează o singură dată în Supabase → SQL Editor (sau `supabase db push`).
 
 -- 1) Starea fiecărui utilizator (rețete, serie, produse) ca un singur document JSON

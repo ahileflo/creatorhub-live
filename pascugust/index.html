@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Recikeep — rețetele tale, pas cu pas</title>
-<meta name="description" content="Recikeep: păstrează-ți rețetele originale cu poze și video la fiecare pas, ține-ți seria de gătit și transformă-le în produse digitale.">
+<title>Pas cu Gust — rețetele tale, pas cu pas</title>
+<meta name="description" content="Pas cu Gust: păstrează-ți rețetele originale cu poze și video la fiecare pas, ține-ți seria de gătit și transformă-le în produse digitale.">
 <meta name="theme-color" content="#e8603c">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Recikeep">
+<meta name="apple-mobile-web-app-title" content="Pas cu Gust">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -38,6 +38,9 @@
   .logo{font-family:'Fraunces',serif;font-weight:800;font-size:1.5rem;color:var(--accent)}
   .logo small{display:block;font-family:'Inter';font-weight:600;font-size:.72rem;color:var(--soft);letter-spacing:.04em}
   .streak-pill{display:flex;align-items:center;gap:6px;background:var(--chip);border-radius:99px;padding:6px 12px;font-weight:700;cursor:pointer;border:0}
+  header.top .row{flex-wrap:nowrap;gap:6px}
+  .logo small{white-space:nowrap}
+  @media(max-width:380px){.logo{font-size:1.25rem}.logo small{font-size:.64rem}.streak-pill{padding:6px 9px}}
   .btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer;background:var(--accent);color:#fff;display:inline-flex;align-items:center;gap:6px;justify-content:center}
   .btn.ghost{background:var(--chip);color:var(--ink)}
   .btn.ok{background:var(--ok)}
@@ -154,7 +157,7 @@
 <body>
 
 <header class="top">
-  <div class="logo">Recikeep<small>Rețetele tale, pas cu pas</small></div>
+  <div class="logo">Pas cu Gust<small>Rețetele tale, cu poze și video</small></div>
   <div class="row">
     <button class="streak-pill" id="pill" title="Seria ta de gătit">🔥 <span id="pillN">0</span></button>
     <button class="streak-pill" id="themeBtn" title="Temă">🌗</button>
@@ -227,11 +230,13 @@
 
 <script>
 /* ============================================================
-   Recikeep — totul rulează local în browser.
+   Pas cu Gust — totul rulează local în browser.
    Textul rețetelor e salvat în localStorage, pozele și video-urile
    în IndexedDB (nu se urcă nicăieri).
    ============================================================ */
 
+// Identificatorii tehnici (cheile de salvare, baza de date, stocarea) păstrează numele vechi „recikeep”:
+// nu se văd nicăieri, iar schimbarea lor ar pierde datele deja salvate.
 const KEY = 'recikeep_v1';
 const CATS = ['Toate','Ciorbe','Feluri principale','Deserturi','Conserve','Mic dejun','Salate','Altele'];
 const BADGES = [
@@ -243,7 +248,7 @@ const BADGES = [
   {n:100,e:'💎', t:'100 de zile'}
 ];
 
-// Rețete de pornire scrise de la zero pentru Recikeep (text original, fără poze preluate).
+// Rețete de pornire scrise de la zero pentru Pas cu Gust (text original, fără poze preluate).
 const SEED = [
   {id:'s1',title:'Sarmale în foi de varză',cat:'Feluri principale',emoji:'🥬',time:180,servings:6,
    desc:'Sarmale moi, fierte încet, cu carne de porc și orez, așa cum se fac de sărbători.',
@@ -302,9 +307,9 @@ let S = load();
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
-    if(raw){ const d=JSON.parse(raw); d.deleted=d.deleted||{}; return d; }
+    if(raw){ const d=JSON.parse(raw); d.deleted=d.deleted||{}; d.recipes.forEach(r=>{if(r.author==='Recikeep') r.author='Pas cu Gust';}); return d; }
   }catch(e){}
-  return {recipes:SEED.map(r=>({...r,author:'Recikeep',license:'CC0',steps:r.steps.map(s=>({...s,media:null,mediaType:null})),cover:null,fav:false,created:Date.now()})),
+  return {recipes:SEED.map(r=>({...r,author:'Pas cu Gust',license:'CC0',steps:r.steps.map(s=>({...s,media:null,mediaType:null})),cover:null,fav:false,created:Date.now()})),
           log:{}, products:[], deleted:{}, theme:null};
 }
 function save(){
@@ -801,13 +806,13 @@ async function exportBackup(){
       if(id&&!media[id]){const b=await getMedia(id);if(b) media[id]=await blobToData(b);}
     }
   }
-  download(new Blob([JSON.stringify({app:'recikeep',v:1,data:S,media})],{type:'application/json'}),'recikeep-backup-'+today()+'.json');
+  download(new Blob([JSON.stringify({app:'pascugust',v:1,data:S,media})],{type:'application/json'}),'pascugust-backup-'+today()+'.json');
 }
 async function importBackup(e){
   const f=e.target.files[0]; if(!f) return;
   try{
     const j=JSON.parse(await f.text());
-    if(j.app!=='recikeep') throw 0;
+    if(j.app!=='pascugust' && j.app!=='recikeep') throw 0; // acceptă și backup-urile vechi
     if(!confirm('Înlocuiești datele actuale cu cele din backup?')) return;
     const d=await db();
     for(const [id,data] of Object.entries(j.media||{})){
@@ -824,7 +829,7 @@ function renderProducts(){
   const V=$('#v-products');
   V.innerHTML=`
     <h1 style="margin:10px 0">📦 Produse digitale</h1>
-    <div class="notice">Transformă rețetele tale originale în cărți de bucate digitale (e-book HTML / PDF) pe care le poți vinde pe Gumroad, Etsy, Payhip sau propriul site. Recikeep nu procesează plăți — tu încarci fișierul exportat unde vrei.</div>
+    <div class="notice">Transformă rețetele tale originale în cărți de bucate digitale (e-book HTML / PDF) pe care le poți vinde pe Gumroad, Etsy, Payhip sau propriul site. Pas cu Gust nu procesează plăți — tu încarci fișierul exportat unde vrei.</div>
     <div class="card panel">
       <h2>✨ Pachet nou</h2>
       <label class="f">Nume produs</label><input class="in" id="pT" placeholder="ex: 10 rețete de la bunica">
@@ -912,7 +917,7 @@ ol li{margin-bottom:14px}.lic,.vnote{color:#7d6558;font-size:.82rem}
 <div class="title"><h1>${esc(p.title)}</h1><p>${esc(p.desc)}</p><p><b>${esc(p.author)}</b></p></div>
 <div class="toc"><h3>Cuprins</h3><ol>${rs.map(r=>`<li>${esc(r.title)}</li>`).join('')}</ol></div>
 ${body}
-<footer>© ${year} ${esc(p.author||'Autorul')} · Creat cu Recikeep</footer>
+<footer>© ${year} ${esc(p.author||'Autorul')} · Creat cu Pas cu Gust</footer>
 ${forPrint?'<script>window.onload=()=>setTimeout(()=>print(),400)<\/script>':''}
 </body></html>`;
 }
@@ -1022,7 +1027,7 @@ async function exportGif(id,btn){
     // titlu
     const cv = r.cover && await loadImg(await mediaURL(r.cover)).catch(()=>null);
     if(cv){ for(let f=0;f<4;f++){cover(cv,1+f*.02);caption(0,r.title);add(400);} }
-    else { card(r.emoji||'🍽️',r.title,`${r.steps.length} pași · Recikeep`); add(1600); }
+    else { card(r.emoji||'🍽️',r.title,`${r.steps.length} pași · Pas cu Gust`); add(1600); }
     // pași
     for(const [k,s] of r.steps.entries()){
       if(btn) btn.textContent=`⏳ Pasul ${k+1}/${r.steps.length}`;
@@ -1037,7 +1042,7 @@ async function exportGif(id,btn){
       }
       card(r.emoji||'🍽️','Pasul '+(k+1)); caption(k+1,s.text); add(2400);
     }
-    card('🎉','Poftă bună!',r.author?'Rețetă de '+r.author:'Creat cu Recikeep'); add(1800);
+    card('🎉','Poftă bună!',r.author?'Rețetă de '+r.author:'Creat cu Pas cu Gust'); add(1800);
     gif.finish();
     const blob=new Blob([gif.bytes()],{type:'image/gif'}), name=slug(r.title)+'.gif';
     const file=new File([blob],name,{type:'image/gif'});
