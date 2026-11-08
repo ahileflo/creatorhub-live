@@ -139,6 +139,39 @@
   .pick label{display:flex;gap:8px;align-items:center;padding:5px 0;font-size:.92rem}
   .empty{text-align:center;color:var(--soft);padding:30px 10px}
   video.gif{cursor:pointer}
+  /* feed Descoperă */
+  #v-feed.on{position:fixed;left:0;right:0;top:0;bottom:calc(62px + env(safe-area-inset-bottom));z-index:15;background:#000;padding:0}
+  .feed{height:100%;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;overscroll-behavior:contain}
+  .feed::-webkit-scrollbar{display:none}
+  .fcard{height:100%;scroll-snap-align:start;scroll-snap-stop:always;position:relative;overflow:hidden;color:#fff;user-select:none}
+  .fcard .layer{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .9s ease}
+  .fcard .layer.on{opacity:1;animation:kbf 7s ease-out forwards}
+  @keyframes kbf{from{transform:scale(1.02) translate(0,0)}to{transform:scale(1.14) translate(-1.5%,-1.5%)}}
+  .fcard .ph{position:absolute;inset:0;aspect-ratio:auto;font-size:7rem}
+  .fshade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 45%,rgba(0,0,0,.85) 100%);pointer-events:none}
+  .ftop{position:absolute;left:0;right:0;top:0;padding:calc(14px + env(safe-area-inset-top)) 16px 0;display:flex;justify-content:space-between;align-items:center;font-weight:700;z-index:2}
+  .ftop .streak-pill{background:rgba(255,255,255,.18);color:#fff;backdrop-filter:blur(8px)}
+  .fdots{position:absolute;left:16px;right:76px;top:calc(52px + env(safe-area-inset-top));display:flex;gap:4px;z-index:2}
+  .fdots i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.35)}
+  .fdots i.on{background:#fff}
+  .finfo{position:absolute;left:16px;right:80px;bottom:20px;z-index:2}
+  .finfo .tagline{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+  .finfo .tagline span{background:rgba(255,255,255,.2);backdrop-filter:blur(8px);border-radius:99px;padding:3px 10px;font-size:.78rem;font-weight:700}
+  .finfo h2{font-size:1.75rem;line-height:1.15;text-shadow:0 2px 14px rgba(0,0,0,.5);margin-bottom:6px}
+  .finfo p{font-size:.95rem;opacity:.95;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .finfo .fstep{margin-top:8px;font-size:.88rem;background:rgba(0,0,0,.35);border-radius:10px;padding:6px 10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .frail{position:absolute;right:10px;bottom:24px;display:flex;flex-direction:column;gap:14px;z-index:2}
+  .frail button{border:0;background:none;color:#fff;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.7rem;font-weight:700;cursor:pointer;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+  .frail button span{width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;font-size:1.5rem;transition:transform .15s}
+  .frail button:active span{transform:scale(.88)}
+  .frail .liked span{background:#e8603c}
+  .fheart{position:absolute;left:50%;top:45%;font-size:6rem;transform:translate(-50%,-50%) scale(0);pointer-events:none;z-index:3}
+  .fheart.pop{animation:pop2 .8s ease-out}
+  @keyframes pop2{0%{transform:translate(-50%,-50%) scale(0);opacity:1}40%{transform:translate(-50%,-50%) scale(1.15)}100%{transform:translate(-50%,-60%) scale(1);opacity:0}}
+  .fhint{position:absolute;left:0;right:0;top:calc(66px + env(safe-area-inset-top));text-align:center;font-size:.78rem;font-weight:700;opacity:.85;z-index:2;text-shadow:0 1px 6px rgba(0,0,0,.6);animation:hint 2.4s ease-in-out infinite}
+  @keyframes hint{50%{transform:translateY(-4px)}}
+  .fend{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;background:linear-gradient(135deg,#f4a340,#e8603c)}
+  @media (prefers-reduced-motion:reduce){.fcard .layer.on{animation:none}.fhint{animation:none}}
   .sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:70;display:none;align-items:flex-end}
   .sheet.on{display:flex}
   .sheet-card{width:100%;max-width:560px;margin:0 auto;border-radius:18px 18px 0 0;max-height:88vh;overflow:auto;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
@@ -191,6 +224,9 @@
     <div class="grid" id="list"></div>
   </section>
 
+  <!-- DESCOPERĂ: feed vertical, o rețetă pe ecran -->
+  <section class="view" id="v-feed"></section>
+
   <!-- DETALIU -->
   <section class="view" id="v-detail"></section>
 
@@ -233,6 +269,7 @@
 </div>
 
 <nav class="bottom">
+  <button data-go="feed"><span>🌍</span>Descoperă</button>
   <button data-go="home" class="on"><span>🏠</span>Rețete</button>
   <button data-go="edit"><span>➕</span>Adaugă</button>
   <button data-go="streak"><span>🔥</span>Serie</button>
@@ -243,6 +280,7 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="i18n.js"></script>
 <script>
 /* ============================================================
    Pas cu Gust — totul rulează local în browser.
@@ -324,6 +362,7 @@ const seedStepPhoto=(rid,i)=>`img/${rid}-${i+1}.jpg`; // câte o poză pentru fi
 
 /* ---------- stare ---------- */
 let S = load();
+LANG = S.lang || detectLang(); S.lang = LANG; document.documentElement.lang = LANG;
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
@@ -333,7 +372,8 @@ function load(){
         if(!r.cover && SEED_COVERS[r.id] && !r.imported) r.cover=SEED_COVERS[r.id]; // pozele noi ajung și la cine are deja aplicația
         const seed=!r.imported && SEED.find(x=>x.id===r.id);
         if(seed) r.steps.forEach((st,i)=>{ // doar pașii nemodificați, fără poză proprie
-          if(!st.media && seed.steps[i] && seed.steps[i].text===st.text){ st.media=seedStepPhoto(r.id,i); st.mediaType='image'; }
+          const known=[seed.steps[i]?.text,...LANG_ORDER.slice(1).map(l=>SEED_I18N[l]?.[r.id]?.s[i])];
+          if(!st.media && seed.steps[i] && known.includes(st.text)){ st.media=seedStepPhoto(r.id,i); st.mediaType='image'; }
         });
       });
       return d; }
@@ -450,6 +490,7 @@ function go(v,arg){
   $('#v-'+v).classList.add('on');
   document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on',b.dataset.go===v||(v==='detail'&&b.dataset.go==='home')));
   window.scrollTo(0,0);
+  if(v==='feed') renderFeed(); else stopFeed();
   if(v==='home') renderHome();
   if(v==='detail'){scale=1;renderDetail(arg);}
   if(v==='edit') renderEdit(arg);
@@ -462,6 +503,31 @@ $('#pill').onclick=()=>go('streak');
 $('#accBtn').onclick=()=>go('account');
 
 /* ---------- temă ---------- */
+/* ---------- limbă ---------- */
+// Rețetele de pornire nemodificate apar în limba aleasă; textul scris de utilizator nu se traduce.
+function localizeSeeds(){
+  for(const r of S.recipes){
+    const seed=SEED.find(x=>x.id===r.id);
+    if(!seed || r.imported || r.updated) continue;
+    const L=LANG==='ro'?null:SEED_I18N[LANG]?.[r.id];
+    r.title=L?L.t:seed.title; r.desc=L?L.d:seed.desc;
+    r.ingredients=L?[...L.i]:[...seed.ingredients];
+    r.steps.forEach((st,i)=>{ const tx=L?L.s[i]:seed.steps[i]?.text; if(tx) st.text=tx; });
+  }
+}
+function applyLang(l){
+  LANG=LANGS[l]?l:'ro'; S.lang=LANG;
+  document.documentElement.lang=LANG;
+  localizeSeeds();
+  save();
+  translateTree(document.body); // în română, nodurile își recapătă textul original
+  const v=document.querySelector('section.view.on')?.id.slice(2)||'home';
+  go(v==='detail'&&SHARED?'detail':v, v==='detail'?(SHARED?.id||curDetail):undefined);
+  refreshPill();
+}
+const _confirm=window.confirm.bind(window);
+window.confirm=m=>_confirm(t(m));
+
 function applyTheme(){ if(S.theme) document.documentElement.dataset.theme=S.theme; else delete document.documentElement.dataset.theme; }
 $('#themeBtn').onclick=()=>{
   const dark = S.theme ? S.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
@@ -487,7 +553,7 @@ function renderHome(){
     return `<div class="card rcard" data-id="${r.id}">
       ${r.cover?`<img class="cover" data-media="${r.cover}" alt="">`:`<div class="ph">${esc(r.emoji||'🍽️')}</div>`}
       <div class="rbody">
-        <h3>${r.fav?'❤️ ':''}${esc(r.title)}</h3>
+        <h3 class="nt">${r.fav?'❤️ ':''}${esc(r.title)}</h3>
         <div class="meta"><span>⏱ ${fmtTime(r.time)||'—'}</span><span>👥 ${r.servings||'—'}</span><span>📋 ${r.steps.length} pași</span>${pics?`<span>📷 ${pics}</span>`:''}${vids?`<span>🎬 ${vids}</span>`:''}</div>
         <div style="margin-top:6px"><span class="badge">${esc(r.cat)}</span></div>
       </div></div>`;
@@ -496,6 +562,101 @@ function renderHome(){
   hydrate(L);
 }
 $('#q').oninput=renderHome;
+
+/* ---------- DESCOPERĂ (feed vertical) ---------- */
+// O rețetă pe ecran; pozele pașilor se derulează singure, ca un clip. Glisezi în sus pentru următoarea.
+const FLAG_OF=r=>r.country?String.fromCodePoint(...[...r.country.toUpperCase()].map(c=>127397+c.charCodeAt(0))):(SEED.some(x=>x.id===r.id)&&!r.imported?'🇷🇴':'');
+let feedTimer=null, feedObs=null, feedCur=null;
+function feedOrder(){
+  // amestec stabil pe zi: azi vezi aceeași ordine, mâine alta
+  const day=today(), h=x=>{let v=0;for(const c of day+x)v=(v*31+c.charCodeAt(0))|0;return v;};
+  return [...S.recipes].sort((a,b)=>h(a.id)-h(b.id));
+}
+function renderFeed(){
+  const V=$('#v-feed'), list=feedOrder();
+  V.innerHTML=`<div class="feed" id="feed">${list.map((r,k)=>{
+    const layers=[r.cover,...r.steps.map(s=>s.media)].filter(Boolean);
+    const lay=layers.length?layers.map((m,i)=>{
+      const st=i===0&&r.cover?null:r.steps.find(s=>s.media===m);
+      return st&&st.mediaType==='video'
+        ? `<video class="layer ${i?'':'on'}" muted loop playsinline preload="none" data-media="${m}"></video>`
+        : `<img class="layer ${i?'':'on'}" ${k<2?'':'loading="lazy"'} data-media="${m}" alt="">`;
+    }).join(''):`<div class="ph">${esc(r.emoji||'🍽️')}</div>`;
+    const flag=FLAG_OF(r);
+    return `<article class="fcard" data-id="${r.id}">
+      ${lay}<div class="fshade"></div>
+      <div class="ftop"><span>🌍 Descoperă</span><button class="streak-pill" data-act="streak">🔥 ${streak().cur}</button></div>
+      ${layers.length>1?`<div class="fdots">${layers.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`:''}
+      <div class="fheart">❤️</div>
+      <div class="finfo">
+        <div class="tagline">${flag?`<span>${flag}</span>`:''}<span>${esc(r.cat)}</span><span>⏱ ${fmtTime(r.time)||'—'}</span><span>${r.steps.length} pași</span></div>
+        <h2 class="nt">${esc(r.title)}</h2>
+        <p class="nt">${esc(r.desc)}</p>
+        <div class="fstep nt" hidden></div>
+      </div>
+      <div class="frail">
+        <button data-act="fav" class="${r.fav?'liked':''}"><span>❤️</span>Salvează</button>
+        <button data-act="cook"><span>👩‍🍳</span>Gătește</button>
+        <button data-act="anim"><span>🎞️</span>Animație</button>
+        <button data-act="share"><span>📤</span>Trimite</button>
+      </div>
+      ${k===0?'<div class="fhint">⌃ Glisează în sus pentru următoarea rețetă</div>':''}
+    </article>`;}).join('')}
+    <article class="fcard fend"><div style="font-size:4rem">🌍</div><h2 style="margin:10px 0">Ai văzut tot! Adaugă o rețetă de-a ta sau revino mâine.</h2>
+      <button class="btn" data-act="new" style="background:#fff;color:#e8603c;margin-top:10px">➕ Fă-ți prima rețetă</button></article>
+  </div>`;
+  const F=$('#feed');
+  F.onclick=e=>{
+    const b=e.target.closest('[data-act]'), card=e.target.closest('.fcard'); if(!b) return;
+    const id=card?.dataset.id, r=id&&byId(id), act=b.dataset.act;
+    if(act==='streak') return go('streak');
+    if(act==='new') return go('edit');
+    if(!r) return;
+    if(act==='fav'){ r.fav=!r.fav; save(); b.classList.toggle('liked',r.fav); if(r.fav) heartPop(card); toast(r.fav?'❤️ Salvată la favorite':'Scoasă de la favorite'); }
+    if(act==='cook') openCook(id);
+    if(act==='anim') openAnim(id);
+    if(act==='share'){ if(cloudUser||r.share) openShare(id); else shareFeed(r); }
+  };
+  // dublu-tap pe poză = îmi place
+  let lastTap=0;
+  F.addEventListener('pointerup',e=>{
+    if(e.target.closest('[data-act]')) return;
+    const card=e.target.closest('.fcard[data-id]'); if(!card) return;
+    const now=Date.now();
+    if(now-lastTap<300){ const r=byId(card.dataset.id); if(r&&!r.fav){ r.fav=true; save(); card.querySelector('[data-act=fav]').classList.add('liked'); } heartPop(card); lastTap=0; }
+    else lastTap=now;
+  });
+  feedObs?.disconnect();
+  feedObs=new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting && en.intersectionRatio>.6) playCard(en.target); }),{root:F,threshold:[.6]});
+  F.querySelectorAll('.fcard[data-id]').forEach(c=>feedObs.observe(c));
+  hydrate(F);
+}
+function heartPop(card){ const h=card.querySelector('.fheart'); h.classList.remove('pop'); void h.offsetWidth; h.classList.add('pop'); }
+async function shareFeed(r){ // fără cont: link rapid doar cu text
+  try{ await shareLink(appBase()+'#p='+await packText(r), r.title); }catch(e){ openShare(r.id); }
+}
+function playCard(card){
+  if(feedCur===card) return;
+  stopFeed(); feedCur=card;
+  const r=byId(card.dataset.id); if(!r) return;
+  const layers=[...card.querySelectorAll('.layer')], dots=[...card.querySelectorAll('.fdots i')], cap=card.querySelector('.fstep');
+  const stepOf=i=>{ const m=layers[i]?.dataset.media; const k=r.steps.findIndex(s=>s.media===m); return k<0?null:k; };
+  let i=0;
+  const show=n=>{
+    layers.forEach((l,k)=>{ const on=k===n; if(on){ l.classList.remove('on'); void l.offsetWidth; } l.classList.toggle('on',on);
+      if(l.tagName==='VIDEO'){ if(on) l.play().catch(()=>{}); else l.pause(); } });
+    dots.forEach((d,k)=>d.classList.toggle('on',k<=n));
+    const k=stepOf(n);
+    if(k==null){ cap.hidden=true; } else { cap.hidden=false; cap.textContent=`${k+1}. ${r.steps[k].text}`; }
+  };
+  show(0);
+  if(layers.length>1) feedTimer=setInterval(()=>{ i=(i+1)%layers.length; show(i); },2600);
+}
+function stopFeed(){
+  clearInterval(feedTimer); feedTimer=null;
+  feedCur?.querySelectorAll('video').forEach(v=>v.pause());
+  feedCur=null;
+}
 
 /* ---------- DETALIU ---------- */
 let scale=1;
@@ -507,7 +668,9 @@ function scaleLine(line,f){
     return String(v).replace('.',',');
   });
 }
+let curDetail=null;
 function renderDetail(id){
+  curDetail=id;
   const r=byId(id); if(!r) return go('home');
   scale = scale||1;
   const V=$('#v-detail');
@@ -528,8 +691,8 @@ function renderDetail(id){
       <div class="panel">
         <div class="detail-head">
           <span class="badge">${esc(r.cat)}</span>
-          <h1>${esc(r.title)}</h1>
-          <p style="color:var(--soft)">${esc(r.desc)}</p>
+          <h1 class="nt">${esc(r.title)}</h1>
+          <p class="nt" style="color:var(--soft)">${esc(r.desc)}</p>
         </div>
         <div class="meta"><span>⏱ ${fmtTime(r.time)||'—'}</span><span>📋 ${r.steps.length} pași</span><span>✍️ ${esc(r.author||'Eu')}</span><span>📜 ${esc(licName(r.license))}</span></div>
         <div class="row" style="margin-top:14px">
@@ -547,12 +710,12 @@ function renderDetail(id){
         <h2>🧺 Ingrediente</h2>
         <div class="scaler"><button id="sm">−</button><b>${serv} porții</b><button id="sp">+</button></div>
       </div>
-      <ul class="ing">${r.ingredients.map((i,k)=>`<li><input type="checkbox" id="i${k}"><span>${esc(scaleLine(i,scale))}</span></li>`).join('')}</ul>
+      <ul class="ing">${r.ingredients.map((i,k)=>`<li><input type="checkbox" id="i${k}"><span class="nt">${esc(scaleLine(i,scale))}</span></li>`).join('')}</ul>
     </div>
     <div class="card panel">
       <h2>📋 Pași</h2>
       ${r.steps.map((s,k)=>`<div class="step"><div class="num">${k+1}</div><div>
-        <div>${esc(s.text)}</div>
+        <div class="nt">${esc(s.text)}</div>
         ${s.min?`<div class="meta" style="margin-top:4px">⏲ ${fmtTime(s.min)}</div>`:''}
         ${s.media?(s.mediaType==='video'?`<video class="media gif" autoplay muted loop playsinline data-media="${s.media}" title="Atinge pentru sunet"></video>`:`<img class="media" data-media="${s.media}" alt="Pasul ${k+1}">`):''}
       </div></div>`).join('')}
@@ -611,7 +774,7 @@ function drawCook(){
   const B=$('#cookBody');
   if(last){
     B.innerHTML=`<div style="text-align:center;padding-top:30px"><div style="font-size:4rem">🎉</div><h2>Poftă bună!</h2>
-      <p class="big">Ai terminat <b>${esc(r.title)}</b>.</p>
+      <p class="big">Ai terminat <b class="nt">${esc(r.title)}</b>.</p>
       <button class="btn ok" id="ckDone" style="padding:16px 26px">🔥 Bifează în serie</button></div>`;
     if(r._shared) $('#ckDone').textContent='💾 Salvează și bifează în serie';
     $('#ckDone').onclick=async()=>{
@@ -623,7 +786,7 @@ function drawCook(){
   const s=r.steps[ck.i];
   $('#cookNext').textContent= ck.i===n-1 ? 'Termină ✓' : 'Următorul →';
   B.innerHTML=`<div class="num" style="width:46px;height:46px;font-size:1.3rem">${ck.i+1}</div>
-    <p class="big">${esc(s.text)}</p>
+    <p class="big nt">${esc(s.text)}</p>
     ${s.media?(s.mediaType==='video'?`<video class="media gif" playsinline autoplay muted loop data-media="${s.media}"></video>`:`<img class="media" data-media="${s.media}" alt="">`):''}
     ${s.min?`<div class="card panel" style="margin-top:14px;text-align:center" id="tmBox"><div class="timer" id="tm">${mmss(s.min*60)}</div>
       <button class="btn" id="tmBtn">▶ Pornește cronometrul</button></div>`:''}`;
@@ -663,7 +826,7 @@ function renderEdit(id){
       <label class="f">Titlu *</label><input class="in" id="eT" value="${esc(draft.title)}" placeholder="ex: Tochitură moldovenească">
       <label class="f">Descriere scurtă</label><textarea class="in" id="eD" placeholder="Ce o face specială?">${esc(draft.desc)}</textarea>
       <div class="three">
-        <div><label class="f">Categorie</label><select class="in" id="eC">${CATS.slice(1).map(c=>`<option ${c===draft.cat?'selected':''}>${c}</option>`).join('')}</select></div>
+        <div><label class="f">Categorie</label><select class="in" id="eC">${CATS.slice(1).map(c=>`<option value="${c}" ${c===draft.cat?'selected':''}>${c}</option>`).join('')}</select></div>
         <div><label class="f">Timp total (min)</label><input class="in" type="number" min="0" id="eTm" value="${draft.time}"></div>
         <div><label class="f">Porții</label><input class="in" type="number" min="1" id="eS" value="${draft.servings}"></div>
       </div>
@@ -908,7 +1071,7 @@ function renderProducts(){
   };
   const L=$('#pList');
   L.innerHTML=S.products.length?S.products.map(p=>`<div class="card prod">
-      <div class="row" style="justify-content:space-between"><h3>${esc(p.title)}</h3><span class="price">${p.price.toLocaleString('ro-RO')} lei</span></div>
+      <div class="row" style="justify-content:space-between"><h3 class="nt">${esc(p.title)}</h3><span class="price">${p.price.toLocaleString(locale())} lei</span></div>
       <p class="meta" style="margin:4px 0 8px">${p.recipes.length} rețete · ${esc(p.author||'fără autor')}</p>
       ${p.desc?`<p style="margin-bottom:8px">${esc(p.desc)}</p>`:''}
       <p class="meta" style="margin-bottom:10px">${p.recipes.map(i=>esc(byId(i)?.title)).filter(Boolean).join(' · ')}</p>
@@ -949,14 +1112,14 @@ async function buildEbook(p,forPrint){
     body+=`<article>
       ${cov?`<img class="cov" src="${cov}" alt="">`:`<div class="ph">${esc(r.emoji||'🍽️')}</div>`}
       <h2>${esc(r.title)}</h2><p class="d">${esc(r.desc)}</p>
-      <p class="m">⏱ ${fmtTime(r.time)||'—'} · 👥 ${r.servings} porții · ${esc(r.cat)}</p>
-      <h3>Ingrediente</h3><ul>${r.ingredients.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>
-      <h3>Mod de preparare</h3><ol>${steps}</ol>
-      <p class="lic">Rețetă de ${esc(r.author||p.author||'autor')} · ${esc(licName(r.license))}</p>
+      <p class="m">⏱ ${fmtTime(r.time)||'—'} · 👥 ${t(r.servings+' porții')} · ${esc(t(r.cat))}</p>
+      <h3>${t('Ingrediente')}</h3><ul>${r.ingredients.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>
+      <h3>${t('Mod de preparare')}</h3><ol>${steps}</ol>
+      <p class="lic">${esc(t('Rețetă de '+(r.author||p.author||t('Autorul'))))} · ${esc(t(licName(r.license)))}</p>
     </article>`;
   }
   const year=new Date().getFullYear();
-  return `<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  return `<!DOCTYPE html><html lang="${LANG}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(p.title)}</title><style>
 body{font-family:Georgia,serif;max-width:760px;margin:0 auto;padding:24px 16px;color:#2b1d16;background:#fffaf5;line-height:1.6}
 .title{text-align:center;padding:60px 0;border-bottom:3px solid #e8603c;margin-bottom:30px}
@@ -970,9 +1133,9 @@ ol li{margin-bottom:14px}.lic,.vnote{color:#7d6558;font-size:.82rem}
 @media print{body{background:#fff}video{display:none}}
 </style></head><body>
 <div class="title"><h1>${esc(p.title)}</h1><p>${esc(p.desc)}</p><p><b>${esc(p.author)}</b></p></div>
-<div class="toc"><h3>Cuprins</h3><ol>${rs.map(r=>`<li>${esc(r.title)}</li>`).join('')}</ol></div>
+<div class="toc"><h3>${t('Cuprins')}</h3><ol>${rs.map(r=>`<li>${esc(r.title)}</li>`).join('')}</ol></div>
 ${body}
-<footer>© ${year} ${esc(p.author||'Autorul')} · Creat cu Pas cu Gust</footer>
+<footer>© ${year} ${esc(p.author||t('Autorul'))} · ${t('Creat cu Pas cu Gust')}</footer>
 ${forPrint?'<script>window.onload=()=>setTimeout(()=>print(),400)<\/script>':''}
 </body></html>`;
 }
@@ -1004,7 +1167,7 @@ async function animStep(i){
   const St=$('#animStage');
   if(i===0){
     St.innerHTML = r.cover
-      ? `<img class="kb" data-media="${r.cover}" alt=""><div class="anim-cap"><b style="font-family:Fraunces,serif;font-size:1.5rem">${esc(r.title)}</b><br>${r.steps.length} pași · ${fmtTime(r.time)||''}</div>`
+      ? `<img class="kb" data-media="${r.cover}" alt=""><div class="anim-cap"><b style="font-family:Fraunces,serif;font-size:1.5rem">${esc(r.title)}</b><br>${t(`${r.steps.length} pași · ${fmtTime(r.time)||''}`)}</div>`
       : `<div class="anim-card">${esc(r.emoji||'🍽️')}<b>${esc(r.title)}</b></div>`;
   } else if(i===n+1){
     St.innerHTML=`<div class="anim-card">🎉<b>Poftă bună!</b></div>`;
@@ -1014,7 +1177,7 @@ async function animStep(i){
         ? `<video autoplay muted loop playsinline data-media="${s.media}"></video>`
         : `<img class="kb" data-media="${s.media}" alt="">`)
       : `<div class="anim-card">${esc(r.emoji||'🍽️')}<b>Pasul ${i}</b></div>`;
-    St.innerHTML = m + `<div class="anim-cap"><span class="num">${i}</span>${esc(s.text)}</div>`;
+    St.innerHTML = m + `<div class="anim-cap"><span class="num">${i}</span><span class="nt">${esc(s.text)}</span></div>`;
   }
   await hydrate(St);
   if(an.i===i && !an.paused && $('#anim').classList.contains('on')) an.t=setTimeout(()=>animStep(i+1),AN_MS);
@@ -1082,7 +1245,7 @@ async function exportGif(id,btn){
     // titlu
     const cv = r.cover && await loadImg(await mediaURL(r.cover)).catch(()=>null);
     if(cv){ for(let f=0;f<4;f++){cover(cv,1+f*.02);caption(0,r.title);add(400);} }
-    else { card(r.emoji||'🍽️',r.title,`${r.steps.length} pași · Pas cu Gust`); add(1600); }
+    else { card(r.emoji||'🍽️',r.title,t(`${r.steps.length} pași · Pas cu Gust`)); add(1600); }
     // pași
     for(const [k,s] of r.steps.entries()){
       if(btn) btn.textContent=`⏳ Pasul ${k+1}/${r.steps.length}`;
@@ -1095,9 +1258,9 @@ async function exportGif(id,btn){
         const im=await loadImg(u).catch(()=>null);
         if(im){ for(let f=0;f<5;f++){cover(im,1+f*.015);caption(k+1,s.text);add(440);} continue; }
       }
-      card(r.emoji||'🍽️','Pasul '+(k+1)); caption(k+1,s.text); add(2400);
+      card(r.emoji||'🍽️',t('Pasul '+(k+1))); caption(k+1,s.text); add(2400);
     }
-    card('🎉','Poftă bună!',r.author?'Rețetă de '+r.author:'Creat cu Pas cu Gust'); add(1800);
+    card('🎉',t('Poftă bună!'),t(r.author?'Rețetă de '+r.author:'Creat cu Pas cu Gust')); add(1800);
     gif.finish();
     const blob=new Blob([gif.bytes()],{type:'image/gif'}), name=slug(r.title)+'.gif';
     const file=new File([blob],name,{type:'image/gif'});
@@ -1189,7 +1352,7 @@ async function syncNow(){
     const {error:e2}=await sb.from('recikeep_state').upsert({user_id:me,data:M,updated_at:new Date().toISOString()});
     if(e2) throw e2;
     // îmbinăm din nou cu ce s-a modificat local între timp
-    const F=mergeState(S,M); F.theme=S.theme; S=F;
+    const F=mergeState(S,M); F.theme=S.theme; F.lang=S.lang; S=F;
     localStorage.setItem(KEY,JSON.stringify(S));
     lastSync=new Date(); cloudErr=errs.length?`${errs.length} fișiere nu s-au urcat (${errs[0]})`:'';
     refreshPill();
@@ -1224,7 +1387,7 @@ function renderAccount(){
       ${RK_CLOUD_DEFAULT.url?'':'<button class="btn ghost sm" id="cForget">Deconectează serverul</button>'}`;
   } else {
     h+=`<div class="card panel"><h2>👤 ${esc(cloudUser.email||'Cont')}</h2>
-      <p class="meta">${syncing?'⏳ Se sincronizează…':lastSync?'✓ Sincronizat la '+lastSync.toLocaleTimeString('ro-RO'):'Încă nesincronizat'}</p>
+      <p class="meta">${syncing?'⏳ Se sincronizează…':lastSync?'✓ Sincronizat la '+lastSync.toLocaleTimeString(locale()):'Încă nesincronizat'}</p>
       ${cloudErr?`<div class="notice">⚠️ ${esc(cloudErr)}</div>`:''}
       <div class="row" style="margin-top:12px">
         <button class="btn" id="aSync" ${syncing?'disabled':''}>🔄 Sincronizează acum</button>
@@ -1234,8 +1397,10 @@ function renderAccount(){
       <p class="meta" style="margin-bottom:10px">Șterge definitiv contul și tot ce e salvat în cloud (rețete, poze, clipuri). Datele de pe acest dispozitiv rămân.</p>
       <button class="btn ghost sm" id="aDel">Șterge contul definitiv</button></div>`;
   }
+  h+=`<div class="card panel"><h2>🌐 Limbă</h2><div class="chips" style="flex-wrap:wrap">${LANG_ORDER.map(l=>`<button class="chip nt ${l===LANG?'on':''}" data-lang="${l}">${LANGS[l].flag} ${LANGS[l].name}</button>`).join('')}</div></div>`;
   h+=`<p class="meta" style="margin:10px 0 28px"><a href="confidentialitate.html" style="color:var(--accent)">Politica de confidențialitate</a></p>`;
   V.innerHTML=h;
+  V.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
   const on=(id,fn)=>{const el=$('#'+id); if(el) el.onclick=fn;};
   on('cSave',()=>{
     const url=$('#cU').value.trim().replace(/\/$/,''), key=$('#cK').value.trim();
@@ -1326,7 +1491,7 @@ async function unpackText(z){
 }
 
 async function shareLink(url,title){
-  if(navigator.share){ try{ await navigator.share({title,text:`Rețeta „${title}” pe Pas cu Gust`,url}); return; }catch(e){ if(e.name==='AbortError') return; } }
+  if(navigator.share){ try{ await navigator.share({title,text:t(`Rețeta „${title}” pe Pas cu Gust`),url}); return; }catch(e){ if(e.name==='AbortError') return; } }
   try{ await navigator.clipboard.writeText(url); toast('📋 Link copiat'); }catch(e){ toast('Copiază linkul din căsuță'); }
 }
 function closeSheet(){ $('#sheet').classList.remove('on'); }
@@ -1450,7 +1615,7 @@ async function makeOgImage(r){
     for(const w of words){ const t=line?line+' '+w:w; if(x.measureText(t).width>maxW && line){lines.push(line);line=w;} else line=t; }
     lines.push(line);
     if(lines.length>2){ lines.length=2; lines[1]=lines[1].replace(/\s*\S*$/,'')+'…'; }
-    const sub=[`${r.steps.length} pași`,fmtTime(r.time),r.author?'de '+r.author:''].filter(Boolean).join('  ·  ');
+    const sub=[t(`${r.steps.length} pași`),fmtTime(r.time),r.author?t('de '+r.author):''].filter(Boolean).join('  ·  ');
     const y0=H-70-(lines.length-1)*78-58;
     lines.forEach((l,k)=>x.fillText(l,48,y0+k*78));
     x.font='600 32px Inter, sans-serif'; x.globalAlpha=.92; x.fillText(sub,48,H-58); x.globalAlpha=1;
@@ -1505,7 +1670,7 @@ async function openSharedFromUrl(){
 }
 
 /* ---------- pornire ---------- */
-applyTheme(); refreshPill(); renderHome();
+localizeSeeds(); applyTheme(); refreshPill(); renderHome(); startI18n();
 const cloudReady=cloudInit();
 openSharedFromUrl();
 if(location.hash==='#adauga') go('edit');
