@@ -1,0 +1,8 @@
+node_modules/
+__pycache__/
+.pytest_cache/
+storage/
+.env
+*.pyc
+ops/last-failures.md
+hub/content/out/
