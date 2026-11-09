@@ -95,3 +95,19 @@ def test_cmyk_naive():
 def test_rejects_unsupported_color_count():
     with pytest.raises(ValueError):
         ProcessingConfig(num_colors=25)
+
+
+def test_heic_from_iphone_is_readable(tmp_path):
+    """Pozele de iPhone/iCloud vin adesea în HEIC: trebuie citite (pillow-heif)."""
+    pillow_heif = pytest.importorskip("pillow_heif")
+    from PIL import Image
+
+    from pbn_engine.quantize import load_image
+
+    pillow_heif.register_heif_opener()
+    src = synthetic_image(120, 90)
+    path = tmp_path / "IMG_0001.HEIC"
+    Image.fromarray(src).save(path, format="HEIF", quality=90)
+    out = load_image(path)
+    assert out.shape == (120, 90, 3)
+    assert abs(float(out.mean()) - float(src.mean())) < 10

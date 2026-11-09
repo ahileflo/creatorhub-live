@@ -13,7 +13,8 @@ import { UnrecoverableError, Worker } from 'bullmq';
 import { pathToFileURL } from 'node:url';
 import { loadConfig } from '../config.js';
 import { createDeps } from '../deps.js';
-import { getAccessToken } from '../integrations/google/oauth.js';
+import { getAccessToken, GoogleOAuthError } from '../integrations/google/oauth.js';
+import { PickerApiError } from '../integrations/google/picker.js';
 import { finalizeUpload } from '../integrations/icloud/uploads.js';
 import { storeSourceImage } from '../ingest/sourceImages.js';
 import { ingestTheme } from '../catalog/ingest.js';
@@ -69,7 +70,28 @@ export function createProcessor(deps) {
   return async (job) => {
     switch (job.name) {
       case 'google-picker-poll':
-        return pollPickerSession(deps, job.data);
+        try {
+          return await pollPickerSession(deps, job.data);
+        } catch (err) {
+          // Conexiune revocată sau sesiune inexistentă la Google: reîncercarea nu ajută.
+          const permanent = (err instanceof GoogleOAuthError && ['not_connected', 'invalid_grant'].includes(err.code))
+            || (err instanceof PickerApiError && [400, 403, 404].includes(err.status));
+          if (permanent) {
+            await deps.db.query(
+              `UPDATE picker_sessions SET status = 'failed', error = $2, updated_at = now()
+                WHERE id = $1 AND status IN ('pending', 'ingesting')`,
+              [job.data.sessionId, err.code ?? `google_${err.status}`]);
+            throw new UnrecoverableError(err.message);
+          }
+          if (job.attemptsMade + 1 >= (job.opts?.attempts ?? 1)) {
+            // Ultima încercare a eșuat: clientul vede eroarea în loc de „pending" la nesfârșit.
+            await deps.db.query(
+              `UPDATE picker_sessions SET status = 'failed', error = $2, updated_at = now()
+                WHERE id = $1 AND status IN ('pending', 'ingesting')`,
+              [job.data.sessionId, String(err.message).slice(0, 500)]);
+          }
+          throw err;
+        }
       case 'icloud-finalize':
         try {
           return { sourceImageId: await finalizeUpload(deps, job.data.uploadId) };

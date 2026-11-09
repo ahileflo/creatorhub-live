@@ -85,8 +85,15 @@ export class LocalKeyProvider {
     if (existsSync(path)) return readFileSync(path);
     const value = create();
     mkdirSync(dirname(path), { recursive: true });
-    writeFileSync(path, value, { mode: 0o600 });
-    return value;
+    try {
+      // 'wx' = creare exclusivă: dacă API-ul și worker-ul pornesc simultan, doar unul
+      // scrie cheia, iar celălalt o citește pe aceea (altfel ar folosi chei diferite).
+      writeFileSync(path, value, { mode: 0o600, flag: 'wx' });
+      return value;
+    } catch (err) {
+      if (err.code !== 'EEXIST') throw err;
+      return readFileSync(path);
+    }
   }
 
   async encrypt(plaintext, context) {

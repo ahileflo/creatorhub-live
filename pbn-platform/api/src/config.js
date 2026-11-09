@@ -13,7 +13,7 @@ const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().default(8080),
   PUBLIC_API_URL: z.url().default('http://localhost:8080'),
-  APP_URL: z.url().default('http://localhost:3000'), // frontend-ul (redirect după OAuth)
+  APP_URL: z.url().default('http://localhost:8080'), // frontend-ul (servit de API în /; redirect după OAuth)
 
   DATABASE_URL: z.string().default('postgres://postgres@localhost:5432/pbn'),
   REDIS_URL: z.string().default('redis://localhost:6379'),

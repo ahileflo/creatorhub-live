@@ -7,7 +7,8 @@ Fastify 5 · PostgreSQL · BullMQ 6 (Redis) · S3 · KMS. Arhitectura completă:
 | API HTTP | `npm start` | Auth, OAuth Google, upload-uri, comenzi, catalog |
 | Worker ingestie (Node) | `npm run worker:ingest` | Polling Google Picker, decriptare upload-uri, import catalog, reaper |
 | Worker procesare (Python) | `python -m pbn_worker` (în `../processing`) | Rulează `pbn_engine` pentru job-urile din `pbn-orders` / `pbn-catalog` |
-| Import catalog manual | `npm run catalog:ingest -- --theme "alpine lake" --category peisaje` | Modulul 1, la cerere |
+| Import catalog manual | `npm run catalog:ingest -- --theme "alpine lake" --category peisaje` | Modulul 1, la cerere (Unsplash/Pexels) |
+| Import dintr-un folder | `npm run catalog:ingest -- --theme demo --from-dir ./poze --approve` | Poze proprii/licențiate, publicate direct |
 
 ## Pornire locală
 
@@ -37,9 +38,15 @@ Modulul 2 (marcat ★) cere planul **premium** (`users.plan`).
 | POST | `/v1/uploads/:id/complete` ★ | `{ wrappedKey, iv, sha256 }` după PUT-ul ciphertext-ului |
 | GET | `/v1/uploads/:id` | `issued → uploaded → ingested \| failed` + `sourceImageId` |
 | POST | `/v1/orders` | Comandă din catalog (`catalogDesignId`) sau personalizată (`sourceImageId`, `numColors`, `canvasWmm`, `canvasHmm`) |
+| GET | `/v1/orders` | Comenzile utilizatorului |
 | GET | `/v1/orders/:id` | Comanda + job-urile ei |
-| GET | `/v1/jobs/:id` | Starea procesării + linkuri temporare (15 min) către SVG/PDF/rețetă/mockup |
-| GET | `/v1/catalog?category=&limit=` | Designuri publicate (cu atribuirea autorului) |
+| POST | `/v1/orders/:id/approve` | `{ jobId }`: clientul aprobă varianta → `awaiting_payment` |
+| GET | `/v1/jobs/:id` | Starea procesării, rețeta de vopsele + linkuri temporare (15 min) către SVG/PDF/rețetă/mockup |
+| GET | `/v1/catalog?category=&limit=` | Designuri publicate (cu atribuirea autorului și imaginile mockup / pictat / numerotat) |
+| POST | `/v1/dev/session` | **Doar în dezvoltare**: `{ email, plan }` → JWT de test (dezactivat când `NODE_ENV=production`) |
+
+Aplicația web (catalog, creare din poză, comenzi, previzualizare, aprobare) e servită de API la `/`
+(fișierele din `public/`, fără pas de build).
 
 ### Frontend: upload din iCloud Photos
 

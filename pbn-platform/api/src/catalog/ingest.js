@@ -56,7 +56,7 @@ export async function ingestTheme(deps, { theme, category, perSource = 10, varia
     for (const c of candidates) {
       if (taken >= perSource) break;
       report.considered += 1;
-      const reason = acceptCandidate(c);
+      const reason = source.trusted ? null : acceptCandidate(c);
       if (reason) { skip(reason); continue; }
 
       const exists = await db.query(
@@ -75,7 +75,8 @@ export async function ingestTheme(deps, { theme, category, perSource = 10, varia
       const jobs = await withTx(db, async (tx) => {
         const src = await storeSourceImage({ db: tx, storage }, {
           origin: c.origin, bytes, externalId: c.externalId, author: c.author, license: c.license,
-          attributionUrl: c.attributionUrl, width: c.width, height: c.height, hasPeople: c.hasPeople,
+          attributionUrl: c.attributionUrl, width: c.width || undefined, height: c.height || undefined,
+          hasPeople: c.hasPeople,
           moderation: autoApprove ? 'approved' : 'pending',
         });
         if (!src.created) return [];

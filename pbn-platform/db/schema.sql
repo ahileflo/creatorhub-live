@@ -19,7 +19,7 @@ CREATE TYPE moderation_state AS ENUM ('pending', 'approved', 'rejected');
 CREATE TYPE job_kind         AS ENUM ('catalog', 'order', 'preview');
 CREATE TYPE job_status       AS ENUM ('queued', 'running', 'succeeded', 'failed', 'dead', 'cancelled');
 CREATE TYPE order_status     AS ENUM ('draft', 'awaiting_processing', 'awaiting_approval',
-                                      'paid', 'in_production', 'shipped', 'cancelled');
+                                      'awaiting_payment', 'paid', 'in_production', 'shipped', 'cancelled');
 CREATE TYPE artifact_kind    AS ENUM ('source', 'canvas_svg', 'canvas_pdf', 'solution_svg',
                                       'recipe_json', 'manifest_json', 'painted_png',
                                       'numbered_png', 'palette_png', 'mockup_jpg');

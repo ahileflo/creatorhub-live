@@ -122,6 +122,16 @@ after(async () => {
   await admin.end();
 });
 
+test('dev session issues a working token (non-production only)', { skip }, async () => {
+  const r = await app.inject({ method: 'POST', url: '/v1/dev/session', payload: { email: 'Demo@Test.dev', plan: 'free' } });
+  assert.equal(r.statusCode, 200, r.body);
+  const { token, user } = r.json();
+  const again = (await app.inject({ method: 'POST', url: '/v1/dev/session', payload: { email: 'demo@test.dev' } })).json();
+  assert.equal(again.user.id, user.id, 'same e-mail → same user');
+  const me = await app.inject({ method: 'GET', url: '/v1/orders', headers: { authorization: `Bearer ${token}` } });
+  assert.equal(me.statusCode, 200);
+});
+
 test('auth: missing/invalid tokens are rejected; Module 2 requires premium', { skip }, async () => {
   assert.equal((await app.inject({ method: 'POST', url: '/v1/uploads' })).statusCode, 401);
   assert.equal((await app.inject({ method: 'POST', url: '/v1/uploads',
@@ -346,6 +356,20 @@ test('python worker consumes the BullMQ job and publishes production files', { s
     assert.equal(order.status, 'awaiting_approval');
     const src = (await deps.db.query('SELECT width_px, height_px FROM source_images WHERE id = $1', [uploadedSourceId])).rows[0];
     assert.deepEqual([src.width_px, src.height_px], [400, 500]);
+    assert.ok(job.recipe && job.recipe.colors.length >= 2, 'job exposes the paint recipe');
+
+    // Clientul aprobă varianta → comanda trece la plată; o a doua aprobare e refuzată.
+    const headers = await auth(premiumUser);
+    const list = (await app.inject({ method: 'GET', url: '/v1/orders', headers })).json();
+    const mine = list.items.find((o) => o.job_id === orderJobId);
+    assert.ok(mine, 'order listed for its owner');
+    const ok = await app.inject({ method: 'POST', url: `/v1/orders/${mine.id}/approve`, headers, payload: { jobId: orderJobId } });
+    assert.equal(ok.statusCode, 200, ok.body);
+    assert.equal(ok.json().status, 'awaiting_payment');
+    const again = await app.inject({ method: 'POST', url: `/v1/orders/${mine.id}/approve`, headers, payload: { jobId: orderJobId } });
+    assert.equal(again.statusCode, 409);
+    const foreign = await app.inject({ method: 'GET', url: '/v1/orders', headers: await auth(freeUser) });
+    assert.equal(foreign.json().items.length, 0, 'other users see none of it');
   } finally {
     worker.kill('SIGTERM');
     await new Promise((r) => worker.once('exit', r));

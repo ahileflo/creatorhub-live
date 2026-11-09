@@ -106,3 +106,41 @@ export class PexelsSource {
     return Buffer.from(await res.arrayBuffer());
   }
 }
+
+/**
+ * Sursă locală: imagini dintr-un folder (fotografii proprii, licențiate sau demo).
+ * Folosită pentru demo și pentru importuri manuale; filtrele automate nu se aplică
+ * (`trusted`), deoarece operatorul a ales deja imaginile.
+ */
+export class LocalFolderSource {
+  constructor({ dir, author = 'CreatorHub', license = 'Own / licensed' }) {
+    this.dir = dir;
+    this.origin = 'direct_upload';
+    this.trusted = true;
+    this.author = author;
+    this.license = license;
+  }
+
+  async search() {
+    const { readdir } = await import('node:fs/promises');
+    const files = (await readdir(this.dir)).filter((f) => /\.(jpe?g|png|webp|heic)$/i.test(f)).sort();
+    return files.map((f) => ({
+      origin: 'direct_upload',
+      externalId: `local:${f}`,
+      width: 0,
+      height: 0,
+      downloadUrl: f,
+      description: f.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' '),
+      author: { name: this.author, url: '' },
+      attributionUrl: '',
+      license: this.license,
+      hasPeople: false,
+    }));
+  }
+
+  async download(candidate) {
+    const { readFile } = await import('node:fs/promises');
+    const { join, basename } = await import('node:path');
+    return readFile(join(this.dir, basename(candidate.downloadUrl)));
+  }
+}

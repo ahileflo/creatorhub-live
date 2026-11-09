@@ -32,7 +32,7 @@ export default async function orderRoutes(app, { deps, requireUser }) {
       const d = rows[0];
       const order = await db.query(
         `INSERT INTO orders (user_id, status, catalog_design_id, num_colors, canvas_w_mm, canvas_h_mm, approved_job_id)
-         VALUES ($1, 'draft', $2, $3, $4, $5, $6) RETURNING id, status`,
+         VALUES ($1, 'awaiting_payment', $2, $3, $4, $5, $6) RETURNING id, status`,
         [req.user.id, d.id, d.num_colors, d.canvas_w_mm, d.canvas_h_mm, d.job_id]);
       return reply.code(201).send({ orderId: order.rows[0].id, status: order.rows[0].status, jobId: d.job_id });
     }
@@ -60,6 +60,30 @@ export default async function orderRoutes(app, { deps, requireUser }) {
     });
     await enqueueProcessingJobs(queues, [result.job]);
     return reply.code(201).send({ orderId: result.orderId, status: 'awaiting_processing', jobId: result.job.id });
+  });
+
+  app.get('/v1/orders', auth, async (req) => {
+    const { rows } = await db.query(
+      `SELECT o.id, o.status, o.num_colors, o.canvas_w_mm, o.canvas_h_mm, o.approved_job_id, o.created_at,
+              d.title AS catalog_title,
+              (SELECT j.id FROM processing_jobs j WHERE j.order_id = o.id ORDER BY j.created_at DESC LIMIT 1) AS latest_job_id
+         FROM orders o LEFT JOIN catalog_designs d ON d.id = o.catalog_design_id
+        WHERE o.user_id = $1 ORDER BY o.created_at DESC LIMIT 100`, [req.user.id]);
+    return { items: rows.map((r) => ({ ...r, job_id: r.approved_job_id ?? r.latest_job_id })) };
+  });
+
+  // Clientul aprobă varianta generată → comanda trece la plată.
+  app.post('/v1/orders/:id/approve', auth, async (req, reply) => {
+    const { jobId } = z.object({ jobId: z.uuid() }).parse(req.body ?? {});
+    const { rows } = await db.query(
+      `UPDATE orders o SET approved_job_id = $3, status = 'awaiting_payment', updated_at = now()
+        WHERE o.id = $1 AND o.user_id = $2 AND o.status = 'awaiting_approval'
+          AND EXISTS (SELECT 1 FROM processing_jobs j WHERE j.id = $3 AND j.order_id = o.id AND j.status = 'succeeded')
+        RETURNING o.id, o.status, o.approved_job_id`, [req.params.id, req.user.id, jobId]);
+    if (!rows.length) {
+      return reply.code(409).send({ error: 'not_approvable', message: 'Order is not awaiting approval or job is not ready' });
+    }
+    return rows[0];
   });
 
   app.get('/v1/orders/:id', auth, async (req, reply) => {
@@ -94,7 +118,8 @@ export default async function orderRoutes(app, { deps, requireUser }) {
         }),
       })));
     }
-    return { ...job, artifacts };
+    const recipe = await db.query('SELECT total_paint_ml, colors FROM paint_recipes WHERE job_id = $1', [job.id]);
+    return { ...job, artifacts, recipe: recipe.rows[0] ?? null };
   });
 
   app.get('/v1/catalog', async (req) => {
@@ -103,11 +128,24 @@ export default async function orderRoutes(app, { deps, requireUser }) {
       limit: z.coerce.number().int().min(1).max(100).default(24),
     }).parse(req.query ?? {});
     const { rows } = await db.query(
-      `SELECT d.id, d.slug, d.title, d.category, d.tags, d.num_colors, d.canvas_w_mm, d.canvas_h_mm,
-              d.difficulty, d.num_regions, d.total_paint_ml, s.author_name, s.attribution_url, s.license
+      `SELECT d.id, d.source_image_id, d.slug, d.title, d.category, d.tags, d.num_colors, d.canvas_w_mm, d.canvas_h_mm,
+              d.difficulty, d.num_regions, d.total_paint_ml, s.author_name, s.attribution_url, s.license,
+              (SELECT json_object_agg(a.kind, a.storage_key) FROM job_artifacts a
+                WHERE a.job_id = (SELECT j.id FROM processing_jobs j
+                                   WHERE j.catalog_design_id = d.id AND j.status = 'succeeded'
+                                   ORDER BY j.finished_at DESC LIMIT 1)
+                  AND a.kind IN ('mockup_jpg', 'painted_png', 'numbered_png')) AS image_keys
          FROM catalog_designs d JOIN source_images s ON s.id = d.source_image_id
         WHERE d.published_at IS NOT NULL AND ($1::text IS NULL OR d.category = $1)
         ORDER BY d.published_at DESC LIMIT $2`, [q.category ?? null, q.limit]);
-    return { items: rows };
+    // Mockup-urile sunt imagini de prezentare: link temporar de 1 oră (în producție: bucket public + CDN).
+    const sign = (key) => (key ? storage.presignGet('artifacts', key, { expiresIn: 3600 }) : null);
+    const items = await Promise.all(rows.map(async ({ image_keys: k, ...r }) => ({
+      ...r,
+      images: {
+        mockup: await sign(k?.mockup_jpg), painted: await sign(k?.painted_png), numbered: await sign(k?.numbered_png),
+      },
+    })));
+    return { items };
   });
 }

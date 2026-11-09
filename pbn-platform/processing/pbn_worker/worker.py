@@ -63,10 +63,14 @@ class JobProcessor:
                        started_at = now(), heartbeat_at = now(), error = NULL
                   FROM source_images s
                  WHERE j.id = %s AND s.id = j.source_image_id
-                   AND j.status IN ('queued', 'failed', 'running')
+                   AND (j.status IN ('queued', 'failed')
+                        -- 'running' doar dacă worker-ul anterior a murit (heartbeat expirat);
+                        -- altfel două procese ar putea procesa același job simultan.
+                        OR (j.status = 'running' AND j.heartbeat_at < now() - interval '2 minutes'))
                 RETURNING j.id, j.kind, j.params, j.output_prefix, j.order_id, j.catalog_design_id,
                           j.source_image_id, j.attempts, j.max_attempts, j.engine_version,
-                          s.storage_key, s.moderation, s.author_name
+                          s.storage_key, s.moderation,
+                          (SELECT d.title FROM catalog_designs d WHERE d.id = j.catalog_design_id) AS title
                 """,
                 (self.worker_id, job_id),
             )
@@ -105,7 +109,7 @@ class JobProcessor:
         with tempfile.TemporaryDirectory(prefix="pbn-") as tmp:
             src = Path(tmp) / ("source" + Path(job["storage_key"]).suffix)
             src.write_bytes(self.storage.get_object("sources", job["storage_key"]))
-            result = generate(src, Path(tmp) / "out", cfg, title=job.get("author_name"))
+            result = generate(src, Path(tmp) / "out", cfg, title=job.get("title"))
 
             artifacts = []
             ordered = sorted(result.files.items(), key=lambda kv: kv[0] == "manifest_json")  # manifest ultimul

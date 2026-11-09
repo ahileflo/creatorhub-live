@@ -5,6 +5,7 @@
 import Fastify from 'fastify';
 import { ZodError } from 'zod';
 import { pathToFileURL } from 'node:url';
+import { readFile } from 'node:fs/promises';
 import { loadConfig } from './config.js';
 import { createDeps } from './deps.js';
 import { authPlugin, createVerifier } from './auth.js';
@@ -15,6 +16,12 @@ import { LocalStorage } from './storage/index.js';
 import googleRoutes from './routes/google.js';
 import uploadRoutes from './routes/uploads.js';
 import orderRoutes from './routes/orders.js';
+import devRoutes from './routes/dev.js';
+
+const LOCAL_TYPES = {
+  svg: 'image/svg+xml', pdf: 'application/pdf', json: 'application/json',
+  png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp',
+};
 
 export async function buildApp(deps, { logger = true } = {}) {
   const app = Fastify({ logger, trustProxy: deps.cfg.TRUST_PROXY, bodyLimit: 256 * 1024 });
@@ -39,6 +46,29 @@ export async function buildApp(deps, { logger = true } = {}) {
     return reply.code(500).send({ error: 'internal', message: 'Internal error' });
   });
 
+  // Aplicația web (fișiere statice, listă fixă: nimic altceva de pe disc nu e servit).
+  const here = new URL('.', import.meta.url);
+  const STATIC = {
+    '/': ['../public/index.html', 'text/html; charset=utf-8'],
+    '/assets/app.js': ['../public/app.js', 'text/javascript; charset=utf-8'],
+    '/assets/app.css': ['../public/app.css', 'text/css; charset=utf-8'],
+    '/web/secure-upload.js': ['../web/secure-upload.js', 'text/javascript; charset=utf-8'],
+  };
+  const CSP = [
+    "default-src 'self'", "script-src 'self'", "style-src 'self' https://fonts.googleapis.com",
+    "font-src https://fonts.gstatic.com", "img-src 'self' blob: data: https:", "connect-src 'self' https:",
+    "frame-ancestors 'none'", "base-uri 'none'", "form-action 'self'",
+  ].join('; ');
+  for (const [path, [file, type]] of Object.entries(STATIC)) {
+    const body = await readFile(new URL(file, here));
+    app.get(path, async (req, reply) => reply
+      .header('Content-Security-Policy', CSP)
+      .header('X-Content-Type-Options', 'nosniff')
+      .header('Referrer-Policy', 'strict-origin-when-cross-origin')
+      .header('Cache-Control', path === '/' ? 'no-cache' : 'public, max-age=300')
+      .type(type).send(body));
+  }
+
   app.get('/health', async () => {
     await deps.db.query('SELECT 1');
     return { ok: true };
@@ -48,6 +78,7 @@ export async function buildApp(deps, { logger = true } = {}) {
   await app.register(googleRoutes, opts);
   await app.register(uploadRoutes, opts);
   await app.register(orderRoutes, opts);
+  if (deps.cfg.NODE_ENV !== 'production' && deps.cfg.AUTH_JWT_SECRET) await app.register(devRoutes, opts);
 
   // Emulator de S3 presigned pentru dezvoltare (doar driverul local).
   if (deps.storage instanceof LocalStorage) {
@@ -69,7 +100,8 @@ export async function buildApp(deps, { logger = true } = {}) {
         if (!deps.storage.verify('GET', bucket, key, req.query)) return reply.code(403).send({ error: 'bad_signature' });
         const body = await deps.storage.getObject(bucket, key).catch(() => null);
         if (!body) return reply.code(404).send();
-        return reply.type('application/octet-stream').send(body);
+        const ext = key.split('.').pop();
+        return reply.type(LOCAL_TYPES[ext] ?? 'application/octet-stream').send(body);
       });
     });
   }

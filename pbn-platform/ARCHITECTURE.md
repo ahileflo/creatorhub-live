@@ -307,7 +307,9 @@ pbn-platform/
     src/storage/index.js       organizarea cheilor S3 + drivere S3 / local
     src/workers/ingestWorker.js worker-ul Node (coada pbn-ingest)
     web/secure-upload.js       modulul de browser (Web Crypto) pentru upload criptat
-    test/                      unitare + integrare (PG, Redis, worker Python real)
+    public/                    aplicația web a clientului (servită de API la /)
+    test/                      unitare + integrare (PG, Redis, worker Python real) + e2e-ui.mjs (browser)
+  scripts/e2e.sh               pornește toată platforma și o testează într-un browser real
   processing/
     pbn_engine/                motorul de procesare a imaginii
     pbn_worker/                consumatorul BullMQ (Python) pentru pbn-orders / pbn-catalog
