@@ -1,0 +1,130 @@
+/**
+ * API HTTP (Fastify 5). `buildApp(deps)` primește dependențele gata construite,
+ * deci testele pot rula aplicația completă cu `app.inject()` fără port deschis.
+ */
+import Fastify from 'fastify';
+import { ZodError } from 'zod';
+import { pathToFileURL } from 'node:url';
+import { readFile } from 'node:fs/promises';
+import { loadConfig } from './config.js';
+import { createDeps } from './deps.js';
+import { authPlugin, createVerifier } from './auth.js';
+import { GoogleOAuthError } from './integrations/google/oauth.js';
+import { PickerApiError } from './integrations/google/picker.js';
+import { UploadError } from './integrations/icloud/uploads.js';
+import { LocalStorage } from './storage/index.js';
+import googleRoutes from './routes/google.js';
+import uploadRoutes from './routes/uploads.js';
+import orderRoutes from './routes/orders.js';
+import devRoutes from './routes/dev.js';
+
+const LOCAL_TYPES = {
+  svg: 'image/svg+xml', pdf: 'application/pdf', json: 'application/json',
+  png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp',
+};
+
+export async function buildApp(deps, { logger = true } = {}) {
+  const app = Fastify({ logger, trustProxy: deps.cfg.TRUST_PROXY, bodyLimit: 256 * 1024 });
+  const { requireUser, requirePremium } = authPlugin(app, {
+    db: deps.db, verify: deps.verifyToken ?? createVerifier(deps.cfg),
+  });
+
+  app.setErrorHandler((err, req, reply) => {
+    if (err instanceof ZodError) {
+      return reply.code(400).send({ error: 'validation', message: 'Invalid request', issues: err.issues });
+    }
+    if (err instanceof UploadError) return reply.code(err.status).send({ error: 'upload', message: err.message });
+    if (err instanceof GoogleOAuthError && ['not_connected', 'invalid_grant'].includes(err.code)) {
+      return reply.code(409).send({ error: 'google_reconnect_required', message: err.message });
+    }
+    if (err instanceof PickerApiError) {
+      req.log.warn({ status: err.status }, 'picker api error');
+      return reply.code(502).send({ error: 'google_unavailable', message: 'Google Photos request failed' });
+    }
+    if (err.validation || err.statusCode === 400) return reply.code(400).send({ error: 'bad_request', message: err.message });
+    req.log.error(err);
+    return reply.code(500).send({ error: 'internal', message: 'Internal error' });
+  });
+
+  // Aplicația web (fișiere statice, listă fixă: nimic altceva de pe disc nu e servit).
+  const here = new URL('.', import.meta.url);
+  const STATIC = {
+    '/': ['../public/index.html', 'text/html; charset=utf-8'],
+    '/assets/app.js': ['../public/app.js', 'text/javascript; charset=utf-8'],
+    '/assets/app.css': ['../public/app.css', 'text/css; charset=utf-8'],
+    '/web/secure-upload.js': ['../web/secure-upload.js', 'text/javascript; charset=utf-8'],
+  };
+  const CSP = [
+    "default-src 'self'", "script-src 'self'", "style-src 'self' https://fonts.googleapis.com",
+    "font-src https://fonts.gstatic.com", "img-src 'self' blob: data: https:", "connect-src 'self' https:",
+    "frame-ancestors 'none'", "base-uri 'none'", "form-action 'self'",
+  ].join('; ');
+  for (const [path, [file, type]] of Object.entries(STATIC)) {
+    const body = await readFile(new URL(file, here));
+    app.get(path, async (req, reply) => reply
+      .header('Content-Security-Policy', CSP)
+      .header('X-Content-Type-Options', 'nosniff')
+      .header('Referrer-Policy', 'strict-origin-when-cross-origin')
+      .header('Cache-Control', path === '/' ? 'no-cache' : 'public, max-age=300')
+      .type(type).send(body));
+  }
+
+  app.get('/health', async () => {
+    await deps.db.query('SELECT 1');
+    return { ok: true };
+  });
+
+  const opts = { deps, requireUser, requirePremium };
+  await app.register(googleRoutes, opts);
+  await app.register(uploadRoutes, opts);
+  await app.register(orderRoutes, opts);
+  if (deps.cfg.NODE_ENV !== 'production' && deps.cfg.AUTH_JWT_SECRET) await app.register(devRoutes, opts);
+
+  // Emulator de S3 presigned pentru dezvoltare (doar driverul local).
+  if (deps.storage instanceof LocalStorage) {
+    await app.register(async (scope) => {
+      scope.addContentTypeParser('application/octet-stream',
+        { parseAs: 'buffer', bodyLimit: deps.cfg.MAX_UPLOAD_BYTES + 64 }, (_req, body, done) => done(null, body));
+      scope.put('/_local-storage/:bucket/*', async (req, reply) => {
+        const { bucket } = req.params;
+        const key = req.params['*'];
+        if (!deps.storage.verify('PUT', bucket, key, req.query)) return reply.code(403).send({ error: 'bad_signature' });
+        if (req.headers['content-type'] !== req.query.ct) return reply.code(403).send({ error: 'content_type_mismatch' });
+        if (req.body.length !== Number(req.query.len)) return reply.code(403).send({ error: 'length_mismatch' });
+        await deps.storage.putObject(bucket, key, req.body);
+        return reply.code(200).send();
+      });
+      scope.get('/_local-storage/:bucket/*', async (req, reply) => {
+        const { bucket } = req.params;
+        const key = req.params['*'];
+        if (!deps.storage.verify('GET', bucket, key, req.query)) return reply.code(403).send({ error: 'bad_signature' });
+        const body = await deps.storage.getObject(bucket, key).catch(() => null);
+        if (!body) return reply.code(404).send();
+        const ext = key.split('.').pop();
+        return reply.type(LOCAL_TYPES[ext] ?? 'application/octet-stream').send(body);
+      });
+    });
+  }
+  return app;
+}
+
+async function main() {
+  const cfg = loadConfig();
+  const deps = await createDeps(cfg);
+  const app = await buildApp(deps);
+  const shutdown = async () => {
+    await app.close();
+    await deps.close();
+    process.exit(0);
+  };
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
+  await app.listen({ port: cfg.PORT, host: '0.0.0.0' });
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

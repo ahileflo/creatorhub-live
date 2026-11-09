@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tablouri pe numere — din pozele tale</title>
+<meta name="description" content="Transformă orice fotografie într-un kit de pictură pe numere: pânză cu contururi, vopsele dozate, livrat acasă.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+<header class="bar">
+  <a class="brand" href="#/"><span class="lid" aria-hidden="true">1</span>Tablouri pe numere</a>
+  <nav aria-label="Principal">
+    <a href="#/">Catalog</a>
+    <a href="#/create">Din poza ta</a>
+    <a href="#/orders">Comenzile mele</a>
+  </nav>
+  <div id="account" class="account"></div>
+</header>
+
+<main id="view" tabindex="-1"></main>
+
+<dialog id="login">
+  <form method="dialog" id="login-form">
+    <h2>Intră în cont</h2>
+    <p class="muted" id="login-note">Mediu de dezvoltare: alege un e-mail; contul se creează automat.</p>
+    <label>E-mail <input type="email" name="email" required autocomplete="email" placeholder="tu@exemplu.ro"></label>
+    <fieldset class="plan">
+      <legend>Plan</legend>
+      <label><input type="radio" name="plan" value="premium" checked> Premium (Google Photos, iCloud)</label>
+      <label><input type="radio" name="plan" value="free"> Gratuit</label>
+    </fieldset>
+    <p class="error" id="login-error" role="alert"></p>
+    <div class="row end">
+      <button type="button" class="ghost" id="login-cancel">Renunță</button>
+      <button type="submit" class="primary">Intră în cont</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="/assets/app.js"></script>
+</body>
+</html>
