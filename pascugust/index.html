@@ -232,6 +232,16 @@
   html.easy ul.shop input,html.easy .prep input{width:34px;height:34px}
   html.easy .fhint{display:none}
   html.easy .cook-body{max-width:640px;margin:0 auto}
+  /* catalogul mondial */
+  .wbanner{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;border:0;margin:6px 0 14px;background:linear-gradient(135deg,#f4a340,#e8603c);color:#fff;font:inherit}
+  .wbanner b{display:block;font-family:'Fraunces',serif;font-size:1.15rem}
+  .wbanner small{opacity:.92}
+  .wbanner .globe{font-size:2.4rem}
+  .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:12px 0 24px}
+  .ctile{padding:14px;cursor:pointer;text-align:left;border:0;font:inherit;color:inherit}
+  .ctile .fl{font-size:2.2rem;line-height:1}
+  .ctile b{display:block;margin-top:6px}
+  .ctile small{color:var(--soft)}
   .easy-tag{display:inline-block;background:var(--accent);color:#fff;border-radius:99px;padding:2px 10px;font-size:.78rem;font-weight:800}
 </style>
 </head>
@@ -255,6 +265,7 @@
       <h1 id="heroTitle">Ce gătim azi?</h1>
       <p id="heroSub">Gătește o rețetă ca să-ți ții seria aprinsă.</p>
     </div>
+    <button class="card panel wbanner" id="toWorld"><span class="globe">🌍</span><span><b>Rețete din toată lumea</b><small>Alege o țară și gătește ca acolo</small></span></button>
     <input class="search" id="q" placeholder="🔎 Caută rețete, ingrediente…">
     <div class="chips" id="cats"></div>
     <div class="grid" id="list"></div>
@@ -277,6 +288,9 @@
 
   <!-- PANOU DE CREȘTERE (doar administrator) -->
   <section class="view" id="v-growth"></section>
+
+  <!-- CATALOGUL MONDIAL -->
+  <section class="view" id="v-world"></section>
 
   <!-- LISTA DE CUMPĂRĂTURI -->
   <section class="view" id="v-shop"></section>
@@ -324,6 +338,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="i18n.js"></script>
+<script src="world.js"></script>
 <script>
 /* ============================================================
    Pas cu Gust — totul rulează local în browser.
@@ -498,7 +513,7 @@ const dkey = d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMont
 const today = ()=> dkey(new Date());
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2400);}
 function fmtTime(min){if(!min)return '';return min>=60?Math.floor(min/60)+' h'+(min%60?' '+min%60+' min':''):min+' min';}
-const byId = id=> S.recipes.find(r=>r.id===id) || (SHARED && SHARED.id===id ? SHARED : null);
+const byId = id=> S.recipes.find(r=>r.id===id) || (SHARED && SHARED.id===id ? SHARED : null) || worldById(id);
 
 /* ---------- serie (streak) ---------- */
 function streak(){
@@ -541,7 +556,7 @@ function go(v,arg){
   if(SHARED && !(v==='detail' && arg===SHARED.id)) closeShared();
   document.querySelectorAll('section.view').forEach(s=>s.classList.remove('on'));
   $('#v-'+v).classList.add('on');
-  document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on',b.dataset.go===v||(v==='detail'&&b.dataset.go==='home')));
+  document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on',b.dataset.go===v||(v==='detail'&&b.dataset.go==='home')||(v==='world'&&b.dataset.go==='feed')));
   window.scrollTo(0,0);
   if(v==='feed') renderFeed(); else stopFeed();
   if(v==='home') renderHome();
@@ -551,9 +566,10 @@ function go(v,arg){
   if(v==='products') renderProducts();
   if(v==='account') renderAccount();
   if(v==='shop') renderShop();
+  if(v==='world') renderWorld(arg);
   if(v==='growth') renderGrowth();
 }
-document.querySelectorAll('nav.bottom button').forEach(b=>b.onclick=()=>go(b.dataset.go));
+document.querySelectorAll('nav.bottom button').forEach(b=>b.onclick=()=>{ if(b.dataset.go==='feed') feedFilter=null; go(b.dataset.go); });
 $('#pill').onclick=()=>go('streak');
 $('#accBtn').onclick=()=>go('account');
 $('#shopBtn').onclick=()=>go('shop');
@@ -621,12 +637,17 @@ $('#q').oninput=renderHome;
 
 /* ---------- DESCOPERĂ (feed vertical) ---------- */
 // O rețetă pe ecran; pozele pașilor se derulează singure, ca un clip. Glisezi în sus pentru următoarea.
-const FLAG_OF=r=>r.country?String.fromCodePoint(...[...r.country.toUpperCase()].map(c=>127397+c.charCodeAt(0))):(SEED.some(x=>x.id===r.id)&&!r.imported?'🇷🇴':'');
+const flagOf=cc=>String.fromCodePoint(...[...cc.toUpperCase()].map(c=>127397+c.charCodeAt(0)));
+const countryOf=r=>r.country||(SEED.some(x=>x.id===r.id)&&!r.imported?'RO':null);
+const FLAG_OF=r=>{ const c=countryOf(r); return c?flagOf(c):''; };
 let feedTimer=null, feedObs=null, feedCur=null;
+let feedFilter=null; // cod de țară, când vii din catalogul mondial
 function feedOrder(){
   // amestec stabil pe zi: azi vezi aceeași ordine, mâine alta
   const day=today(), h=x=>{let v=0;for(const c of day+x)v=(v*31+c.charCodeAt(0))|0;return v;};
-  return [...S.recipes].sort((a,b)=>h(a.id)-h(b.id));
+  const saved=new Set(S.recipes.map(r=>r.from).filter(Boolean));
+  const all=[...S.recipes,...WORLD.filter(w=>!saved.has(w.id)).map(w=>worldById(w.id))];
+  return all.filter(r=>!feedFilter||countryOf(r)===feedFilter).sort((a,b)=>h(a.id)-h(b.id));
 }
 function renderFeed(){
   const V=$('#v-feed'), list=feedOrder();
@@ -642,7 +663,7 @@ function renderFeed(){
     const flag=FLAG_OF(r);
     return `<article class="fcard" data-id="${r.id}">
       ${lay}<div class="fshade"></div>
-      <div class="ftop"><span>🌍 Descoperă</span><button class="streak-pill" data-act="streak">🔥 ${streak().cur}</button></div>
+      <div class="ftop">${feedFilter?`<button class="streak-pill" data-act="unfilter"><span>${flagOf(feedFilter)}</span> <span class="nt">${esc(cName(feedFilter))}</span> ✕</button>`:'<span>🌍 Descoperă</span>'}<span class="row" style="gap:6px"><button class="streak-pill" data-act="world">🗺️ Țări</button><button class="streak-pill" data-act="streak">🔥 ${streak().cur}</button></span></div>
       ${layers.length>1?`<div class="fdots">${layers.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`:''}
       <div class="fheart">❤️</div>
       <div class="fswipe yes">❤️ SALVEZ</div><div class="fswipe no">✕ SAR</div>
@@ -669,9 +690,12 @@ function renderFeed(){
     const b=e.target.closest('[data-act]'), card=e.target.closest('.fcard'); if(!b) return;
     const id=card?.dataset.id, r=id&&byId(id), act=b.dataset.act;
     if(act==='streak') return go('streak');
+    if(act==='world') return go('world');
+    if(act==='unfilter'){ feedFilter=null; return renderFeed(); }
     if(act==='new') return go('edit');
     if(!r) return;
-    if(act==='fav'){ r.fav=!r.fav; save(); if(r.fav) track('save',r); b.classList.toggle('liked',r.fav); if(r.fav) heartPop(card); toast(r.fav?'❤️ Salvată la favorite':'Scoasă de la favorite'); }
+    if(act==='fav'){ if(r._world){ likeWorld(r).then(()=>{ b.classList.add('liked'); heartPop(card); }); return; }
+      r.fav=!r.fav; save(); if(r.fav) track('save',r); b.classList.toggle('liked',r.fav); if(r.fav) heartPop(card); toast(r.fav?'❤️ Salvată la favorite':'Scoasă de la favorite'); }
     if(act==='cook') openCook(id);
     if(act==='anim') openAnim(id);
     if(act==='sound'){ feedSound=!feedSound; F.querySelectorAll('[data-act=sound] span').forEach(s=>s.textContent=feedSound?'🔊':'🔇');
@@ -684,7 +708,7 @@ function renderFeed(){
     if(e.target.closest('[data-act]') || Date.now()-swipedAt<400) return;
     const card=e.target.closest('.fcard[data-id]'); if(!card) return;
     const now=Date.now();
-    if(now-lastTap<300){ const r=byId(card.dataset.id); if(r&&!r.fav){ r.fav=true; save(); card.querySelector('[data-act=fav]').classList.add('liked'); } heartPop(card); lastTap=0; }
+    if(now-lastTap<300){ const r=byId(card.dataset.id); if(r?._world) likeWorld(r); else if(r&&!r.fav){ r.fav=true; save(); } card.querySelector('[data-act=fav]').classList.add('liked'); heartPop(card); lastTap=0; }
     else lastTap=now;
   });
   bindSwipe(F);
@@ -701,7 +725,7 @@ function swipeStyle(card,dx){
 }
 function swipeDecide(card,like){
   const r=byId(card.dataset.id);
-  if(like){ if(r && !r.fav){ r.fav=true; save(); track('save',r); } card.querySelector('[data-act=fav]')?.classList.add('liked'); toast('❤️ Salvată la favorite'); }
+  if(like){ if(r?._world) likeWorld(r); else { if(r && !r.fav){ r.fav=true; save(); track('save',r); } toast('❤️ Salvată la favorite'); } card.querySelector('[data-act=fav]')?.classList.add('liked'); }
   else toast('👋 Sar peste');
   card.style.transition=S.easy?'none':'transform .22s ease-out';
   card.style.transform=`translateX(${like?130:-130}%)`;
@@ -806,7 +830,7 @@ function renderDetail(id){
   const serv=Math.max(1,Math.round((r.servings||1)*scale));
   V.innerHTML=`
     <div class="row" style="justify-content:space-between;margin-top:8px">
-      <button class="btn ghost sm" id="back">← ${r._shared?'Rețetele mele':'Rețete'}</button>
+      <button class="btn ghost sm" id="back">← ${r._world?'Țări':r._shared?'Rețetele mele':'Rețete'}</button>
       <div class="row">
         ${r._shared?`<button class="btn ghost sm" id="fwd">📤 Trimite</button>`:`
         <button class="btn ghost sm" id="fav">${r.fav?'❤️':'🤍'}</button>
@@ -814,7 +838,8 @@ function renderDetail(id){
         <button class="btn ghost sm" id="edit">✏️</button>`}
       </div>
     </div>
-    ${r._shared?`<div class="notice" style="margin-top:12px">👋 Rețetă trimisă de <b>${esc(r.author||'un prieten')}</b> cu Pas cu Gust. O poți găti pas cu pas chiar acum sau o poți salva în rețetele tale.</div>`:''}
+    ${r._world?`<div class="notice" style="margin-top:12px"><b>${flagOf(r.country)} <span class="nt">${esc(cName(r.country))}</span></b> · <span>Rețetă din catalogul mondial Pas cu Gust. O poți găti pas cu pas chiar acum sau o poți salva în rețetele tale.</span>${r._partial?'<br><span>Ingredientele și pașii sunt deocamdată în engleză. Traducerea completă vine curând.</span>':''}</div>`
+    :r._shared?`<div class="notice" style="margin-top:12px">👋 Rețetă trimisă de <b>${esc(r.author||'un prieten')}</b> cu Pas cu Gust. O poți găti pas cu pas chiar acum sau o poți salva în rețetele tale.</div>`:''}
     <div class="card" style="margin-top:12px">
       ${videoOf(r)?`<video class="cover dvid" controls playsinline preload="metadata" poster="${videoOf(r).poster}" src="${videoOf(r).src}" style="aspect-ratio:9/16;max-height:70vh;object-fit:contain;background:#000"></video>`
         :r.cover?`<img class="cover" data-media="${r.cover}" alt="">`:`<div class="ph" style="font-size:4.5rem">${esc(r.emoji||'🍽️')}</div>`}
@@ -869,7 +894,7 @@ function renderDetail(id){
   $('#sm').onclick=()=>{scale=Math.max(1/base,scale-1/base);renderDetail(id);};
   $('#sp').onclick=()=>{scale=scale+1/base;renderDetail(id);};
   V.querySelectorAll('.ing input').forEach(c=>c.onchange=()=>c.parentElement.classList.toggle('done',c.checked));
-  $('#back').onclick=()=>{scale=1;go('home');};
+  $('#back').onclick=()=>{scale=1; r._world?go('world',r.country):go('home');};
   if($('#dlVid')) $('#dlVid').onclick=()=>shareVideo(r);
   bindInspo(r);
   if(r._shareId||r.share?.id) loadSocial(r._shareId||r.share.id);
@@ -878,8 +903,8 @@ function renderDetail(id){
   $('#easyT').onclick=()=>{ setEasy(!S.easy); renderDetail(id); };
   if($('#toShop')) $('#toShop').onclick=()=>{ const n=addToShop(r.ingredients.map(i=>scaleLine(i,scale)),r.title); toast(n>1?`🛒 ${n} ingrediente adăugate`:n?'🛒 1 ingredient adăugat':'🛒 Sunt deja pe listă'); };
   if(r._shared){
-    $('#fwd').onclick=()=>shareLink(r._shareId?shareUrl(r._shareId):location.href,r.title);
-    $('#saveShared').onclick=async()=>{const nid=await saveShared(); if(nid) go('detail',nid);};
+    $('#fwd').onclick=()=>shareLink(r._world?appBase()+'?w='+r.id:r._shareId?shareUrl(r._shareId):location.href,r.title);
+    $('#saveShared').onclick=async()=>{const nid=await saveShared(r); if(nid) go('detail',nid);};
     $('#ctaNew').onclick=()=>go('edit');
     hydrate(V); V.querySelectorAll('video.gif').forEach(gifVideo);
     $('#playAnim').onclick=()=>openAnim(id);
@@ -941,7 +966,7 @@ function drawCook(){
       <button class="btn ok" id="ckDone" style="padding:16px 26px">🔥 Bifează în serie</button></div>`;
     if(r._shared) $('#ckDone').textContent='💾 Salvează și bifează în serie';
     $('#ckDone').onclick=async()=>{
-      const id = r._shared ? await saveShared() : r.id; if(!id) return;
+      const id = r._shared ? await saveShared(r) : r.id; if(!id) return;
       markCooked(id); closeCook(); go('detail',id);
     };
     $('#cookNext').textContent='Închide';
@@ -1784,7 +1809,7 @@ const isPremium=()=>!!PROFILE?.premium;
 // Statistici anonime: doar numele evenimentului, rețeta de pornire (sau „proprie”) și limba. Fără identificatori.
 let evQueue=[], evTimer=null;
 function track(name,r,src){
-  const recipe=!r?null:SEED.some(x=>x.id===r.id)&&!r.imported?r.id:r._shareId?'link':'proprie';
+  const recipe=!r?null:r._world?r.id:SEED.some(x=>x.id===r.id)&&!r.imported?r.id:r.from?.startsWith?.('w-')?r.from:r._shareId?'link':'proprie';
   evQueue.push({name,recipe,lang:LANG,src:src||null});
   clearTimeout(evTimer); evTimer=setTimeout(flushEvents,8000);
 }
@@ -2149,17 +2174,91 @@ async function unshareRecipe(r){
 }
 
 // Salvează rețeta primită în rețetele mele (cu tot cu poze/clipuri).
-async function saveShared(){
-  const r=SHARED; if(!r) return null;
+async function saveShared(r=SHARED,opt={}){
+  if(!r) return null;
   if(r._savedAs && S.recipes.some(x=>x.id===r._savedAs)) return r._savedAs;
+  if(r._world){ const had=S.recipes.find(x=>x.from===r.id); if(had) return r._savedAs=had.id; }
   toast('💾 Se salvează…');
-  const grab=async u=>{ if(!u) return null; try{ const res=await fetch(u); if(!res.ok) return null; return await putMedia(await res.blob()); }catch(e){ return null; } };
+  const grab=async u=>{ if(!u) return null; if(isAsset(u)) return u; try{ const res=await fetch(u); if(!res.ok) return null; return await putMedia(await res.blob()); }catch(e){ return null; } };
   const copy={id:uid(),title:r.title,desc:r.desc,cat:r.cat,emoji:r.emoji,time:r.time,servings:r.servings,ingredients:[...r.ingredients],
-    cover:await grab(r.cover),author:r.author,license:r.license,inspo:r.inspo||null,fav:false,imported:true,from:r._shareId||null,steps:[],created:Date.now(),updated:Date.now()};
+    cover:await grab(r.cover),author:r.author,license:r.license,inspo:r.inspo||null,fav:!!opt.fav,imported:true,from:r._shareId||(r._world?r.id:null),country:r.country||null,steps:[],created:Date.now(),updated:Date.now()};
   for(const x of r.steps){ const m=await grab(x.media); copy.steps.push({text:x.text,min:x.min,media:m,mediaType:m?x.mediaType:null}); }
   S.recipes.unshift(copy); save(); r._savedAs=copy.id;
-  toast('✅ Salvată în rețetele tale');
+  toast(opt.fav?'❤️ Salvată la favorite':'✅ Salvată în rețetele tale');
   return copy.id;
+}
+// din feed: o rețetă din lume ajunge în rețetele tale, la favorite
+async function likeWorld(r){
+  const id=await saveShared(r,{fav:true}); const c=id&&S.recipes.find(x=>x.id===id);
+  if(c && !c.fav){ c.fav=true; save(); toast('❤️ Salvată la favorite'); }
+  track('save',r);
+}
+
+/* ---------- CATALOGUL MONDIAL ---------- */
+const LI=()=>Math.max(0,LANG_ORDER.indexOf(LANG));
+const cName=cc=>WORLD_COUNTRIES[cc]?.[1+LI()]||cc;
+const rName=k=>WORLD_REGIONS.find(x=>x[0]===k)?.[1+LI()]||k;
+const WCACHE={};
+function worldById(id){
+  if(typeof id!=='string'||!id.startsWith('w-')) return null;
+  const k=LANG+':'+id; if(WCACHE[k]) return WCACHE[k];
+  const w=WORLD.find(x=>x.id===id); if(!w) return null;
+  const full=w.L[LANG], base=full||w.L.en, tr=w.T[LANG];
+  return WCACHE[k]={id,_world:true,_shared:true,_partial:!full,country:w.cc,title:full?full.t:(tr?.[0]||base.t),desc:full?full.d:(tr?.[1]||base.d),
+    cat:w.cat,emoji:w.emoji,time:w.time,servings:w.servings,ingredients:[...base.i],steps:base.s.map(([text,min])=>({text,min,media:null,mediaType:null})),
+    cover:WORLD_COVER_IDS.includes(id)?`img/${id}.jpg`:null,author:'Pas cu Gust',license:'CC0',fav:false};
+}
+function worldCountries(){
+  const m={};
+  WORLD.forEach(w=>(m[w.cc]=m[w.cc]||[]).push(w.id));
+  m.RO=SEED.map(x=>x.id).filter(id=>S.recipes.some(r=>r.id===id&&!r.imported));
+  return m;
+}
+let worldRegion='all';
+function renderWorld(cc){
+  const V=$('#v-world'), M=worldCountries();
+  if(cc && M[cc]){
+    const items=M[cc].map(byId).filter(Boolean);
+    V.innerHTML=`<div class="row" style="margin-top:8px"><button class="btn ghost sm" id="wBack">← Țări</button></div>
+      <h1 style="margin:10px 0">${flagOf(cc)} <span class="nt">${esc(cName(cc))}</span></h1>
+      <button class="btn" id="wFeed" style="width:100%">▶ Vezi rețetele ca într-un clip</button>
+      <div class="grid">${items.map(r=>`<div class="card rcard" data-id="${r.id}">
+        ${r.cover?`<img class="cover" data-media="${r.cover}" alt="">`:`<div class="ph">${esc(r.emoji||'🍽️')}</div>`}
+        <div class="rbody"><h3 class="nt">${esc(r.title)}</h3><p class="meta nt" style="margin:4px 0">${esc(r.desc)}</p>
+        <div class="meta"><span>⏱ ${fmtTime(r.time)||'—'}</span><span>📋 ${r.steps.length} pași</span></div>
+        <div style="margin-top:6px"><span class="badge">${esc(r.cat)}</span></div></div></div>`).join('')}</div>`;
+    $('#wBack').onclick=()=>go('world');
+    $('#wFeed').onclick=()=>{ feedFilter=cc; go('feed'); };
+    V.querySelectorAll('.rcard').forEach(c=>c.onclick=()=>go('detail',c.dataset.id));
+    hydrate(V); return;
+  }
+  const codes=Object.keys(M).filter(c=>M[c].length);
+  V.innerHTML=`<h1 style="margin:10px 0">🌍 Rețete din toată lumea</h1>
+    <p class="meta">Alege o țară. Fiecare rețetă se gătește pas cu pas, cu cronometru și citire cu voce.</p>
+    <input class="search" id="wq" placeholder="🔎 Caută o țară sau o rețetă…" style="margin-top:12px">
+    <div class="chips" id="wreg">${[['all','🌐 Toate'],...WORLD_REGIONS.map(r=>[r[0],null])].map(([k,l])=>`<button class="chip ${k===worldRegion?'on':''}" data-r="${k}">${l?l:`<span class="nt">${esc(rName(k))}</span>`}</button>`).join('')}</div>
+    <div class="cgrid" id="wgrid"></div>`;
+  const draw=()=>{
+    const q=($('#wq').value||'').trim().toLowerCase();
+    const list=codes.filter(c=>worldRegion==='all'||WORLD_COUNTRIES[c][0]===worldRegion).filter(c=>{
+      if(!q) return true;
+      return WORLD_COUNTRIES[c].slice(1).some(n=>n.toLowerCase().includes(q)) || M[c].some(id=>{ const r=byId(id); return r&&(r.title+' '+r.ingredients.join(' ')).toLowerCase().includes(q); });
+    }).sort((a,b)=>cName(a).localeCompare(cName(b),locale()));
+    $('#wgrid').innerHTML=list.length?list.map(c=>`<button class="card ctile" data-cc="${c}"><div class="fl">${flagOf(c)}</div><b class="nt">${esc(cName(c))}</b><small>${M[c].length===1?'1 rețetă':M[c].length+' rețete'}</small></button>`).join('')
+      :`<div class="empty" style="grid-column:1/-1">Nicio țară găsită.</div>`;
+    $('#wgrid').querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>go('world',b.dataset.cc));
+  };
+  $('#wq').oninput=draw;
+  V.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{ worldRegion=b.dataset.r; V.querySelectorAll('[data-r]').forEach(x=>x.classList.toggle('on',x===b)); draw(); });
+  draw();
+}
+$('#toWorld').onclick=()=>go('world');
+// link de forma ?w=w-it: deschide direct rețeta din catalog
+function openWorldFromUrl(){
+  const w=new URLSearchParams(location.search).get('w'); if(!w) return false;
+  history.replaceState(null,'',location.pathname);
+  if(!worldById(w)) return false;
+  track('link_open',null,'world'); go('detail',w); return true;
 }
 function closeShared(){
   SHARED=null;
@@ -2201,7 +2300,7 @@ async function openSharedFromUrl(){
 /* ---------- pornire ---------- */
 localizeSeeds(); applyTheme(); applyEasy(); updShop(); refreshPill(); renderHome(); startI18n(); track('open');
 const cloudReady=cloudInit();
-openShareTarget().then(done=>{ if(!done) openSharedFromUrl(); });
+openShareTarget().then(done=>{ if(!done && !openWorldFromUrl()) openSharedFromUrl(); });
 if(location.hash==='#adauga') go('edit');
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
