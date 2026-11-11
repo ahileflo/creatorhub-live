@@ -7,21 +7,30 @@ Tot conținutul e generat din cod (`art.js`), deci nu există imagini luate de a
 
 | Ce | Unde | Cât |
 |---|---|---|
-| Aplicația de colorat (PWA, merge offline) | `liga/` → `https://ahileflo.github.io/creatorhub-live/liga/` după merge în `main` | 80 de pagini, 7 serii, RO + EN |
+| Aplicația (PWA, merge offline) | `liga/` → `https://ahileflo.github.io/creatorhub-live/liga/` după merge în `main` | 106 pagini, RO + EN |
+| Pagini de colorat și bandă desenată | în aplicație | 72 de pagini + 8 pagini de bandă desenată |
+| Povești de seară pe vârste | în aplicație, `stories.js` | 26 de povești, 4 serii |
 | Fabrica de eroi | în aplicație | eroi noi generați la nesfârșit |
-| PDF gratuit (momeală) | `liga/print/liga-creioanelor-gratuit.pdf` (+ `-en`) | 12 pagini + copertă |
-| PDF complet (produsul plătit) | **nu e în repo** (repo-ul e public); se generează cu comanda de mai jos | 80 de pagini + copertă, RO și EN |
+| PDF gratuit (momeală) | `liga/print/liga-creioanelor-gratuit.pdf` (+ `-en`) | 16 pagini |
 
-Regenerarea PDF-urilor după ce adaugi pagini: `node liga/tools/build-pdf.js <folder>`.
+Produsele plătite **nu sunt în repo** (repo-ul e public). Se generează cu `node liga/tools/build-pdf.js <folder>`:
+
+| Fișier | Pentru cine | Conținut |
+|---|---|---|
+| `liga-creioanelor-complet.pdf` | familii | toate cele 106 pagini, licență personală |
+| `liga-creioanelor-scoli.pdf` | profesori, școli | 26 de povești + fișa profesorului la fiecare, licență educațională |
+| `liga-creioanelor-revista-1.pdf` | familii | „revista” nr. 1: banda desenată, 4 povești, 8 pagini de colorat |
+
+Fiecare are și varianta în engleză (`-en`). Licențele sunt descrise în `LICENTA.md`, oferta pentru școli în `SCOLI.md`.
 
 ## Ce e gratuit și ce e plătit
 
-- **Gratuit:** seria „Liga se prezintă” (12 pagini), primele 2 pagini din fiecare serie, prima pagină de bandă desenată, 3 eroi pe zi din Fabrica de eroi, printarea paginilor una câte una.
-- **Pachetul complet (plată unică):** toate cele 80 de pagini, printarea unei serii întregi dintr-o apăsare, Fabrica de eroi fără limită, plus PDF-urile complete.
+- **Gratuit:** seria „Liga se prezintă” (12 pagini), primele 2 pagini din fiecare serie (și primele 2 povești), prima pagină de bandă desenată, 3 eroi pe zi din Fabrica de eroi, printarea paginilor una câte una.
+- **Pachetul complet (plată unică):** toate cele 106 pagini, printarea unei serii întregi dintr-o apăsare, Fabrica de eroi fără limită, plus PDF-urile complete.
 
 ## Pașii de lansare
 
-1. **Gumroad** → produs nou „Liga Creioanelor — pachetul complet”. Urcă `liga-creioanelor-complet.pdf` și `liga-creioanelor-complet-en.pdf`.
+1. **Gumroad** → produs nou „Liga Creioanelor — pachetul complet”. Urcă `liga-creioanelor-complet.pdf` și `liga-creioanelor-complet-en.pdf`. Revista și pachetul pentru școli se pun ca produse separate.
 2. În pagina de după plată (câmpul *Receipt / custom message*) scrie codul de deblocare al aplicației. Codul îl ai din conversația în care a fost construită aplicația; **nu îl pune în repo**.
 3. Copiază linkul produsului în `BUY_URL` din `liga/index.html` (acum duce la magazinul tău, `woopsahile.gumroad.com`).
 4. Fă merge în `main`: GitHub Pages publică singur.

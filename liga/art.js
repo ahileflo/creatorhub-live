@@ -53,7 +53,7 @@
     return d + 'Z';
   }
   function txt(s, x, y, size, cls, ex) {
-    return '<text class="' + (cls || 'f t') + '" x="' + f(x) + '" y="' + f(y) + '" font-size="' + f(size) + '" text-anchor="middle" ' + (ex || '') + '>' + esc(s) + '</text>';
+    return '<text class="' + (cls || 'f t') + '" x="' + f(x) + '" y="' + f(y) + '" font-size="' + f(size) + '" ' + (ex && ex.indexOf('text-anchor') >= 0 ? ex : 'text-anchor="middle" ' + (ex || '')) + '>' + esc(s) + '</text>';
   }
 
   // ================= PERSONAJE =================
@@ -330,6 +330,46 @@
       for (i = 0; i < 3; i++) { var bx = 330 + i * 110, by = 250 + (i % 2) * 60; o += P('M' + bx + ' ' + by + 'Q' + (bx - 22) + ' ' + (by - 26) + ' ' + (bx - 46) + ' ' + by + 'Q' + (bx - 24) + ' ' + (by - 8) + ' ' + bx + ' ' + (by + 12) + 'Q' + (bx + 24) + ' ' + (by - 8) + ' ' + (bx + 46) + ' ' + by + 'Q' + (bx + 22) + ' ' + (by - 26) + ' ' + bx + ' ' + by + 'Z'); }
       return o;
     }
+    ,room: function (r) {
+      var o = RC(40, 500, 210, 16, 4) + RC(56, 430, 28, 70, 3) + RC(88, 446, 34, 54, 3) + RC(126, 424, 26, 76, 3) + RC(156, 452, 40, 48, 3) + C(222, 478, 20);
+      o += RC(316, 486, 130, 110, 6) + P('M330 580L366 530L392 560L410 540L432 580Z') + C(420, 512, 10);
+      o += RC(548, 474, 214, 190, 10) + D('M655 474V664M548 569H762') + C(708, 522, 30) + P(star(596, 520, 16, 7, 5)) + P(star(610, 616, 12, 5, 5)) + P(star(716, 620, 14, 6, 5));
+      o += P('M530 462H780V480H530Z');
+      o += RC(0, 820, 800, 300, 0) + E(400, 900, 300, 46) + E(400, 900, 220, 30);
+      return o;
+    },
+    winter: function (r) {
+      var o = C(120, 520, 46) + C(104, 508, 9) + C(134, 534, 7), i;
+      for (i = 0; i < 9; i++) o += P(star(60 + r() * 680, 470 + r() * 210, 13, 5, 6));
+      o += P('M0 780Q200 700 400 770T800 740V1100H0Z');
+      [[470, 740, 1], [690, 760, 1.2], [760, 800, .8]].forEach(function (t) { o += place(t[0], t[1], t[2], P('M-12 0V-30H12V0Z') + P('M-70 -30L0 -110L70 -30Z') + P('M-56 -90L0 -160L56 -90Z') + P('M-40 -146L0 -206L40 -146Z')); });
+      o += RC(250, 660, 150, 110, 0) + P('M236 664L325 584L414 664Z') + P('M236 664Q325 640 414 664L400 672Q325 650 250 672Z') + RC(306, 712, 38, 58, 4) + RC(266, 690, 30, 30, 3) + RC(354, 690, 30, 30, 3) + RC(350, 596, 22, 40, 2);
+      o += P('M0 830Q200 790 400 826T800 812V1100H0Z');
+      return o;
+    },
+    'class': function (r) {
+      var o = RC(250, 474, 330, 190, 8) + RC(250, 664, 330, 14, 4) + txt('ABC', 345, 560, 54) + txt('1+2=3', 470, 630, 34) + P(star(520, 530, 26, 11, 5));
+      o += RC(40, 486, 160, 176, 8) + D('M120 486V662M40 574H200') + C(160, 530, 22);
+      o += C(690, 530, 46) + D('M690 530V500M690 530L712 542') + K(690, 530, 4);
+      o += RC(606, 640, 150, 30, 4) + D('M620 648H700M620 658H680');
+      o += RC(0, 820, 800, 300, 0);
+      for (var i = 0; i < 5; i++) o += D('M' + (i * 200 - 40) + ' 1100L' + (i * 120 + 160) + ' 820');
+      return o;
+    }
+  };
+
+  // obiecte pentru filele de poveste (baza la y = 0)
+  var PROPS = {
+    piggy: function () { return RC(-52, -34, 22, 34, 6) + RC(26, -34, 22, 34, 6) + E(0, -74, 86, 58) + P('M-50 -122L-66 -160L-26 -134Z') + E(76, -74, 24, 28) + K(70, -74, 4) + K(84, -74, 4) + K(34, -96, 6) + D('M-14 -132H22') + D('M-86 -76Q-108 -90 -96 -104Q-84 -112 -84 -96'); },
+    jars: function () { var o = ''; [-92, 0, 92].forEach(function (x, i) { o += RC(x - 34, -120, 68, 120, 14) + RC(x - 28, -140, 56, 22, 6) + G('translate(' + x + ' -60)', [EMB.star, EMB.sun, EMB.heart][i]()); }); return o; },
+    plant: function () { return P('M-50 -70H50L38 0H-38Z') + RC(-58, -86, 116, 20, 6) + D('M0 -86V-190') + P('M0 -130Q-60 -160 -74 -110Q-30 -96 0 -130Z') + P('M0 -160Q60 -196 78 -146Q32 -126 0 -160Z') + C(0, -204, 22) + D('M-6 -212Q0 -222 8 -212'); },
+    coins: function () { var o = '', i; for (i = 0; i < 5; i++) o += E(-40, -12 - i * 22, 52, 15); for (i = 0; i < 3; i++) o += E(62, -12 - i * 22, 46, 14); return o + C(20, -150, 30) + P(star(20, -150, 16, 7, 5)); },
+    stand: function () { return RC(-110, -90, 220, 90, 4) + RC(-118, -106, 236, 20, 6) + D('M-100 -106V-230M100 -106V-230') + P('M-124 -230H124L110 -190Q82 -176 55 -190Q27 -176 0 -190Q-27 -176 -55 -190Q-82 -176 -110 -190Z') + D('M-55 -230V-190M0 -230V-190M55 -230V-190') + P('M-70 -106V-160H-30V-106Z') + D('M-30 -148Q-10 -148 -10 -132Q-10 -118 -30 -118') + RC(10, -136, 26, 30, 4) + RC(48, -136, 26, 30, 4) + RC(-60, -66, 120, 44, 6) + C(-30, -44, 13) + C(0, -44, 13) + C(30, -44, 13); },
+    gift: function () { return RC(-70, -100, 140, 100, 6) + RC(-78, -124, 156, 28, 6) + RC(-14, -124, 28, 124, 0) + P('M0 -124Q-50 -180 -62 -140Q-40 -118 0 -124Z') + P('M0 -124Q50 -180 62 -140Q40 -118 0 -124Z'); },
+    xmas: function () { return RC(-16, -34, 32, 34, 4) + P('M-100 -34L0 -120L100 -34Z') + P('M-80 -100L0 -180L80 -100Z') + P('M-58 -164L0 -234L58 -164Z') + P(star(0, -250, 24, 10, 5)) + C(-40, -60, 11) + C(36, -66, 11) + C(-8, -128, 11) + C(30, -122, 9) + C(-14, -186, 9); },
+    eggs: function () { return E(-44, -96, 30, 40) + E(8, -108, 30, 40) + E(56, -92, 28, 38) + D('M-70 -98L-58 -108L-44 -96L-30 -108L-18 -98M-18 -110H34M30 -92L42 -102L56 -90L70 -102') + P('M-104 -84H104L80 0H-80Z') + D('M-92 -56H92M-84 -28H84') + D('M-90 -84Q0 -230 90 -84'); },
+    pumpkin: function () { return RC(-10, -150, 20, 30, 4) + E(-52, -66, 52, 64) + E(52, -66, 52, 64) + E(0, -66, 58, 68) + P('M-44 -90L-28 -112L-14 -90Z') + P('M14 -90L28 -112L44 -90Z') + P('M-46 -52H46Q28 -16 0 -18Q-28 -16 -46 -52Z') + RC(-8, -52, 16, 12, 0); },
+    snowman: function () { return C(0, -58, 62) + C(0, -146, 46) + C(0, -214, 34) + RC(-36, -252, 72, 12, 4) + RC(-24, -292, 48, 42, 4) + K(-12, -220, 4) + K(12, -220, 4) + P('M0 -212L40 -204L0 -200Z') + K(0, -160, 5) + K(0, -136, 5) + D('M-44 -150L-92 -190M44 -150L92 -190') + RC(-34, -186, 68, 14, 6); }
   };
 
   var EXTRA = {
@@ -343,6 +383,7 @@
   var STYLE = '<style>svg .d{fill:none;pointer-events:none}svg .k{fill:#111;pointer-events:none}svg .w{fill:#fff;pointer-events:none}svg .n{stroke:none}' +
     'svg .t{font-family:"Arial Black","Arial Rounded MT Bold","Trebuchet MS",Verdana,sans-serif;font-weight:900;stroke-width:2.5}' +
     'svg .b{font-family:"Trebuchet MS",Verdana,Arial,sans-serif;font-weight:700;fill:#111;stroke:none;pointer-events:none}' +
+    'svg .r{font-family:"Trebuchet MS",Verdana,Arial,sans-serif;font-weight:600;fill:#111;stroke:none;pointer-events:none}' +
     'svg .s{font-family:Verdana,Arial,sans-serif;fill:#777;stroke:none;pointer-events:none}</style>';
 
   function wrap(inner, footer) {
@@ -353,7 +394,7 @@
       '<g stroke="#111" stroke-width="' + SW + '" stroke-linejoin="round" stroke-linecap="round" fill="#fff">' +
       '<g clip-path="url(#' + id + ')"><rect class="f" x="0" y="0" width="800" height="1100"/>' + inner + '</g>' +
       '<rect class="d" x="20" y="20" width="760" height="1040" rx="26" stroke-width="6"/></g>' +
-      '<text class="s" x="400" y="1086" font-size="15" text-anchor="middle">' + esc(footer || 'Liga Creioanelor') + '</text></svg>';
+      '<text class="s" x="400" y="1086" font-size="15" text-anchor="middle">' + esc(footer || '© 2026 Liga Creioanelor') + '</text></svg>';
   }
   function banner(title) {
     var t = title.toUpperCase(), fs = Math.min(46, 880 / Math.max(8, t.length));
@@ -402,9 +443,12 @@
       var x = wide ? px + 150 + i * 190 : px + (n === 1 ? 110 : 90 + i * 130);
       inner += place(x, py + ph - 14 - 178 * sc + (p.dy || 0) * hs * .5, sc, figure(id, pose, seed + i), p.rot ? p.rot * .6 : 0, parts[2] === 'f');
     });
-    var ls = lines(pn.say[lang === 'en' ? 1 : 0], wide ? 24 : 15), bw = wide ? 330 : 196;
-    var bx = wide ? px + pw - bw - 24 : px + pw - bw - 12;
-    inner += bubble(bx, py + 14, bw, ls);
+    if (pn.extra && PROPS[pn.extra]) inner += place(px + pw - 130, py + ph - 22, .82, PROPS[pn.extra]());
+    if (pn.say) {
+      var ls = lines(pn.say[lang === 'en' ? 1 : 0], wide ? 24 : 15), bw = wide ? 330 : 196;
+      var bx = wide ? px + pw - bw - 24 : px + pw - bw - 12;
+      inner += bubble(bx, py + 14, bw, ls);
+    }
     return clip('<rect x="' + px + '" y="' + py + '" width="' + pw + '" height="' + ph + '" rx="14"/>', RC(px, py, pw, ph, 0) + inner) +
       '<rect class="d" x="' + px + '" y="' + py + '" width="' + pw + '" height="' + ph + '" rx="14" stroke-width="5"/>';
   }
@@ -415,6 +459,22 @@
     o += panel(36, 444, 357, 290, spec.panels[1], lang, spec.seed + 1);
     o += panel(407, 444, 357, 290, spec.panels[2], lang, spec.seed + 2);
     o += RC(36, 748, 728, 296, 14) + txt(en ? 'Draw what happens next!' : 'Desenează tu ce urmează!', 400, 786, 20, 'b');
+    return wrap(o, footer);
+  }
+
+  // --- file de poveste: desen de colorat + text de citit + întrebarea de seară
+  var FS = { A: 30, B: 24.5, C: 21 };
+  function story(spec, lang, footer) {
+    var en = lang === 'en', i = en ? 1 : 0, t = spec.t[i].toUpperCase(), fs = FS[spec.age];
+    var o = txt(t, 340, 80, Math.min(36, 760 / Math.max(8, t.length)));
+    o += RC(634, 44, 128, 46, 23) + txt(spec.ages + (en ? ' yrs' : ' ani'), 698, 75, 21, 'b');
+    o += panel(36, 104, 728, 392, spec, lang, spec.seed);
+    o += '<rect class="w" x="36" y="510" width="728" height="300" rx="14"/>';
+    lines(spec.txt[i], Math.floor(690 / (fs * .5))).forEach(function (l, k) { o += txt(l, 58, 510 + 22 + fs + k * fs * 1.36, fs, 'r', 'text-anchor="start"'); });
+    o += RC(36, 824, 728, 96, 14) + P(star(84, 872, 30, 13, 5));
+    o += txt(en ? 'TONIGHT\'S QUESTION' : 'ÎNTREBAREA DE SEARĂ', 126, 858, 15, 'b', 'text-anchor="start"');
+    lines(spec.q[i], 58).forEach(function (l, k) { o += txt(l, 126, 884 + k * 24, 20, 'r', 'text-anchor="start"'); });
+    o += RC(36, 934, 728, 110, 14) + txt(en ? 'Draw your answer here' : 'Desenează aici răspunsul tău', 400, 962, 16, 'b');
     return wrap(o, footer);
   }
 
@@ -533,10 +593,13 @@
       }) }
   ];
 
+  var ST = root.LigaStories || (typeof require === 'function' ? require('./stories.js') : null);
+  if (ST) SERIES = SERIES.concat(ST.series);
+
   function render(sid, idx, lang) {
     var s = SERIES.filter(function (x) { return x.id === sid; })[0], p = s.pages[idx];
-    var footer = 'Liga Creioanelor · ' + s.t[lang === 'en' ? 1 : 0] + ' · ' + (idx + 1) + '/' + s.pages.length;
-    return s.comic ? comic(p, lang, footer) : page(p, lang, footer);
+    var footer = '© 2026 Liga Creioanelor · ' + s.t[lang === 'en' ? 1 : 0] + ' · ' + (idx + 1) + '/' + s.pages.length;
+    return s.story ? story(p, lang, footer) : s.comic ? comic(p, lang, footer) : page(p, lang, footer);
   }
 
   var api = { W: W, H: H, SERIES: SERIES, CAST: CAST, render: render, genPage: genPage };

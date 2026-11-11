@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Liga Creioanelor — supereroi de colorat</title>
-<meta name="description" content="80 de pagini de colorat cu supereroi originali: pe tabletă, cu creionul digital, sau printate. Fără reclame, fără cont.">
+<meta name="description" content="Peste 100 de pagini cu supereroi originali: de colorat, benzi desenate și povești de seară pe vârste. Pe tabletă sau printate. Fără reclame, fără cont.">
 <meta property="og:title" content="Liga Creioanelor — supereroi de colorat">
-<meta property="og:description" content="Colorează pe tabletă sau printează. 80 de pagini, 7 serii, eroi noi la nesfârșit.">
+<meta property="og:description" content="Colorează, citește și printează. Povești de seară despre bani, prietenie și curaj, pe vârste.">
 <meta property="og:image" content="icons/og.png">
 <meta name="theme-color" content="#ffd23f">
 <link rel="manifest" href="manifest.webmanifest">
@@ -39,6 +39,7 @@ h3.sec{font-size:1.25rem;margin:26px 0 12px;text-transform:uppercase;letter-spac
 .card.blk .th{aspect-ratio:8/7}
 .card .th svg{width:100%;display:block;pointer-events:none}
 .card.blk .th svg{margin-top:-30%}
+.card.blk.st .th svg{margin-top:-8%}
 .card .tx{padding:10px 12px 12px}
 .card b{display:block;font-size:1rem;line-height:1.2}
 .card small{display:block;color:#555;font-weight:600;margin-top:3px}
@@ -96,6 +97,7 @@ input[type=color]{width:44px;height:44px;border:3px solid var(--ink);border-radi
 <body>
 <div id="app"></div>
 <div id="print"></div>
+<script src="stories.js"></script>
 <script src="art.js"></script>
 <script>
 'use strict';
@@ -110,8 +112,12 @@ const A = self.LigaArt, $ = (s, r) => (r || document).querySelector(s), app = $(
 const LS = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
 let lang = LS.get('liga_lang', (navigator.language || 'ro').slice(0, 2) === 'ro' ? 'ro' : 'en');
 const L = () => lang === 'en' ? 1 : 0;
+const N = A.SERIES.reduce((n, s) => n + s.pages.length, 0);
 const T = {
-  tag: ['80 de pagini de colorat cu supereroi originali. Pe tabletă cu creionul digital sau printate pe hârtie.', '80 coloring pages with original superheroes. On your tablet with a stylus, or printed on paper.'],
+  tag: [N + ' pagini cu supereroi originali: de colorat, benzi desenate și povești de seară pe vârste. Pe tabletă cu creionul digital sau printate.', N + ' pages with original superheroes: coloring, comics and bedtime stories by age. On a tablet with a stylus, or printed.'],
+  stories: ['Povești de seară', 'Bedtime stories'], storiesD: ['Un desen de colorat, un text de citit împreună și o întrebare care pornește imaginația. Despre bani, prietenie, curaj și sărbători.', 'A picture to color, a text to read together and a question that sparks imagination. About money, friendship, courage and holidays.'],
+  all: ['Toate vârstele', 'All ages'], yrs: ['ani', 'yrs'], lic: ['Licență și drepturi', 'License & rights'],
+  licP: ['Toate personajele, textele și desenele sunt originale: © 2026 Liga Creioanelor. Licența personală îți dă voie să folosești și să printezi paginile acasă, pentru familia ta. Pentru clasă sau școală există licența educațională. Nu este permisă revânzarea, republicarea online sau folosirea personajelor în alte produse.', 'All characters, texts and drawings are original: © 2026 Liga Creioanelor. The personal license lets you use and print the pages at home, for your family. Classrooms and schools need the education license. Reselling, republishing online or using the characters in other products is not allowed.'],
   start: ['Începe să colorezi', 'Start coloring'], unlock: ['Deblochează tot', 'Unlock everything'], pro: ['Ai acces complet ✓', 'Full access ✓'],
   blocks: ['Programul de azi', 'Today\'s line-up'], free: ['GRATIS', 'FREE'], pages: ['pagini', 'pages'], colored: ['colorate', 'colored'],
   fab: ['Fabrica de eroi', 'Hero Factory'], fabd: ['Un erou nou la fiecare apăsare. Nu se termină niciodată.', 'A brand-new hero at every tap. It never runs out.'],
@@ -121,9 +127,9 @@ const T = {
   p1: ['Fără reclame, fără cont, fără date despre copil. Desenele rămân doar pe acest dispozitiv.', 'No ads, no account, no data about your child. Drawings stay on this device only.'],
   p2: ['Merge și fără internet după prima deschidere. Poți instala aplicația pe ecranul principal.', 'Works offline after the first visit. You can install it to your home screen.'],
   p3: ['Fiecare pagină se poate printa A4, goală sau colorată.', 'Every page prints on A4, blank or colored.'],
-  sample: ['Descarcă gratuit primele 12 pagini (PDF)', 'Download the first 12 pages free (PDF)'],
+  sample: ['Descarcă eșantionul gratuit (PDF, 16 pagini)', 'Download the free sample (PDF, 16 pages)'],
   lockT: ['Pagină din pachetul complet', 'Part of the full pack'],
-  lockP: ['Pachetul complet deschide toate cele 80 de pagini, printarea pe blocuri întregi și Fabrica de eroi fără limită. Se plătește o singură dată.', 'The full pack opens all 80 pages, whole-block printing and the unlimited Hero Factory. One-time payment.'],
+  lockP: ['Pachetul complet deschide toate cele ' + N + ' pagini, printarea pe blocuri întregi și Fabrica de eroi fără limită. Se plătește o singură dată.', 'The full pack opens all ' + N + ' pages, whole-block printing and the unlimited Hero Factory. One-time payment.'],
   buy: ['Cumpără pachetul complet', 'Buy the full pack'], have: ['Am deja un cod', 'I already have a code'], code: ['Codul primit după plată', 'Code you received after payment'],
   ok: ['Deblochează', 'Unlock'], bad: ['Cod greșit. Verifică și încearcă din nou.', 'Wrong code. Check it and try again.'], yay: ['Gata! Toată Liga e a ta.', 'Done! The whole League is yours.'],
   close: ['Închide', 'Close'], prT: ['Printează', 'Print'], prBlank: ['Doar conturul (de colorat pe hârtie)', 'Outline only (to color on paper)'], prMine: ['Așa cum am colorat-o eu', 'My colored version'],
@@ -131,6 +137,7 @@ const T = {
   saved: ['Imagine salvată', 'Image saved']
 };
 const t = k => T[k][L()];
+const sampleUrl = () => 'print/liga-creioanelor-gratuit' + (lang === 'en' ? '-en' : '') + '.pdf';
 const isPro = () => LS.get('liga_pro', 0) === 1;
 const done = () => LS.get('liga_done', {});
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -161,16 +168,18 @@ function applyFills(root, st) { if (!st || !st.fills) return; const els = root.q
 
 function viewHome() {
   const d = done();
+  const blk = s => { const n = s.pages.filter((p, i) => d[pid(s.id, i)]).length;
+    return '<button class="card blk' + (s.story ? ' st' : '') + '" data-s="' + s.id + '"><div class="th">' + A.render(s.id, 0, lang) + '</div>' + (s.free ? '<span class="tag">' + t('free') + '</span>' : isPro() ? '' : '<span class="tag l">🔒</span>') +
+      '<div class="tx"><b>' + esc(s.t[L()]) + '</b><small>' + esc(s.d[L()]) + '</small><small>' + s.pages.length + ' ' + t('pages') + (n ? ' · ' + n + ' ' + t('colored') : '') + '</small></div></button>'; };
   app.innerHTML = '<div class="wrap"><div class="hero"><button class="btn lang" id="lg">' + (lang === 'ro' ? 'EN' : 'RO') + '</button>' +
     '<h1>Liga<br>Creioanelor</h1><p>' + t('tag') + '</p><div class="row"><button class="btn b" id="st">' + t('start') + '</button>' +
     (isPro() ? '<span class="btn">' + t('pro') + '</span>' : '<button class="btn r" id="un">' + t('unlock') + '</button>') + '</div></div>' +
-    '<h3 class="sec">' + t('blocks') + '</h3><div class="grid">' +
-    A.SERIES.map(s => { const n = s.pages.filter((p, i) => d[pid(s.id, i)]).length;
-      return '<button class="card blk" data-s="' + s.id + '"><div class="th">' + A.render(s.id, 0, lang) + '</div>' + (s.free ? '<span class="tag">' + t('free') + '</span>' : isPro() ? '' : '<span class="tag l">🔒</span>') +
-        '<div class="tx"><b>' + esc(s.t[L()]) + '</b><small>' + esc(s.d[L()]) + '</small><small>' + s.pages.length + ' ' + t('pages') + (n ? ' · ' + n + ' ' + t('colored') : '') + '</small></div></button>'; }).join('') +
+    '<h3 class="sec">' + t('blocks') + '</h3><div class="grid">' + A.SERIES.filter(s => !s.story).map(blk).join('') +
     '<button class="card blk" data-s="*"><div class="th">' + A.genPage(7, lang).svg + '</div><span class="tag" style="background:var(--red)">∞</span><div class="tx"><b>' + t('fab') + '</b><small>' + t('fabd') + '</small></div></button></div>' +
-    '<div class="note"><b>' + t('parents') + '</b><ul><li>' + t('p1') + '</li><li>' + t('p2') + '</li><li>' + t('p3') + '</li></ul><p style="margin-top:12px"><a class="btn y" style="display:inline-block;text-decoration:none" href="print/liga-creioanelor-gratuit.pdf" download>⬇ ' + t('sample') + '</a></p></div>' +
-    '<footer>Liga Creioanelor · personaje și desene originale · <a href="../">CreatorHub</a> · © 2026</footer></div>';
+    '<h3 class="sec">🌙 ' + t('stories') + '</h3><p style="font-weight:600;margin:-4px 0 14px;max-width:640px">' + t('storiesD') + '</p><div class="grid">' + A.SERIES.filter(s => s.story).map(blk).join('') + '</div>' +
+    '<div class="note"><b>' + t('parents') + '</b><ul><li>' + t('p1') + '</li><li>' + t('p2') + '</li><li>' + t('p3') + '</li></ul><p style="margin-top:12px"><a class="btn y" style="display:inline-block;text-decoration:none" href="' + sampleUrl() + '" download>⬇ ' + t('sample') + '</a></p></div>' +
+    '<footer>© 2026 Liga Creioanelor · personaje și desene originale · <a href="#" id="li">' + t('lic') + '</a> · <a href="../">CreatorHub</a></footer></div>';
+  $('#li').onclick = e => { e.preventDefault(); dialog('<h3>© ' + t('lic') + '</h3><p>' + t('licP') + '</p><div class="col"><button class="btn y" data-a="n">OK</button></div>'); };
   $('#lg').onclick = () => { lang = lang === 'ro' ? 'en' : 'ro'; LS.set('liga_lang', lang); route(); };
   $('#st').onclick = () => go('#/s/liga');
   if ($('#un')) $('#un').onclick = () => unlockDlg();
@@ -178,12 +187,14 @@ function viewHome() {
   scrollTo(0, 0);
 }
 
-function viewSeries(sid) {
+function viewSeries(sid, age) {
   const s = A.SERIES.find(x => x.id === sid), d = done();
-  app.innerHTML = '<div class="wrap"><div class="top"><button class="btn" id="bk">' + t('back') + '</button><h2>' + esc(s.t[L()]) + '</h2><button class="btn y" id="pa">' + t('printAll') + '</button></div><div class="grid pg">' +
-    s.pages.map((p, i) => { const open = canOpen(s, i);
+  const chips = s.story ? '<div class="top" style="padding-top:0">' + [['', t('all')], ['A', '3–5 ' + t('yrs')], ['B', '6–8 ' + t('yrs')], ['C', '9–12 ' + t('yrs')]].map(c => '<button class="btn' + ((age || '') === c[0] ? ' y' : '') + '" data-age="' + c[0] + '">' + c[1] + '</button>').join('') + '</div>' : '';
+  app.innerHTML = '<div class="wrap"><div class="top"><button class="btn" id="bk">' + t('back') + '</button><h2>' + esc(s.t[L()]) + '</h2><button class="btn y" id="pa">' + t('printAll') + '</button></div>' + chips + '<div class="grid pg">' +
+    s.pages.map((p, i) => { if (age && p.age !== age) return ''; const open = canOpen(s, i);
       return '<button class="card' + (open ? '' : ' lock') + '" data-i="' + i + '"><div class="th" id="th' + i + '">' + A.render(sid, i, lang) + '</div>' + (open ? '' : '<span class="tag l">🔒</span>') + (d[pid(sid, i)] ? '<span class="tag d">✓</span>' : '') +
-        '<div class="tx"><b>' + (i + 1) + '. ' + esc(p.t[L()]) + '</b></div></button>'; }).join('') + '</div></div>';
+        '<div class="tx"><b>' + (i + 1) + '. ' + esc(p.t[L()]) + '</b>' + (p.ages ? '<small>' + p.ages + ' ' + t('yrs') + '</small>' : '') + '</div></button>'; }).join('') + '</div></div>';
+  app.querySelectorAll('[data-age]').forEach(b => b.onclick = () => viewSeries(sid, b.dataset.age));
   $('#bk').onclick = () => go('#/');
   $('#pa').onclick = () => { if (!isPro()) return unlockDlg(); printImgs(s.pages.map((p, i) => svgUrl(A.render(sid, i, lang)))); };
   app.querySelectorAll('[data-i]').forEach(b => b.onclick = () => { const i = +b.dataset.i; canOpen(s, i) ? go('#/p/' + sid + '/' + i) : unlockDlg(); });
