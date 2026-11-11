@@ -48,7 +48,8 @@
   .streak-pill{display:flex;align-items:center;gap:6px;background:var(--chip);border-radius:99px;padding:6px 12px;font-weight:700;cursor:pointer;border:0}
   header.top .row{flex-wrap:nowrap;gap:6px}
   .logo small{white-space:nowrap}
-  @media(max-width:380px){.logo{font-size:1.25rem}.logo small{font-size:.64rem}.streak-pill{padding:6px 9px}}
+  @media(max-width:440px){.logo small{display:none}header.top .streak-pill{padding:6px 9px;gap:3px}header.top{padding-left:12px;padding-right:12px}}
+  @media(max-width:380px){.logo{font-size:1.25rem}header.top .streak-pill{padding:5px 7px}}
   .btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer;background:var(--accent);color:#fff;display:inline-flex;align-items:center;gap:6px;justify-content:center}
   .btn.ghost{background:var(--chip);color:var(--ink)}
   .btn.ok{background:var(--ok)}
@@ -172,6 +173,17 @@
   @keyframes hint{50%{transform:translateY(-4px)}}
   .fend{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;background:linear-gradient(135deg,#f4a340,#e8603c)}
   @media (prefers-reduced-motion:reduce){.fcard .layer.on{animation:none}.fhint{animation:none}}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:10px 0}
+  .kpi{padding:12px 14px}
+  .kpi b{display:block;font-family:'Fraunces',serif;font-size:1.6rem;color:var(--accent);line-height:1.1}
+  .kpi small{color:var(--soft);font-size:.78rem}
+  .bars{display:flex;align-items:flex-end;gap:2px;height:90px;margin-top:8px}
+  .bars i{flex:1;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px;opacity:.85}
+  .bars i:hover{opacity:1}
+  .comment{padding:10px 0;border-bottom:1px dashed var(--line)}
+  .comment:last-child{border:0}
+  .comment b{font-size:.9rem}
+  .premium-badge{display:inline-block;background:linear-gradient(135deg,#f4a340,#e8603c);color:#fff;border-radius:99px;padding:2px 10px;font-size:.78rem;font-weight:800}
   .sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:70;display:none;align-items:flex-end}
   .sheet.on{display:flex}
   .sheet-card{width:100%;max-width:560px;margin:0 auto;border-radius:18px 18px 0 0;max-height:88vh;overflow:auto;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
@@ -198,6 +210,39 @@
   .anim-bar{display:flex;gap:8px;justify-content:space-between;padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
   @media (prefers-reduced-motion:reduce){.anim-stage img.kb,.anim-card,.anim-cap{animation:none}}
   @media(max-width:560px){.two,.three{grid-template-columns:1fr}.detail-head h1{font-size:1.5rem}}
+  /* glisare Tinder în feed */
+  .fcard{touch-action:pan-y}
+  .fswipe{position:absolute;top:28%;z-index:4;font-weight:900;font-size:1.5rem;padding:6px 14px;border:4px solid;border-radius:14px;opacity:0;pointer-events:none;background:rgba(0,0,0,.25)}
+  .fswipe.yes{left:18px;color:#4ade80;border-color:#4ade80;transform:rotate(-12deg)}
+  .fswipe.no{right:18px;color:#fca5a5;border-color:#fca5a5;transform:rotate(12deg)}
+  /* listă de cumpărături */
+  ul.shop{list-style:none;padding:0;margin:0}
+  ul.shop li{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--line)}
+  ul.shop li:last-child{border:0}
+  ul.shop li span{flex:1;min-width:0}
+  ul.shop li.done span{text-decoration:line-through;opacity:.5}
+  ul.shop input,.prep input{width:24px;height:24px;flex:none;accent-color:var(--accent)}
+  .shop-x{border:0;background:none;color:var(--soft);font-size:1.1rem;cursor:pointer;padding:4px 8px}
+  .imp{border:2px dashed var(--accent)}
+  /* MOD UȘOR: text mare, o acțiune pe ecran, fără animații bruște */
+  html.easy{font-size:19px}
+  html.easy *,html.easy *::before,html.easy *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  html.easy .big{font-size:1.65rem;line-height:1.5}
+  html.easy .btn{min-height:54px;font-size:1.05rem}
+  html.easy ul.shop input,html.easy .prep input{width:34px;height:34px}
+  html.easy .fhint{display:none}
+  html.easy .cook-body{max-width:640px;margin:0 auto}
+  /* catalogul mondial */
+  .wbanner{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;border:0;margin:6px 0 14px;background:linear-gradient(135deg,#f4a340,#e8603c);color:#fff;font:inherit}
+  .wbanner b{display:block;font-family:'Fraunces',serif;font-size:1.15rem}
+  .wbanner small{opacity:.92}
+  .wbanner .globe{font-size:2.4rem}
+  .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:12px 0 24px}
+  .ctile{padding:14px;cursor:pointer;text-align:left;border:0;font:inherit;color:inherit}
+  .ctile .fl{font-size:2.2rem;line-height:1}
+  .ctile b{display:block;margin-top:6px}
+  .ctile small{color:var(--soft)}
+  .easy-tag{display:inline-block;background:var(--accent);color:#fff;border-radius:99px;padding:2px 10px;font-size:.78rem;font-weight:800}
 </style>
 </head>
 <body>
@@ -206,6 +251,7 @@
   <div class="logo">Pas cu Gust<small>Rețetele tale, cu poze și video</small></div>
   <div class="row">
     <button class="streak-pill" id="pill" title="Seria ta de gătit">🔥 <span id="pillN">0</span></button>
+    <button class="streak-pill" id="shopBtn" title="Lista de cumpărături">🛒<span id="shopN"></span></button>
     <button class="streak-pill" id="themeBtn" title="Temă">🌗</button>
     <button class="streak-pill" id="accBtn" title="Cont și sincronizare">☁️ <span id="accDot"></span></button>
   </div>
@@ -219,6 +265,7 @@
       <h1 id="heroTitle">Ce gătim azi?</h1>
       <p id="heroSub">Gătește o rețetă ca să-ți ții seria aprinsă.</p>
     </div>
+    <button class="card panel wbanner" id="toWorld"><span class="globe">🌍</span><span><b>Rețete din toată lumea</b><small>Alege o țară și gătește ca acolo</small></span></button>
     <input class="search" id="q" placeholder="🔎 Caută rețete, ingrediente…">
     <div class="chips" id="cats"></div>
     <div class="grid" id="list"></div>
@@ -239,6 +286,15 @@
   <!-- PRODUSE DIGITALE -->
   <section class="view" id="v-products"></section>
 
+  <!-- PANOU DE CREȘTERE (doar administrator) -->
+  <section class="view" id="v-growth"></section>
+
+  <!-- CATALOGUL MONDIAL -->
+  <section class="view" id="v-world"></section>
+
+  <!-- LISTA DE CUMPĂRĂTURI -->
+  <section class="view" id="v-shop"></section>
+
   <!-- CONT / CLOUD -->
   <section class="view" id="v-account"></section>
 
@@ -258,6 +314,7 @@
   <div class="cook-top">
     <button class="btn ghost sm" id="cookClose">✕ Închide</button>
     <strong id="cookTitle"></strong>
+    <button class="btn ghost sm" id="cookSpeak" title="Citește cu voce">🔇</button>
     <span id="cookCount" class="meta"></span>
   </div>
   <div class="bar"><i id="cookBar"></i></div>
@@ -281,6 +338,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="i18n.js"></script>
+<script src="world.js"></script>
 <script>
 /* ============================================================
    Pas cu Gust — totul rulează local în browser.
@@ -455,7 +513,7 @@ const dkey = d=>{const x=new Date(d);return x.getFullYear()+'-'+String(x.getMont
 const today = ()=> dkey(new Date());
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2400);}
 function fmtTime(min){if(!min)return '';return min>=60?Math.floor(min/60)+' h'+(min%60?' '+min%60+' min':''):min+' min';}
-const byId = id=> S.recipes.find(r=>r.id===id) || (SHARED && SHARED.id===id ? SHARED : null);
+const byId = id=> S.recipes.find(r=>r.id===id) || (SHARED && SHARED.id===id ? SHARED : null) || worldById(id);
 
 /* ---------- serie (streak) ---------- */
 function streak(){
@@ -474,6 +532,7 @@ function streak(){
   return {cur,best,total,days,cookedToday:days.has(today())};
 }
 function markCooked(id){
+  track('cooked',byId(id));
   const k=today(); S.log[k]=S.log[k]||[];
   const before=streak().cur;
   S.log[k].push(id); save();
@@ -497,7 +556,7 @@ function go(v,arg){
   if(SHARED && !(v==='detail' && arg===SHARED.id)) closeShared();
   document.querySelectorAll('section.view').forEach(s=>s.classList.remove('on'));
   $('#v-'+v).classList.add('on');
-  document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on',b.dataset.go===v||(v==='detail'&&b.dataset.go==='home')));
+  document.querySelectorAll('nav.bottom button').forEach(b=>b.classList.toggle('on',b.dataset.go===v||(v==='detail'&&b.dataset.go==='home')||(v==='world'&&b.dataset.go==='feed')));
   window.scrollTo(0,0);
   if(v==='feed') renderFeed(); else stopFeed();
   if(v==='home') renderHome();
@@ -506,10 +565,14 @@ function go(v,arg){
   if(v==='streak') renderStreak();
   if(v==='products') renderProducts();
   if(v==='account') renderAccount();
+  if(v==='shop') renderShop();
+  if(v==='world') renderWorld(arg);
+  if(v==='growth') renderGrowth();
 }
-document.querySelectorAll('nav.bottom button').forEach(b=>b.onclick=()=>go(b.dataset.go));
+document.querySelectorAll('nav.bottom button').forEach(b=>b.onclick=()=>{ if(b.dataset.go==='feed') feedFilter=null; go(b.dataset.go); });
 $('#pill').onclick=()=>go('streak');
 $('#accBtn').onclick=()=>go('account');
+$('#shopBtn').onclick=()=>go('shop');
 
 /* ---------- temă ---------- */
 /* ---------- limbă ---------- */
@@ -574,12 +637,17 @@ $('#q').oninput=renderHome;
 
 /* ---------- DESCOPERĂ (feed vertical) ---------- */
 // O rețetă pe ecran; pozele pașilor se derulează singure, ca un clip. Glisezi în sus pentru următoarea.
-const FLAG_OF=r=>r.country?String.fromCodePoint(...[...r.country.toUpperCase()].map(c=>127397+c.charCodeAt(0))):(SEED.some(x=>x.id===r.id)&&!r.imported?'🇷🇴':'');
+const flagOf=cc=>String.fromCodePoint(...[...cc.toUpperCase()].map(c=>127397+c.charCodeAt(0)));
+const countryOf=r=>r.country||(SEED.some(x=>x.id===r.id)&&!r.imported?'RO':null);
+const FLAG_OF=r=>{ const c=countryOf(r); return c?flagOf(c):''; };
 let feedTimer=null, feedObs=null, feedCur=null;
+let feedFilter=null; // cod de țară, când vii din catalogul mondial
 function feedOrder(){
   // amestec stabil pe zi: azi vezi aceeași ordine, mâine alta
   const day=today(), h=x=>{let v=0;for(const c of day+x)v=(v*31+c.charCodeAt(0))|0;return v;};
-  return [...S.recipes].sort((a,b)=>h(a.id)-h(b.id));
+  const saved=new Set(S.recipes.map(r=>r.from).filter(Boolean));
+  const all=[...S.recipes,...WORLD.filter(w=>!saved.has(w.id)).map(w=>worldById(w.id))];
+  return all.filter(r=>!feedFilter||countryOf(r)===feedFilter).sort((a,b)=>h(a.id)-h(b.id));
 }
 function renderFeed(){
   const V=$('#v-feed'), list=feedOrder();
@@ -595,9 +663,10 @@ function renderFeed(){
     const flag=FLAG_OF(r);
     return `<article class="fcard" data-id="${r.id}">
       ${lay}<div class="fshade"></div>
-      <div class="ftop"><span>🌍 Descoperă</span><button class="streak-pill" data-act="streak">🔥 ${streak().cur}</button></div>
+      <div class="ftop">${feedFilter?`<button class="streak-pill" data-act="unfilter"><span>${flagOf(feedFilter)}</span> <span class="nt">${esc(cName(feedFilter))}</span> ✕</button>`:'<span>🌍 Descoperă</span>'}<span class="row" style="gap:6px"><button class="streak-pill" data-act="world">🗺️ Țări</button><button class="streak-pill" data-act="streak">🔥 ${streak().cur}</button></span></div>
       ${layers.length>1?`<div class="fdots">${layers.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`:''}
       <div class="fheart">❤️</div>
+      <div class="fswipe yes">❤️ SALVEZ</div><div class="fswipe no">✕ SAR</div>
       <div class="finfo">
         <div class="tagline">${flag?`<span>${flag}</span>`:''}<span>${esc(r.cat)}</span><span>⏱ ${fmtTime(r.time)||'—'}</span><span>${r.steps.length} pași</span></div>
         <h2 class="nt">${esc(r.title)}</h2>
@@ -611,7 +680,7 @@ function renderFeed(){
         <button data-act="share"><span>📤</span>Trimite</button>
         ${vid&&vid.voice?`<button data-act="sound"><span>${feedSound?'🔊':'🔇'}</span>Voce</button>`:''}
       </div>
-      ${k===0?'<div class="fhint">⌃ Glisează în sus pentru următoarea rețetă</div>':''}
+      ${k===0?'<div class="fhint"><div>⌃ Glisează în sus pentru următoarea rețetă</div><div>→ Dreapta: salvez · ← Stânga: sar</div></div>':''}
     </article>`;}).join('')}
     <article class="fcard fend"><div style="font-size:4rem">🌍</div><h2 style="margin:10px 0">Ai văzut tot! Adaugă o rețetă de-a ta sau revino mâine.</h2>
       <button class="btn" data-act="new" style="background:#fff;color:#e8603c;margin-top:10px">➕ Fă-ți prima rețetă</button></article>
@@ -621,9 +690,12 @@ function renderFeed(){
     const b=e.target.closest('[data-act]'), card=e.target.closest('.fcard'); if(!b) return;
     const id=card?.dataset.id, r=id&&byId(id), act=b.dataset.act;
     if(act==='streak') return go('streak');
+    if(act==='world') return go('world');
+    if(act==='unfilter'){ feedFilter=null; return renderFeed(); }
     if(act==='new') return go('edit');
     if(!r) return;
-    if(act==='fav'){ r.fav=!r.fav; save(); b.classList.toggle('liked',r.fav); if(r.fav) heartPop(card); toast(r.fav?'❤️ Salvată la favorite':'Scoasă de la favorite'); }
+    if(act==='fav'){ if(r._world){ likeWorld(r).then(()=>{ b.classList.add('liked'); heartPop(card); }); return; }
+      r.fav=!r.fav; save(); if(r.fav) track('save',r); b.classList.toggle('liked',r.fav); if(r.fav) heartPop(card); toast(r.fav?'❤️ Salvată la favorite':'Scoasă de la favorite'); }
     if(act==='cook') openCook(id);
     if(act==='anim') openAnim(id);
     if(act==='sound'){ feedSound=!feedSound; F.querySelectorAll('[data-act=sound] span').forEach(s=>s.textContent=feedSound?'🔊':'🔇');
@@ -633,16 +705,57 @@ function renderFeed(){
   // dublu-tap pe poză = îmi place
   let lastTap=0;
   F.addEventListener('pointerup',e=>{
-    if(e.target.closest('[data-act]')) return;
+    if(e.target.closest('[data-act]') || Date.now()-swipedAt<400) return;
     const card=e.target.closest('.fcard[data-id]'); if(!card) return;
     const now=Date.now();
-    if(now-lastTap<300){ const r=byId(card.dataset.id); if(r&&!r.fav){ r.fav=true; save(); card.querySelector('[data-act=fav]').classList.add('liked'); } heartPop(card); lastTap=0; }
+    if(now-lastTap<300){ const r=byId(card.dataset.id); if(r?._world) likeWorld(r); else if(r&&!r.fav){ r.fav=true; save(); } card.querySelector('[data-act=fav]').classList.add('liked'); heartPop(card); lastTap=0; }
     else lastTap=now;
   });
+  bindSwipe(F);
   feedObs?.disconnect();
   feedObs=new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting && en.intersectionRatio>.6) playCard(en.target); }),{root:F,threshold:[.6]});
   F.querySelectorAll('.fcard[data-id]').forEach(c=>feedObs.observe(c));
   hydrate(F);
+}
+// Glisare ca pe Tinder: dreapta = salvez, stânga = sar peste. Sus/jos rămâne derularea.
+let swipedAt=0;
+function swipeStyle(card,dx){
+  card.style.transform=dx?`translateX(${dx}px) rotate(${S.easy?0:dx/25}deg)`:'';
+  const [y,n]=card.querySelectorAll('.fswipe'); if(y){ y.style.opacity=Math.max(0,Math.min(1,dx/90)); n.style.opacity=Math.max(0,Math.min(1,-dx/90)); }
+}
+function swipeDecide(card,like){
+  const r=byId(card.dataset.id);
+  if(like){ if(r?._world) likeWorld(r); else { if(r && !r.fav){ r.fav=true; save(); track('save',r); } toast('❤️ Salvată la favorite'); } card.querySelector('[data-act=fav]')?.classList.add('liked'); }
+  else toast('👋 Sar peste');
+  card.style.transition=S.easy?'none':'transform .22s ease-out';
+  card.style.transform=`translateX(${like?130:-130}%)`;
+  setTimeout(()=>{
+    card.nextElementSibling?.scrollIntoView({behavior:S.easy?'auto':'smooth'});
+    setTimeout(()=>{ card.style.transition='none'; swipeStyle(card,0); requestAnimationFrame(()=>card.style.transition=''); },450);
+  },S.easy?0:200);
+}
+function bindSwipe(F){
+  let sw=null;
+  F.addEventListener('pointerdown',e=>{
+    if(e.target.closest('[data-act]') || e.button>0) return;
+    const card=e.target.closest('.fcard[data-id]'); if(!card) return;
+    sw={card,x:e.clientX,y:e.clientY,dx:0,on:false,id:e.pointerId};
+  });
+  F.addEventListener('pointermove',e=>{
+    if(!sw || e.pointerId!==sw.id) return;
+    const dx=e.clientX-sw.x, dy=e.clientY-sw.y;
+    if(!sw.on){
+      if(Math.abs(dx)>14 && Math.abs(dx)>Math.abs(dy)*1.3) sw.on=true;
+      else { if(Math.abs(dy)>14) sw=null; return; }
+    }
+    sw.dx=dx; swipeStyle(sw.card,dx);
+  });
+  F.addEventListener('pointerup',()=>{
+    const s=sw; sw=null; if(!s?.on) return;
+    swipedAt=Date.now();
+    if(Math.abs(s.dx)>90) swipeDecide(s.card,s.dx>0); else swipeStyle(s.card,0);
+  });
+  F.addEventListener('pointercancel',()=>{ if(sw){ swipeStyle(sw.card,0); sw=null; } });
 }
 function heartPop(card){ const h=card.querySelector('.fheart'); h.classList.remove('pop'); void h.offsetWidth; h.classList.add('pop'); }
 async function shareFeed(r){ // fără cont: link rapid doar cu text
@@ -652,6 +765,7 @@ function playCard(card){
   if(feedCur===card) return;
   stopFeed(); feedCur=card;
   const r=byId(card.dataset.id); if(!r) return;
+  track('feed_view',r);
   const vidEl=card.querySelector('video.fvid'), vid=videoOf(r);
   if(vidEl && vid){ // clip: textul pasului urmează vocea
     const dots=[...card.querySelectorAll('.fdots i')], cap=card.querySelector('.fstep'), n=r.steps.length;
@@ -685,6 +799,7 @@ function stopFeed(){
 
 // Clipul gata de pus pe TikTok / Instagram / WhatsApp: pe telefon se deschide meniul de partajare.
 async function shareVideo(r){
+  track('video',r);
   const v=videoOf(r); if(!v) return;
   try{
     const blob=await (await fetch(v.src)).blob(), name=slug(r.title)+'.mp4';
@@ -715,7 +830,7 @@ function renderDetail(id){
   const serv=Math.max(1,Math.round((r.servings||1)*scale));
   V.innerHTML=`
     <div class="row" style="justify-content:space-between;margin-top:8px">
-      <button class="btn ghost sm" id="back">← ${r._shared?'Rețetele mele':'Rețete'}</button>
+      <button class="btn ghost sm" id="back">← ${r._world?'Țări':r._shared?'Rețetele mele':'Rețete'}</button>
       <div class="row">
         ${r._shared?`<button class="btn ghost sm" id="fwd">📤 Trimite</button>`:`
         <button class="btn ghost sm" id="fav">${r.fav?'❤️':'🤍'}</button>
@@ -723,7 +838,8 @@ function renderDetail(id){
         <button class="btn ghost sm" id="edit">✏️</button>`}
       </div>
     </div>
-    ${r._shared?`<div class="notice" style="margin-top:12px">👋 Rețetă trimisă de <b>${esc(r.author||'un prieten')}</b> cu Pas cu Gust. O poți găti pas cu pas chiar acum sau o poți salva în rețetele tale.</div>`:''}
+    ${r._world?`<div class="notice" style="margin-top:12px"><b>${flagOf(r.country)} <span class="nt">${esc(cName(r.country))}</span></b> · <span>Rețetă din catalogul mondial Pas cu Gust. O poți găti pas cu pas chiar acum sau o poți salva în rețetele tale.</span>${r._partial?'<br><span>Ingredientele și pașii sunt deocamdată în engleză. Traducerea completă vine curând.</span>':''}</div>`
+    :r._shared?`<div class="notice" style="margin-top:12px">👋 Rețetă trimisă de <b>${esc(r.author||'un prieten')}</b> cu Pas cu Gust. O poți găti pas cu pas chiar acum sau o poți salva în rețetele tale.</div>`:''}
     <div class="card" style="margin-top:12px">
       ${videoOf(r)?`<video class="cover dvid" controls playsinline preload="metadata" poster="${videoOf(r).poster}" src="${videoOf(r).src}" style="aspect-ratio:9/16;max-height:70vh;object-fit:contain;background:#000"></video>`
         :r.cover?`<img class="cover" data-media="${r.cover}" alt="">`:`<div class="ph" style="font-size:4.5rem">${esc(r.emoji||'🍽️')}</div>`}
@@ -739,6 +855,9 @@ function renderDetail(id){
           ${r._shared?`<button class="btn ok" id="saveShared">💾 Salvează</button>`:`<button class="btn ok" id="cooked">✅ Am gătit-o</button>`}
         </div>
         <div class="row" style="margin-top:8px">
+          <button class="btn ghost" id="easyT" style="flex:1">${S.easy?'🧩 Mod ușor: pornit':'🧩 Mod ușor: oprit'}</button>
+        </div>
+        <div class="row" style="margin-top:8px">
           <button class="btn ghost" id="playAnim" style="flex:1">🎞️ Animație pas cu pas</button>
           <button class="btn ghost" id="mkGif">⬇️ GIF</button>
           ${videoOf(r)?`<button class="btn ghost" id="dlVid">⬇️ Video</button>`:''}
@@ -746,12 +865,14 @@ function renderDetail(id){
       </div>
     </div>
     ${inspoCard(r)?`<div style="margin-top:14px">${inspoCard(r)}</div>`:''}
+    ${sourceCard(r)}
     <div class="card panel" style="margin-top:14px">
       <div class="row" style="justify-content:space-between">
         <h2>🧺 Ingrediente</h2>
         <div class="scaler"><button id="sm">−</button><b>${serv} porții</b><button id="sp">+</button></div>
       </div>
       <ul class="ing">${r.ingredients.map((i,k)=>`<li><input type="checkbox" id="i${k}"><span class="nt">${esc(scaleLine(i,scale))}</span></li>`).join('')}</ul>
+      ${r.ingredients.length?`<button class="btn ghost" id="toShop" style="width:100%;margin-top:10px">🛒 Adaugă la cumpărături</button>`:''}
     </div>
     <div class="card panel">
       <h2>📋 Pași</h2>
@@ -761,6 +882,7 @@ function renderDetail(id){
         ${s.media?(s.mediaType==='video'?`<video class="media gif" autoplay muted loop playsinline data-media="${s.media}" title="Atinge pentru sunet"></video>`:`<img class="media" data-media="${s.media}" alt="Pasul ${k+1}">`):''}
       </div></div>`).join('')}
     </div>
+    ${(r._shareId||r.share?.id)?`<div class="card panel" id="social"><h2>💬 Comentarii</h2><p class="meta">Se încarcă…</p></div>`:''}
     ${r._shared?`<div class="card panel" style="margin-bottom:24px;text-align:center">
       <h2>Ți-a plăcut?</h2>
       <p class="meta" style="margin-bottom:12px">Pas cu Gust e gratuit: rețetele tale cu poze și video la fiecare pas, seria de gătit și GIF-uri de trimis prietenilor.</p>
@@ -772,13 +894,17 @@ function renderDetail(id){
   $('#sm').onclick=()=>{scale=Math.max(1/base,scale-1/base);renderDetail(id);};
   $('#sp').onclick=()=>{scale=scale+1/base;renderDetail(id);};
   V.querySelectorAll('.ing input').forEach(c=>c.onchange=()=>c.parentElement.classList.toggle('done',c.checked));
-  $('#back').onclick=()=>{scale=1;go('home');};
+  $('#back').onclick=()=>{scale=1; r._world?go('world',r.country):go('home');};
   if($('#dlVid')) $('#dlVid').onclick=()=>shareVideo(r);
   bindInspo(r);
+  if(r._shareId||r.share?.id) loadSocial(r._shareId||r.share.id);
+  track('view',r);
   $('#startCook').onclick=()=>openCook(id);
+  $('#easyT').onclick=()=>{ setEasy(!S.easy); renderDetail(id); };
+  if($('#toShop')) $('#toShop').onclick=()=>{ const n=addToShop(r.ingredients.map(i=>scaleLine(i,scale)),r.title); toast(n>1?`🛒 ${n} ingrediente adăugate`:n?'🛒 1 ingredient adăugat':'🛒 Sunt deja pe listă'); };
   if(r._shared){
-    $('#fwd').onclick=()=>shareLink(r._shareId?shareUrl(r._shareId):location.href,r.title);
-    $('#saveShared').onclick=async()=>{const nid=await saveShared(); if(nid) go('detail',nid);};
+    $('#fwd').onclick=()=>shareLink(r._world?appBase()+'?w='+r.id:r._shareId?shareUrl(r._shareId):location.href,r.title);
+    $('#saveShared').onclick=async()=>{const nid=await saveShared(r); if(nid) go('detail',nid);};
     $('#ctaNew').onclick=()=>go('edit');
     hydrate(V); V.querySelectorAll('video.gif').forEach(gifVideo);
     $('#playAnim').onclick=()=>openAnim(id);
@@ -787,7 +913,7 @@ function renderDetail(id){
   }
   $('#edit').onclick=()=>go('edit',id);
   $('#share').onclick=()=>openShare(id);
-  $('#fav').onclick=()=>{r.fav=!r.fav;save();renderDetail(id);};
+  $('#fav').onclick=()=>{r.fav=!r.fav;save(); if(r.fav) track('save',r); renderDetail(id);};
   $('#cooked').onclick=()=>markCooked(id);
   $('#playAnim').onclick=()=>openAnim(id);
   $('#mkGif').onclick=()=>exportGif(id,$('#mkGif'));
@@ -804,43 +930,80 @@ function renderDetail(id){
 }
 
 /* ---------- MOD GĂTIT pas cu pas ---------- */
-let ck={id:null,i:0,timer:null,left:0};
-function openCook(id){ ck={id,i:0,timer:null,left:0}; $('#cook').classList.add('on'); document.body.style.overflow='hidden'; drawCook(); try{navigator.wakeLock?.request('screen').then(l=>ck.lock=l).catch(()=>{});}catch(e){} }
-function closeCook(){ clearInterval(ck.timer); ck.lock?.release?.(); $('#cook').classList.remove('on'); document.body.style.overflow=''; }
+// În modul ușor fiecare pas se împarte în acțiuni mici (o propoziție pe ecran) și începem cu „Ai tot ce îți trebuie?”.
+const sentences=t=>{ const a=String(t||'').split(/(?<=[.!?;])\s+(?=\S)/).map(x=>x.trim()).filter(Boolean); return a.length?a:[String(t||'')]; };
+function cookList(r){
+  const L=[];
+  if(S.easy && r.ingredients.length) L.push({prep:true});
+  r.steps.forEach((s,k)=>{
+    const parts=S.easy?sentences(s.text):[s.text];
+    parts.forEach((p,j)=>L.push({text:p,min:j===parts.length-1?s.min:0,media:j===0?s.media:null,mediaType:s.mediaType,k,j,n:parts.length}));
+  });
+  return L;
+}
+let ck={id:null,i:0,timer:null,left:0,list:[]};
+function openCook(id){ const r=byId(id); track('cook',r); ck={id,i:0,timer:null,left:0,list:cookList(r),have:{}}; $('#cook').classList.add('on'); document.body.style.overflow='hidden'; drawCook(); try{navigator.wakeLock?.request('screen').then(l=>ck.lock=l).catch(()=>{});}catch(e){} }
+function closeCook(){ clearInterval(ck.timer); ck.lock?.release?.(); stopSpeak(); $('#cook').classList.remove('on'); document.body.style.overflow=''; }
+// citire cu voce, cu vocea telefonului (nimic nu pleacă pe internet)
+function speak(text){
+  try{ if(!('speechSynthesis' in window)) return toast('Telefonul nu poate citi cu voce');
+    speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang=locale(); u.rate=S.easy?.85:1; speechSynthesis.speak(u); }catch(e){}
+}
+function stopSpeak(){ try{ speechSynthesis.cancel(); }catch(e){} }
 function drawCook(){
-  const r=byId(ck.id), n=r.steps.length, last=ck.i===n;
-  clearInterval(ck.timer); ck.timer=null;
+  const r=byId(ck.id), L=ck.list, n=L.length, last=ck.i===n, total=r.steps.length;
+  clearInterval(ck.timer); ck.timer=null; stopSpeak();
   $('#cookTitle').textContent=r.title;
-  $('#cookCount').textContent= last?'Gata!':`Pasul ${ck.i+1} / ${n}`;
+  $('#cookSpeak').textContent=S.speak?'🔊':'🔇';
   $('#cookBar').style.width=(ck.i/n*100)+'%';
   $('#cookPrev').disabled=ck.i===0;
-  const B=$('#cookBody');
+  const B=$('#cookBody'), it=L[ck.i];
+  $('#cookCount').innerHTML= last?'<span>Gata!</span>': it.prep?'<span>Pregătire</span>'
+    : `<span>Pasul ${it.k+1} / ${total}</span>${it.n>1?` <span class="nt">· ${it.j+1}/${it.n}</span>`:''}`;
   if(last){
     B.innerHTML=`<div style="text-align:center;padding-top:30px"><div style="font-size:4rem">🎉</div><h2>Poftă bună!</h2>
       <p class="big">Ai terminat <b class="nt">${esc(r.title)}</b>.</p>
       <button class="btn ok" id="ckDone" style="padding:16px 26px">🔥 Bifează în serie</button></div>`;
     if(r._shared) $('#ckDone').textContent='💾 Salvează și bifează în serie';
     $('#ckDone').onclick=async()=>{
-      const id = r._shared ? await saveShared() : r.id; if(!id) return;
+      const id = r._shared ? await saveShared(r) : r.id; if(!id) return;
       markCooked(id); closeCook(); go('detail',id);
     };
-    $('#cookNext').textContent='Închide'; return;
+    $('#cookNext').textContent='Închide';
+    if(S.speak) speak(t('Poftă bună!'));
+    return;
   }
-  const s=r.steps[ck.i];
+  if(it.prep){
+    $('#cookNext').textContent='Încep →';
+    B.innerHTML=`<h2>🧺 Ai tot ce îți trebuie?</h2>
+      <p class="meta" style="margin:6px 0 12px">Pune pe masă fiecare lucru și bifează-l. Nu te grăbi.</p>
+      <ul class="ing prep">${r.ingredients.map((x,k)=>`<li class="${ck.have[k]?'done':''}"><input type="checkbox" data-k="${k}" ${ck.have[k]?'checked':''}><span class="nt big" style="font-size:1.15rem">${esc(x)}</span></li>`).join('')}</ul>
+      <button class="btn ghost" id="ckMiss" style="width:100%;margin-top:14px">🛒 Ce nu am → pe lista de cumpărături</button>`;
+    B.querySelectorAll('.prep input').forEach(c=>c.onchange=()=>{ ck.have[c.dataset.k]=c.checked; c.parentElement.classList.toggle('done',c.checked); });
+    $('#ckMiss').onclick=()=>{ const miss=r.ingredients.filter((x,k)=>!ck.have[k]); const k=addToShop(miss,r.title); toast(k>1?`🛒 ${k} ingrediente adăugate`:k?'🛒 1 ingredient adăugat':'🛒 Sunt deja pe listă'); };
+    if(S.speak) speak(t('Ai tot ce îți trebuie?'));
+    return;
+  }
   $('#cookNext').textContent= ck.i===n-1 ? 'Termină ✓' : 'Următorul →';
-  B.innerHTML=`<div class="num" style="width:46px;height:46px;font-size:1.3rem">${ck.i+1}</div>
-    <p class="big nt">${esc(s.text)}</p>
-    ${s.media?(s.mediaType==='video'?`<video class="media gif" playsinline autoplay muted loop data-media="${s.media}"></video>`:`<img class="media" data-media="${s.media}" alt="">`):''}
-    ${s.min?`<div class="card panel" style="margin-top:14px;text-align:center" id="tmBox"><div class="timer" id="tm">${mmss(s.min*60)}</div>
+  B.innerHTML=`<div class="num" style="width:46px;height:46px;font-size:1.3rem">${it.k+1}</div>
+    <p class="big nt">${esc(it.text)}</p>
+    <button class="btn ghost sm" id="ckRead" style="margin:4px 0 10px">🔊 Citește cu voce</button>
+    ${it.media?(it.mediaType==='video'?`<video class="media gif" playsinline autoplay muted loop data-media="${it.media}"></video>`:`<img class="media" data-media="${it.media}" alt="">`):''}
+    ${it.min?`<div class="card panel" style="margin-top:14px;text-align:center" id="tmBox"><div class="timer" id="tm">${mmss(it.min*60)}</div>
       <button class="btn" id="tmBtn">▶ Pornește cronometrul</button></div>`:''}`;
-  if(s.min){
-    ck.left=s.min*60;
+  $('#ckRead').onclick=()=>speak(it.text);
+  if(S.speak) speak(it.text);
+  if(it.min){
+    ck.left=it.min*60;
     $('#tmBtn').onclick=()=>{
       if(ck.timer){clearInterval(ck.timer);ck.timer=null;$('#tmBtn').textContent='▶ Continuă';return;}
       $('#tmBtn').textContent='⏸ Pauză';
       ck.timer=setInterval(()=>{
         ck.left--; const el=$('#tm'); if(el) el.textContent=mmss(Math.max(0,ck.left));
-        if(ck.left<=0){clearInterval(ck.timer);ck.timer=null;beep();toast('⏰ Timpul a expirat!');if($('#tmBtn'))$('#tmBtn').textContent='✓ Gata';}
+        if(ck.left<=0){clearInterval(ck.timer);ck.timer=null;beep(S.easy);
+          toast(S.easy?'⏰ Gata timpul. Treci la pasul următor când ești pregătit.':'⏰ Timpul a expirat!');
+          if(S.speak) speak(t('Gata timpul.'));
+          if($('#tmBtn'))$('#tmBtn').textContent='✓ Gata';}
       },1000);
     };
   }
@@ -848,10 +1011,67 @@ function drawCook(){
   hydrate(B);
 }
 const mmss=t=>String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
-function beep(){try{const a=new AudioContext(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;o.start();g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+1.2);o.stop(a.currentTime+1.2);navigator.vibrate?.([300,150,300]);}catch(e){}}
+// în modul ușor: un sunet blând, mai jos și mai încet
+function beep(soft){try{const a=new AudioContext(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=soft?523:880;g.gain.value=soft?.12:1;o.start();g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+(soft?1.6:1.2));o.stop(a.currentTime+(soft?1.6:1.2));navigator.vibrate?.(soft?[200]:[300,150,300]);}catch(e){}}
 $('#cookClose').onclick=closeCook;
+$('#cookSpeak').onclick=()=>{ S.speak=!S.speak; save(); $('#cookSpeak').textContent=S.speak?'🔊':'🔇'; if(S.speak){ const it=ck.list[ck.i]; if(it?.text) speak(it.text); } else stopSpeak(); };
 $('#cookPrev').onclick=()=>{if(ck.i>0){ck.i--;drawCook();}};
-$('#cookNext').onclick=()=>{const n=byId(ck.id).steps.length; if(ck.i===n){closeCook();return;} ck.i++;drawCook();};
+$('#cookNext').onclick=()=>{const n=ck.list.length; if(ck.i===n){closeCook();return;} ck.i++;drawCook();};
+
+/* ---------- MOD UȘOR ---------- */
+function setEasy(on){ S.easy=!!on; if(on && S.speak==null) S.speak=true; save(); applyEasy(); toast(on?'🧩 Mod ușor pornit':'Mod ușor oprit'); }
+function applyEasy(){ document.documentElement.classList.toggle('easy',!!S.easy); }
+
+/* ---------- LISTA DE CUMPĂRĂTURI, pe raioane ---------- */
+const AISLES=[
+  ['🥩 Carne și pește',/carne|pui|porc|vit[aăe]|miel|curcan|cârnaț|carnat|șuncă|sunca|bacon|slănin|slanin|piept|pulp|tocat|pește|peste|ton\b|somon|creveț|crevet|chicken|beef|pork|lamb|turkey|sausage|ham|fish|salmon|tuna|shrimp|mince|pollo|cerdo|ternera|pescado|salmón|carne|manzo|maiale|pesce|poulet|bœuf|boeuf|porc|poisson|jambon|hähnchen|huhn|rind|schwein|hackfleisch|fisch|lachs|wurst|speck/i],
+  ['🧀 Lactate și ouă',/lapte|smântân|smantan|brânz|branz|telemea|cașcaval|cascaval|iaurt|unt\b|frișc|frisc|ou\b|ouă|oua\b|milk|cream|cheese|yog|butter|eggs?\b|leche|nata|queso|mantequilla|huevo|latte|panna|formaggio|burro|uov|lait|crème|creme|fromage|beurre|œuf|oeuf|milch|sahne|käse|kase|joghurt|eier?\b/i],
+  ['🥬 Legume și fructe',/ceap|cep[eă]|dovleac|usturo|morcov|cartof|roși|rosi|ardei|varz|salat|mărar|marar|pătrunjel|patrunjel|leuștean|leustean|țelin|telin|lămâ|lama|portocal|măr\b|mere|banan|ciuperc|dovlec|vinete|spanac|castrave|praz|fruct|legum|onion|garlic|carrot|potato|tomato|pepper|cabbage|lettuce|dill|parsley|celery|lemon|orange|apple|banana|mushroom|zucchini|eggplant|spinach|cucumber|leek|cebolla|ajo|zanahoria|patata|tomate|pimiento|limón|manzana|cipoll|aglio|carot|pomodor|peperon|limone|mela|oignon|carotte|pomme|citron|zwiebel|knoblauch|karotte|möhre|kartoffel|paprika|zitrone|apfel|gurke/i],
+  ['🍞 Pâine, făină și paste',/făin|fain|pâin|pain\b|paine|paste\b|spaghet|tăiței|taitei|griș|gris\b|mălai|malai|pesmet|drojdi|flour|bread|pasta|noodle|yeast|harina|pan\b|levadura|farina|pane\b|lievito|farine|levure|mehl|brot|nudeln|hefe/i],
+  ['🫙 Cămară: orez, ulei, conserve, condimente',/orez|ulei|oțet|otet|zahăr|zahar|sare\b|piper|boia|cimbru|dafin|conserv|bulion|pastă de|past[aă] de tomate|miere|cacao|ciocolat|vanili|bicarbonat|praf de copt|fasole|linte|năut|naut|rice|oil|vinegar|sugar|salt|pepper|paprika|thyme|bay|canned|honey|cocoa|chocolate|vanilla|baking|beans|lentil|chickpea|arroz|aceite|vinagre|azúcar|azucar|sal\b|riso|olio|aceto|zucchero|sale\b|riz|huile|vinaigre|sucre|sel\b|reis|öl\b|essig|zucker|salz|pfeffer/i],
+];
+const OTHER_AISLE='🧺 Altele';
+const aisleOf=x=>(AISLES.find(([,re])=>re.test(x))||[OTHER_AISLE])[0];
+function addToShop(lines,from){
+  S.shop=S.shop||[]; let n=0;
+  const have=new Set(S.shop.filter(i=>!i.done).map(i=>i.text.toLowerCase()));
+  lines.map(x=>String(x).trim()).filter(Boolean).forEach(x=>{
+    if(have.has(x.toLowerCase())) return; have.add(x.toLowerCase());
+    S.shop.push({id:uid(),text:x,aisle:aisleOf(x),from:from||'',done:false}); n++;
+  });
+  save(); updShop(); return n;
+}
+function updShop(){ const n=(S.shop||[]).filter(i=>!i.done).length; $('#shopN').textContent=n?' '+n:''; }
+function shopText(){
+  const groups=[...AISLES.map(a=>a[0]),OTHER_AISLE];
+  return t('🛒 Lista de cumpărături')+'\n'+groups.map(g=>{ const it=(S.shop||[]).filter(i=>i.aisle===g&&!i.done); return it.length?`\n${t(g)}\n`+it.map(i=>'☐ '+i.text).join('\n'):''; }).join('')+'\n\n— Pas cu Gust';
+}
+function renderShop(){
+  const V=$('#v-shop'), L=S.shop||[], groups=[...AISLES.map(a=>a[0]),OTHER_AISLE];
+  const left=L.filter(i=>!i.done).length;
+  V.innerHTML=`<h1 style="margin:10px 0">🛒 Lista de cumpărături</h1>
+    <p class="meta">Mergi pe raioane, de sus în jos. Bifează ce ai pus în coș.</p>
+    <div class="card panel"><div class="linkbox"><input class="in" id="shAdd" placeholder="Adaugă ceva (ex: 1 l lapte)"><button class="btn sm" id="shAddB">➕</button></div></div>
+    ${L.length?groups.map(g=>{ const it=L.filter(i=>i.aisle===g); return it.length?`<div class="card panel"><h2>${g}</h2><ul class="shop">${it.map(i=>`<li class="${i.done?'done':''}">
+      <input type="checkbox" data-i="${i.id}" ${i.done?'checked':''}><span class="nt">${esc(i.text)}</span><button class="shop-x" data-x="${i.id}" title="Șterge">✕</button></li>`).join('')}</ul></div>`:''; }).join('')
+    :`<div class="card panel" style="text-align:center"><div style="font-size:3rem">🛒</div><p>Lista e goală.</p><p class="meta">Deschide o rețetă și apasă „🛒 Adaugă la cumpărături”.</p></div>`}
+    ${L.length?`<div class="card panel"><p class="meta" style="margin-bottom:10px">${left?`Mai ai ${left} de cumpărat.`:'Ai tot! 🎉'}</p>
+      <div class="row"><button class="btn" id="shShare" style="flex:1">📤 Trimite lista</button>
+      <button class="btn ghost" id="shDone">🧹 Scoate ce am luat</button>
+      <button class="btn ghost" id="shAll">🗑 Golește</button></div></div>`:''}
+    <div style="height:24px"></div>`;
+  const add=()=>{ const v=$('#shAdd').value.trim(); if(!v) return; addToShop([v]); renderShop(); $('#shAdd').focus(); };
+  $('#shAddB').onclick=add; $('#shAdd').onkeydown=e=>{ if(e.key==='Enter') add(); };
+  V.querySelectorAll('[data-i]').forEach(c=>c.onchange=()=>{ const i=L.find(x=>x.id===c.dataset.i); if(i){ i.done=c.checked; save(); updShop(); c.parentElement.classList.toggle('done',c.checked); } });
+  V.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{ S.shop=L.filter(x=>x.id!==b.dataset.x); save(); updShop(); renderShop(); });
+  if($('#shDone')) $('#shDone').onclick=()=>{ S.shop=L.filter(x=>!x.done); save(); updShop(); renderShop(); };
+  if($('#shAll')) $('#shAll').onclick=()=>{ if(!confirm(t('Golești toată lista?'))) return; S.shop=[]; save(); updShop(); renderShop(); };
+  if($('#shShare')) $('#shShare').onclick=async()=>{
+    const txt=shopText();
+    if(navigator.share){ try{ await navigator.share({text:txt}); return; }catch(e){ if(e.name==='AbortError') return; } }
+    try{ await navigator.clipboard.writeText(txt); toast('📋 Lista a fost copiată'); }catch(e){ toast('Nu am putut copia lista'); }
+  };
+}
 
 /* ---------- ADAUGĂ / EDITEAZĂ ---------- */
 const LICENSES={own:'Toate drepturile rezervate (autorul)',CCBY:'CC BY 4.0 — liber cu menționarea autorului',CC0:'CC0 — domeniu public, fără drepturi rezervate'};
@@ -889,6 +1109,45 @@ async function inspoMeta(url){
   try{ const j=await (await fetch('https://noembed.com/embed?url='+encodeURIComponent(url))).json(); return j&&!j.error?{title:j.title||'',author:j.author_name||''}:null; }catch(e){ return null; }
 }
 
+/* ---------- IMPORT DIN LINK (Google, YouTube, TikTok, Instagram) ---------- */
+// Serverul citește datele de rețetă publicate de site (schema.org) sau titlul clipului. Nu copiem poze sau clipuri.
+async function importLink(url){
+  const c=cloudCfg()||RK_CLOUD_DEFAULT;
+  const res=await fetch(c.url+'/functions/v1/import-recipe',{method:'POST',headers:{'Content-Type':'application/json',apikey:c.key,Authorization:'Bearer '+c.key},body:JSON.stringify({url})});
+  const j=await res.json().catch(()=>({}));
+  if(!j.ok) throw new Error(j.reason||'server');
+  return j.data;
+}
+const guessMin=tx=>{ const m=String(tx).match(/(\d{1,3})\s*(?:-\s*\d{1,3}\s*)?(?:min|minute|minutes|minuti|minutos|Minuten)\b/i); return m?Math.min(240,+m[1]):0; };
+async function runImport(raw){
+  const url=firstUrl(raw)||raw.trim(), p=parseInspo(url);
+  if(!p) return toast('Linkul nu e valid');
+  const msg=$('#impMsg'); if(msg) msg.textContent=t('⏳ Citesc rețeta…');
+  let d=null, err='';
+  try{ d=await importLink(p.url); }catch(e){ err=e.message; }
+  const video=['TikTok','Instagram','YouTube'].includes(p.platform);
+  if(video){ // din clipuri luăm doar inspirația: titlu + autor + link
+    renderEdit(null,{inspo:{url:p.url,platform:p.platform,author:d?.author||''},title:d?.title||''});
+    return toast('✨ Inspirație adăugată. Acum scrie varianta ta!');
+  }
+  if(!d){ if(msg) msg.textContent=t(err==='url'?'Linkul nu e valid':'Nu am găsit o rețetă la acest link. Poți s-o scrii tu, cu linkul ca sursă.'); return; }
+  const src={url:p.url,site:d.site,author:d.author||''};
+  if(d.kind==='recipe'){
+    renderEdit(null,{title:d.title,desc:d.desc||'',ingredients:d.ingredients||[],time:d.time||30,servings:d.servings||4,
+      steps:(d.steps.length?d.steps:['']).map(x=>({text:x,min:guessMin(x),media:null,mediaType:null})),
+      author:d.author||d.site,license:'own',source:src,imported:true});
+    toast(`✅ Am importat ${d.ingredients.length} ingrediente și ${d.steps.length} pași`);
+  } else {
+    renderEdit(null,{title:d.title,desc:d.desc||'',author:d.site,license:'own',source:src,imported:true});
+    toast('Pagina nu are rețeta într-un format standard. Am pus titlul; completează tu restul.');
+  }
+}
+function sourceCard(r){
+  if(!r.source?.url) return '';
+  return `<div class="card panel" style="margin-top:14px"><p class="meta"><span>📥 Sursa:</span> <a href="${esc(r.source.url)}" target="_blank" rel="noopener nofollow" style="color:var(--accent)" class="nt">${esc(r.source.site||r.source.url)}${r.source.author?' · '+esc(r.source.author):''}</a></p>
+    <p class="meta" style="margin-top:6px">Rețeta aparține autorului. O păstrezi pentru tine; altora le trimiți linkul către pagina originală.</p></div>`;
+}
+
 function renderEdit(id,prefill){
   const r=id?byId(id):null;
   draft = r ? JSON.parse(JSON.stringify(r)) : {id:null,title:'',desc:'',cat:'Feluri principale',emoji:'🍽️',time:30,servings:4,ingredients:[],steps:[{text:'',min:0,media:null,mediaType:null}],cover:null,author:'',license:'own',fav:false,inspo:null,...(prefill||{})};
@@ -897,6 +1156,11 @@ function renderEdit(id,prefill){
   const V=$('#v-edit');
   V.innerHTML=`
     <h1 style="margin:10px 0">${r?'✏️ Editează rețeta':'➕ Rețetă nouă'}</h1>
+    ${!r&&!draft.source&&!draft.inspo?`<div class="card panel imp"><h2>📥 Importă din link</h2>
+      <p class="meta">Lipește linkul unei rețete găsite pe Google (orice site de rețete), YouTube, TikTok sau Instagram. Completăm noi ce se poate; tu verifici și salvezi.</p>
+      <div class="linkbox"><input class="in" id="impU" inputmode="url" placeholder="https://…"><button class="btn sm" id="impGo">📥 Importă</button></div>
+      <p class="meta" id="impMsg"></p></div>`:''}
+    ${draft.source?`<div class="notice"><b>📥 Sursa:</b> <a href="${esc(draft.source.url)}" target="_blank" rel="noopener nofollow" class="nt" style="color:var(--accent)">${esc(draft.source.site||draft.source.url)}</a><br><span>Rețeta rămâne a autorului: o păstrezi doar pentru tine, cu sursa menționată. Altora le trimiți linkul către pagina originală.</span></div>`:''}
     <div class="card panel">
       <label class="f">Titlu *</label><input class="in" id="eT" value="${esc(draft.title)}" placeholder="ex: Tochitură moldovenească">
       <label class="f">Descriere scurtă</label><textarea class="in" id="eD" placeholder="Ce o face specială?">${esc(draft.desc)}</textarea>
@@ -934,7 +1198,7 @@ function renderEdit(id,prefill){
       <select class="in" id="eL">${Object.entries(LICENSES).map(([k,v])=>`<option value="${k}" ${k===draft.license?'selected':''}>${v}</option>`).join('')}</select>
       <label style="display:flex;gap:10px;margin-top:14px;font-size:.92rem;align-items:flex-start">
         <input type="checkbox" id="eOk" style="margin-top:4px;width:18px;height:18px;accent-color:var(--accent)" ${r?'checked':''}>
-        <span>Confirm că textul, pozele și video-urile sunt create de mine sau am dreptul să le folosesc. Nu copiez rețete, poze sau clipuri protejate de pe alte site-uri.</span>
+        <span>${draft.source?'Înțeleg că rețeta aparține autorului original și o păstrez doar pentru mine.':'Confirm că textul, pozele și video-urile sunt create de mine sau am dreptul să le folosesc. Nu copiez rețete, poze sau clipuri protejate de pe alte site-uri.'}</span>
       </label>
     </div>
     <div class="row" style="margin-bottom:28px">
@@ -942,6 +1206,7 @@ function renderEdit(id,prefill){
       <button class="btn ghost" id="eCancel">Renunță</button>
     </div>`;
   drawSteps(); hydrate(V);
+  if($('#impGo')){ $('#impGo').onclick=()=>runImport($('#impU').value); $('#impU').onkeydown=e=>{ if(e.key==='Enter') runImport($('#impU').value); }; }
   $('#eCov').onchange=async e=>{
     const f=e.target.files[0]; if(!f) return;
     const id=await putMedia(await shrink(f)); draft._new.push(id); draft.cover=id;
@@ -1118,7 +1383,7 @@ async function importBackup(e){
       const b=await (await fetch(data)).blob();
       await new Promise(res=>{const t=d.transaction('m','readwrite');t.objectStore('m').put(b,id);t.oncomplete=res;t.onerror=res;});
     }
-    S=j.data; save(); applyTheme(); refreshPill(); toast('✅ Backup importat'); go('home');
+    S=j.data; save(); applyTheme(); applyEasy(); updShop(); refreshPill(); toast('✅ Backup importat'); go('home');
   }catch(err){toast('Fișier de backup invalid');}
 }
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);}
@@ -1148,6 +1413,7 @@ function renderProducts(){
     const t=$('#pT').value.trim();
     if(!t) return toast('Pune un nume produsului');
     if(!ids.length) return toast('Alege cel puțin o rețetă');
+    if(!isPremium() && S.products.length>=FREE_LIMITS.products) return toast('Planul gratuit are 2 produse. Treci la Premium ⭐ pentru nelimitat');
     S.products.unshift({id:uid(),title:t,desc:$('#pD').value.trim(),price:+$('#pP').value||0,author:$('#pA').value.trim(),recipes:ids,created:Date.now(),updated:Date.now()});
     save(); toast('📦 Produs creat'); renderProducts();
   };
@@ -1280,6 +1546,7 @@ const seek=(v,t)=>new Promise(res=>{const done=()=>{clearTimeout(h);res();};cons
 
 // Creează un GIF animat cu toți pașii rețetei (480×480), bun pentru Instagram, TikTok, WhatsApp.
 async function exportGif(id,btn){
+  track('gif',byId(id));
   const r=byId(id); if(!r) return;
   const old=btn?.textContent; if(btn){btn.disabled=true;btn.textContent='⏳ Se creează…';}
   try{
@@ -1374,7 +1641,8 @@ async function cloudInit(){
     sb.auth.onAuthStateChange((ev,session)=>{
       const was=cloudUser; cloudUser=session?.user||null; updDot();
       // apelurile Supabase nu se fac direct în acest callback
-      if(cloudUser && !was) setTimeout(syncNow,0);
+      if(cloudUser && !was){ setTimeout(syncNow,0); setTimeout(loadProfile,0); }
+      if(!cloudUser){ PROFILE=null; IS_ADMIN=false; }
       if($('#v-account').classList.contains('on')) setTimeout(renderAccount,0);
     });
   }catch(e){ cloudErr='Nu mă pot conecta la cloud.'; updDot(); }
@@ -1434,7 +1702,7 @@ async function syncNow(){
     const {error:e2}=await sb.from('recikeep_state').upsert({user_id:me,data:M,updated_at:new Date().toISOString()});
     if(e2) throw e2;
     // îmbinăm din nou cu ce s-a modificat local între timp
-    const F=mergeState(S,M); F.theme=S.theme; F.lang=S.lang; S=F;
+    const F=mergeState(S,M); F.theme=S.theme; F.lang=S.lang; F.easy=S.easy; F.speak=S.speak; F.shop=S.shop; S=F;
     localStorage.setItem(KEY,JSON.stringify(S));
     lastSync=new Date(); cloudErr=errs.length?`${errs.length} fișiere nu s-au urcat (${errs[0]})`:'';
     refreshPill();
@@ -1475,14 +1743,22 @@ function renderAccount(){
         <button class="btn" id="aSync" ${syncing?'disabled':''}>🔄 Sincronizează acum</button>
         <button class="btn ghost" id="aOut">Ieși din cont</button>
       </div></div>
+      ${premiumCard()}
+      ${inviteCard()}
+      ${IS_ADMIN?`<div class="card panel"><h2>📊 Panou de creștere</h2><p class="meta" style="margin-bottom:10px">Utilizatori, trafic, invitații, Premium, vânzări și comisioane. Doar tu vezi acest panou.</p><button class="btn" id="aGrowth">📊 Deschide panoul</button></div>`:''}
       <div class="card panel"><h2>🗑 Șterge contul</h2>
       <p class="meta" style="margin-bottom:10px">Șterge definitiv contul și tot ce e salvat în cloud (rețete, poze, clipuri). Datele de pe acest dispozitiv rămân.</p>
       <button class="btn ghost sm" id="aDel">Șterge contul definitiv</button></div>`;
   }
+  h+=`<div class="card panel"><h2>🧩 Mod ușor</h2>
+    <p class="meta" style="margin-bottom:10px">Text mare, o singură acțiune pe ecran, citire cu voce, fără animații și sunete bruște. Gândit pentru persoane autiste, pentru cine gătește prima dată și pentru cine învață să facă cumpărături.</p>
+    <button class="btn ${S.easy?'ok':''}" id="aEasy" style="width:100%">${S.easy?'✅ Mod ușor pornit':'🧩 Pornește modul ușor'}</button></div>`;
   h+=`<div class="card panel"><h2>🌐 Limbă</h2><div class="chips" style="flex-wrap:wrap">${LANG_ORDER.map(l=>`<button class="chip nt ${l===LANG?'on':''}" data-lang="${l}">${LANGS[l].flag} ${LANGS[l].name}</button>`).join('')}</div></div>`;
   h+=`<p class="meta" style="margin:10px 0 28px"><a href="confidentialitate.html" style="color:var(--accent)">Politica de confidențialitate</a></p>`;
   V.innerHTML=h;
   V.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+  $('#aEasy').onclick=()=>{ setEasy(!S.easy); renderAccount(); };
+  bindGrowthAccount(V);
   const on=(id,fn)=>{const el=$('#'+id); if(el) el.onclick=fn;};
   on('cSave',()=>{
     const url=$('#cU').value.trim().replace(/\/$/,''), key=$('#cK').value.trim();
@@ -1521,6 +1797,187 @@ function renderAccount(){
       await sb.auth.signOut(); toast('Contul a fost șters');
     }catch(e){ toast('⚠️ '+(e.message||e)); }
   });
+}
+
+/* ---------- CREȘTERE: statistici anonime, invitații, Premium, comentarii, panou ---------- */
+// Adresa produsului Premium de pe Gumroad (goală până îl publici).
+const RK_PREMIUM_URL='';
+const FREE_LIMITS={links:3,products:2};
+let PROFILE=null, IS_ADMIN=false;
+const isPremium=()=>!!PROFILE?.premium;
+
+// Statistici anonime: doar numele evenimentului, rețeta de pornire (sau „proprie”) și limba. Fără identificatori.
+let evQueue=[], evTimer=null;
+function track(name,r,src){
+  const recipe=!r?null:r._world?r.id:SEED.some(x=>x.id===r.id)&&!r.imported?r.id:r.from?.startsWith?.('w-')?r.from:r._shareId?'link':'proprie';
+  evQueue.push({name,recipe,lang:LANG,src:src||null});
+  clearTimeout(evTimer); evTimer=setTimeout(flushEvents,8000);
+}
+function flushEvents(){
+  const c=cloudCfg(); if(!c||!evQueue.length) return;
+  const batch=evQueue.splice(0,50);
+  fetch(`${c.url}/rest/v1/events`,{method:'POST',keepalive:true,
+    headers:{apikey:c.key,Authorization:'Bearer '+c.key,'Content-Type':'application/json',Prefer:'return=minimal'},
+    body:JSON.stringify(batch)}).catch(()=>{});
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden') flushEvents(); });
+window.addEventListener('pagehide',flushEvents);
+window.addEventListener('appinstalled',()=>track('install'));
+
+// Invitații: ?ref=COD se păstrează până când omul își face cont.
+(function(){
+  const q=new URLSearchParams(location.search), ref=q.get('ref');
+  if(ref && /^[a-z0-9]{6,12}$/i.test(ref)){
+    try{ localStorage.setItem('pcg_ref',ref.toLowerCase()); }catch(e){}
+    track('link_open',null,'invitație');
+    q.delete('ref'); history.replaceState(null,'',location.pathname+(q.toString()?'?'+q:'')+location.hash);
+  }
+})();
+async function loadProfile(){
+  if(!sb||!cloudUser) return;
+  let pending=null; try{ pending=localStorage.getItem('pcg_ref'); }catch(e){}
+  if(pending){
+    const {data}=await sb.rpc('claim_referral',{code:pending});
+    try{ localStorage.removeItem('pcg_ref'); }catch(e){}
+    if(data?.ok) toast('🎁 Bine ai venit! Ai primit 30 de zile Premium');
+  }
+  if(cloudUser && Date.now()-new Date(cloudUser.created_at).getTime()<10*60*1000) track('signup');
+  const [{data:prof},{data:adm}]=await Promise.all([sb.rpc('my_profile'),sb.rpc('is_admin')]);
+  PROFILE=prof||null; IS_ADMIN=!!adm;
+  if($('#v-account').classList.contains('on')) renderAccount();
+}
+function premiumCard(){
+  const until=PROFILE?.premium_until?new Date(PROFILE.premium_until):null;
+  return `<div class="card panel"><h2>⭐ Premium ${isPremium()?'<span class="premium-badge">activ</span>':''}</h2>
+    ${isPremium()?`<p class="meta">Activ până la <b class="nt">${until.toLocaleDateString(locale())}</b>.</p>`:`<p class="meta">Planul gratuit: 3 linkuri publice active și 2 produse digitale.</p>`}
+    <p class="meta" style="margin:6px 0 10px">Premium: linkuri publice și produse digitale nelimitate, insigna ⭐ și susții aplicația.</p>
+    ${RK_PREMIUM_URL?`<a class="btn" href="${esc(RK_PREMIUM_URL)}" target="_blank" rel="noopener" style="text-decoration:none">⭐ Cumpără Premium</a>`:`<button class="btn" disabled>⭐ Premium vine în curând</button>`}
+    <label class="f">Ai cumpărat? Pune cheia de licență primită pe email</label>
+    <div class="linkbox"><input class="in" id="pKey" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX" autocomplete="off"><button class="btn sm" id="pAct">Activează</button></div></div>`;
+}
+function inviteCard(){
+  if(!PROFILE?.ref_code) return `<div class="card panel"><h2>🎁 Invită prieteni</h2><p class="meta">Se încarcă…</p></div>`;
+  const link=appBase()+'?ref='+PROFILE.ref_code;
+  return `<div class="card panel"><h2>🎁 Invită prieteni, creșteți împreună</h2>
+    <p class="meta">Prietenul tău primește 30 de zile Premium, iar tu tot 30. Când prietenul tău invită pe cineva, mai primești 7 zile. Fără bani, fără obligații.</p>
+    <div class="linkbox"><input class="in nt" readonly value="${esc(link)}" onclick="this.select()"><button class="btn sm" id="iShare">📤</button></div>
+    <div class="stats"><div class="card stat"><b>${PROFILE.invited_l1||0}</b><small>prieteni invitați</small></div>
+      <div class="card stat"><b>${PROFILE.invited_l2||0}</b><small>invitați de ei</small></div>
+      <div class="card stat"><b>${PROFILE.days_earned||0}</b><small>zile câștigate</small></div></div></div>`;
+}
+function bindGrowthAccount(V){
+  const sh=V.querySelector('#iShare');
+  if(sh) sh.onclick=()=>shareInvite();
+  const g=V.querySelector('#aGrowth'); if(g) g.onclick=()=>go('growth');
+  const act=V.querySelector('#pAct');
+  if(act) act.onclick=async()=>{
+    const key=V.querySelector('#pKey').value.trim(); if(!key) return;
+    act.disabled=true; act.textContent='⏳';
+    try{
+      const {data:{session}}=await sb.auth.getSession(), c=cloudCfg();
+      const res=await fetch(`${c.url}/functions/v1/premium-verify`,{method:'POST',
+        headers:{apikey:c.key,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({license_key:key})});
+      const j=await res.json().catch(()=>({}));
+      const msg={invalid:'Cheia nu e validă',used:'Cheia e folosită deja pe alt cont',ended:'Abonamentul a expirat',refunded:'Comanda a fost rambursată',not_configured:'Premium nu e încă disponibil',format:'Cheia nu e validă'};
+      if(j.ok){ toast('⭐ Premium activat!'); await loadProfile(); }
+      else toast('⚠️ '+t(msg[j.reason]||'Nu am putut verifica cheia'));
+    }catch(e){ toast('⚠️ '+t('Nu am putut verifica cheia')); }
+    act.disabled=false; act.textContent=t('Activează');
+  };
+}
+async function shareInvite(){
+  const link=appBase()+'?ref='+PROFILE.ref_code;
+  track('share',null,'invitație');
+  const text=t('Încearcă Pas cu Gust: rețete pas cu pas, cu poze și video. Cu linkul meu primești 30 de zile Premium gratis!');
+  if(navigator.share){ try{ await navigator.share({title:'Pas cu Gust',text,url:link}); return; }catch(e){ if(e.name==='AbortError') return; } }
+  try{ await navigator.clipboard.writeText(text+' '+link); toast('📋 Link copiat'); }catch(e){ toast('Copiază linkul din căsuță'); }
+}
+
+// Aprecieri și comentarii la o rețetă distribuită.
+async function loadSocial(sid){
+  const box=$('#social'); if(!box) return;
+  await cloudReady;
+  if(!sb){ box.remove(); return; }
+  const {data,error}=await sb.rpc('get_social',{share_id:sid});
+  if(error||!data){ box.innerHTML='<h2>💬 Comentarii</h2><p class="meta">Comentariile nu se pot încărca acum.</p>'; return; }
+  drawSocial(sid,data);
+}
+function drawSocial(sid,d){
+  const box=$('#social'); if(!box) return;
+  let name=''; try{ name=localStorage.getItem('pcg_name')||''; }catch(e){}
+  box.innerHTML=`<div class="row" style="justify-content:space-between"><h2>💬 Comentarii</h2>
+      <button class="btn ${d.liked?'':'ghost'} sm" id="sLike">${d.liked?'❤️':'🤍'} ${d.likes}</button></div>
+    ${d.comments.length?d.comments.map(c=>`<div class="comment"><b class="nt">${esc(c.name)}</b> <span class="meta">${new Date(c.at).toLocaleDateString(locale())}</span>
+      ${c.can_delete?`<button class="btn ghost sm" data-del="${+c.id}" style="float:right;padding:2px 8px">🗑</button>`:''}
+      <div class="nt" style="margin-top:2px">${esc(c.body)}</div></div>`).join(''):'<p class="meta">Niciun comentariu încă. Fii primul!</p>'}
+    ${cloudUser?`<div style="margin-top:12px"><input class="in" id="sName" maxlength="40" placeholder="Numele tău" value="${esc(name)}">
+      <textarea class="in" id="sBody" maxlength="500" placeholder="Scrie un comentariu…" style="margin-top:6px;min-height:60px"></textarea>
+      <button class="btn sm" id="sPost" style="margin-top:6px">💬 Trimite</button></div>`
+      :`<p class="meta" style="margin-top:10px">Intră în cont (☁️) ca să apreciezi și să comentezi.</p>`}`;
+  box.querySelector('#sLike').onclick=async()=>{
+    if(!cloudUser) return toast('Intră în cont (☁️) ca să apreciezi');
+    const {data}=await sb.rpc('toggle_like',{share_id:sid}); if(data){ track('like'); drawSocial(sid,data); }
+  };
+  const post=box.querySelector('#sPost');
+  if(post) post.onclick=async()=>{
+    const n=box.querySelector('#sName').value.trim(), b=box.querySelector('#sBody').value.trim();
+    if(!n||!b) return toast('Scrie numele și comentariul');
+    try{ localStorage.setItem('pcg_name',n); }catch(e){}
+    const {data,error}=await sb.rpc('post_comment',{share_id:sid,name:n,body:b});
+    if(error) return toast(error.message.includes('rate_limit')?'Prea multe comentarii. Încearcă peste o oră.':'⚠️ '+t('Nu am putut trimite comentariul'));
+    track('comment'); drawSocial(sid,data);
+  };
+  box.querySelectorAll('[data-del]').forEach(x=>x.onclick=async()=>{
+    if(!confirm('Ștergi comentariul?')) return;
+    const {data}=await sb.rpc('delete_comment',{comment_id:+x.dataset.del}); if(data) drawSocial(sid,data);
+  });
+}
+
+// Panoul de creștere (doar administrator).
+let growthDays=30;
+function bars(series,days,since){
+  const keys=[...Array(days)].map((_,i)=>{ const d=new Date(since); d.setDate(d.getDate()+i); return dkey(d); });
+  const vals=keys.map(k=>+(series?.[k]||0)), max=Math.max(1,...vals);
+  return `<div class="bars">${vals.map((v,i)=>`<i style="height:${Math.max(2,v/max*100)}%" title="${keys[i]}: ${v}"></i>`).join('')}</div>`;
+}
+async function renderGrowth(){
+  const V=$('#v-growth');
+  V.innerHTML=`<div class="row" style="justify-content:space-between;margin:10px 0"><h1>📊 Creștere</h1><button class="btn ghost sm" id="gBack">← Cont</button></div><p class="meta">Se încarcă…</p>`;
+  $('#gBack').onclick=()=>go('account');
+  await cloudReady;
+  if(!sb||!cloudUser){ V.querySelector('p').textContent=t('Intră în cont ca administrator.'); return; }
+  const {data:g}=await sb.rpc('growth_stats',{days:growthDays});
+  if(!g){ V.querySelector('p').textContent=t('Panoul e doar pentru administrator.'); return; }
+  const E=g.events_total||{}, sum=o=>Object.values(o||{}).reduce((a,b)=>a+ +b,0);
+  const money=c=>((+c||0)/100).toLocaleString(locale(),{style:'currency',currency:(g.sales.currency||'usd').toUpperCase()});
+  const since=new Date(g.since);
+  const tile=(n,l)=>`<div class="card kpi"><b>${n}</b><small>${l}</small></div>`;
+  const chart=(title,series)=>`<div class="card panel"><h2 style="font-size:1rem">${title}</h2>${bars(series,growthDays,since)}</div>`;
+  const merge=(...xs)=>{ const o={}; xs.forEach(x=>Object.entries(x||{}).forEach(([k,v])=>o[k]=(o[k]||0)+ +v)); return o; };
+  const titleOf=id=>id==='proprie'?t('Rețete proprii'):id==='link'?t('Primite prin link'):(SEED_I18N[LANG]?.[id]?.t||SEED.find(x=>x.id===id)?.title||id);
+  V.innerHTML=`<div class="row" style="justify-content:space-between;margin:10px 0"><h1>📊 Creștere</h1><button class="btn ghost sm" id="gBack">← Cont</button></div>
+    <div class="chips">${[7,30,90,365].map(d=>`<button class="chip ${d===growthDays?'on':''}" data-d="${d}">${d} zile</button>`).join('')}</div>
+    <h2 style="margin-top:10px">👥 Utilizatori</h2>
+    <div class="kpis">${tile(g.users_total,'conturi în total')}${tile(sum(g.users_by_day),'conturi noi')}${tile(g.premium_active,'Premium activ')}
+      ${tile(g.referrals.l1,'invitați (nivel 1)')}${tile(g.referrals.l2,'invitați (nivel 2)')}${tile(E.install||0,'instalări')}</div>
+    <h2>📈 Trafic și activitate</h2>
+    <div class="kpis">${tile(E.open||0,'deschideri aplicație')}${tile((E.view||0)+(E.feed_view||0),'vizualizări rețete')}${tile(E.save||0,'salvări')}
+      ${tile((E.cook||0),'începute la gătit')}${tile(E.cooked||0,'gătite până la capăt')}${tile(E.share||0,'distribuiri')}
+      ${tile(E.link_open||0,'linkuri de invitație deschise')}${tile((E.gif||0)+(E.video||0),'GIF-uri și clipuri')}${tile(g.shared_links,'linkuri publice')}
+      ${tile(g.likes,'aprecieri')}${tile(g.comments,'comentarii')}</div>
+    <h2>💰 Vânzări (Gumroad)</h2>
+    <div class="kpis">${tile(g.sales.count,'vânzări')}${tile(money(g.sales.gross_cents),'venit brut')}${tile(money(g.sales.affiliate_cents),'comisioane afiliați')}${tile(g.sales.affiliate_sales,'vânzări prin afiliați')}</div>
+    ${chart('📱 Deschideri pe zi',g.events?.open)}
+    ${chart('👀 Vizualizări pe zi',merge(g.events?.view,g.events?.feed_view))}
+    ${chart('🆕 Conturi noi pe zi',g.users_by_day)}
+    ${chart('🎁 Invitații pe zi',g.referrals.by_day)}
+    ${chart('💰 Venit pe zi',g.sales.by_day)}
+    <div class="card panel"><h2 style="font-size:1rem">🏆 Cele mai văzute rețete</h2>
+      ${g.top_recipes.length?g.top_recipes.map(x=>`<div class="step" style="grid-template-columns:1fr auto"><span class="nt">${esc(titleOf(x.recipe))}</span><span class="meta">👀 ${x.views} · ❤️ ${x.saves} · 👩‍🍳 ${x.cooks} · 📤 ${x.shares}</span></div>`).join(''):'<p class="meta">Încă nu sunt date.</p>'}</div>
+    <div class="card panel" style="margin-bottom:24px"><h2 style="font-size:1rem">🌍 Limbi</h2>
+      <p class="nt">${Object.entries(g.langs||{}).sort((a,b)=>b[1]-a[1]).map(([l,n])=>`${LANGS[l]?.flag||'🏳️'} ${l.toUpperCase()} ${n}`).join(' · ')||'—'}</p></div>`;
+  $('#gBack').onclick=()=>go('account');
+  V.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{ growthDays=+b.dataset.d; renderGrowth(); });
 }
 
 /* ---------- LINK PUBLIC DE REȚETĂ ---------- */
@@ -1574,6 +2031,7 @@ async function unpackText(z){
 }
 
 async function shareLink(url,title){
+  track('share',null,url.includes('?r=')?'link':url.includes('#p=')?'text':'other');
   if(navigator.share){ try{ await navigator.share({title,text:t(`Rețeta „${title}” pe Pas cu Gust`),url}); return; }catch(e){ if(e.name==='AbortError') return; } }
   try{ await navigator.clipboard.writeText(url); toast('📋 Link copiat'); }catch(e){ toast('Copiază linkul din căsuță'); }
 }
@@ -1582,6 +2040,7 @@ $('#sheet').onclick=e=>{ if(e.target.id==='sheet') closeSheet(); };
 
 function openShare(id){
   const r=byId(id); if(!r) return;
+  if(r.source?.url){ shareLink(r.source.url,r.title); return; }
   const link=r.share?shareUrl(r.share.id):null;
   const stale=r.share && (r.updated||r.created||0)>r.share.at;
   const B=$('#sheetBody');
@@ -1628,6 +2087,7 @@ async function clearPublicFolder(folder){
 }
 async function publishShare(r,progress){
   const me=cloudUser.id;
+  if(!r.share && !isPremium() && S.recipes.filter(x=>x.share).length>=FREE_LIMITS.links) throw new Error(t('Planul gratuit are 3 linkuri active. Oprește unul sau treci la Premium ⭐'));
   let sid=r.share?.id;
   if(!sid){ // poate a fost distribuită de pe alt dispozitiv
     const {data,error}=await sb.from('shared_recipes').select('id').eq('recipe_id',r.id).maybeSingle();
@@ -1714,17 +2174,91 @@ async function unshareRecipe(r){
 }
 
 // Salvează rețeta primită în rețetele mele (cu tot cu poze/clipuri).
-async function saveShared(){
-  const r=SHARED; if(!r) return null;
+async function saveShared(r=SHARED,opt={}){
+  if(!r) return null;
   if(r._savedAs && S.recipes.some(x=>x.id===r._savedAs)) return r._savedAs;
+  if(r._world){ const had=S.recipes.find(x=>x.from===r.id); if(had) return r._savedAs=had.id; }
   toast('💾 Se salvează…');
-  const grab=async u=>{ if(!u) return null; try{ const res=await fetch(u); if(!res.ok) return null; return await putMedia(await res.blob()); }catch(e){ return null; } };
+  const grab=async u=>{ if(!u) return null; if(isAsset(u)) return u; try{ const res=await fetch(u); if(!res.ok) return null; return await putMedia(await res.blob()); }catch(e){ return null; } };
   const copy={id:uid(),title:r.title,desc:r.desc,cat:r.cat,emoji:r.emoji,time:r.time,servings:r.servings,ingredients:[...r.ingredients],
-    cover:await grab(r.cover),author:r.author,license:r.license,inspo:r.inspo||null,fav:false,imported:true,from:r._shareId||null,steps:[],created:Date.now(),updated:Date.now()};
+    cover:await grab(r.cover),author:r.author,license:r.license,inspo:r.inspo||null,fav:!!opt.fav,imported:true,from:r._shareId||(r._world?r.id:null),country:r.country||null,steps:[],created:Date.now(),updated:Date.now()};
   for(const x of r.steps){ const m=await grab(x.media); copy.steps.push({text:x.text,min:x.min,media:m,mediaType:m?x.mediaType:null}); }
   S.recipes.unshift(copy); save(); r._savedAs=copy.id;
-  toast('✅ Salvată în rețetele tale');
+  toast(opt.fav?'❤️ Salvată la favorite':'✅ Salvată în rețetele tale');
   return copy.id;
+}
+// din feed: o rețetă din lume ajunge în rețetele tale, la favorite
+async function likeWorld(r){
+  const id=await saveShared(r,{fav:true}); const c=id&&S.recipes.find(x=>x.id===id);
+  if(c && !c.fav){ c.fav=true; save(); toast('❤️ Salvată la favorite'); }
+  track('save',r);
+}
+
+/* ---------- CATALOGUL MONDIAL ---------- */
+const LI=()=>Math.max(0,LANG_ORDER.indexOf(LANG));
+const cName=cc=>WORLD_COUNTRIES[cc]?.[1+LI()]||cc;
+const rName=k=>WORLD_REGIONS.find(x=>x[0]===k)?.[1+LI()]||k;
+const WCACHE={};
+function worldById(id){
+  if(typeof id!=='string'||!id.startsWith('w-')) return null;
+  const k=LANG+':'+id; if(WCACHE[k]) return WCACHE[k];
+  const w=WORLD.find(x=>x.id===id); if(!w) return null;
+  const full=w.L[LANG], base=full||w.L.en, tr=w.T[LANG];
+  return WCACHE[k]={id,_world:true,_shared:true,_partial:!full,country:w.cc,title:full?full.t:(tr?.[0]||base.t),desc:full?full.d:(tr?.[1]||base.d),
+    cat:w.cat,emoji:w.emoji,time:w.time,servings:w.servings,ingredients:[...base.i],steps:base.s.map(([text,min])=>({text,min,media:null,mediaType:null})),
+    cover:WORLD_COVER_IDS.includes(id)?`img/${id}.jpg`:null,author:'Pas cu Gust',license:'CC0',fav:false};
+}
+function worldCountries(){
+  const m={};
+  WORLD.forEach(w=>(m[w.cc]=m[w.cc]||[]).push(w.id));
+  m.RO=SEED.map(x=>x.id).filter(id=>S.recipes.some(r=>r.id===id&&!r.imported));
+  return m;
+}
+let worldRegion='all';
+function renderWorld(cc){
+  const V=$('#v-world'), M=worldCountries();
+  if(cc && M[cc]){
+    const items=M[cc].map(byId).filter(Boolean);
+    V.innerHTML=`<div class="row" style="margin-top:8px"><button class="btn ghost sm" id="wBack">← Țări</button></div>
+      <h1 style="margin:10px 0">${flagOf(cc)} <span class="nt">${esc(cName(cc))}</span></h1>
+      <button class="btn" id="wFeed" style="width:100%">▶ Vezi rețetele ca într-un clip</button>
+      <div class="grid">${items.map(r=>`<div class="card rcard" data-id="${r.id}">
+        ${r.cover?`<img class="cover" data-media="${r.cover}" alt="">`:`<div class="ph">${esc(r.emoji||'🍽️')}</div>`}
+        <div class="rbody"><h3 class="nt">${esc(r.title)}</h3><p class="meta nt" style="margin:4px 0">${esc(r.desc)}</p>
+        <div class="meta"><span>⏱ ${fmtTime(r.time)||'—'}</span><span>📋 ${r.steps.length} pași</span></div>
+        <div style="margin-top:6px"><span class="badge">${esc(r.cat)}</span></div></div></div>`).join('')}</div>`;
+    $('#wBack').onclick=()=>go('world');
+    $('#wFeed').onclick=()=>{ feedFilter=cc; go('feed'); };
+    V.querySelectorAll('.rcard').forEach(c=>c.onclick=()=>go('detail',c.dataset.id));
+    hydrate(V); return;
+  }
+  const codes=Object.keys(M).filter(c=>M[c].length);
+  V.innerHTML=`<h1 style="margin:10px 0">🌍 Rețete din toată lumea</h1>
+    <p class="meta">Alege o țară. Fiecare rețetă se gătește pas cu pas, cu cronometru și citire cu voce.</p>
+    <input class="search" id="wq" placeholder="🔎 Caută o țară sau o rețetă…" style="margin-top:12px">
+    <div class="chips" id="wreg">${[['all','🌐 Toate'],...WORLD_REGIONS.map(r=>[r[0],null])].map(([k,l])=>`<button class="chip ${k===worldRegion?'on':''}" data-r="${k}">${l?l:`<span class="nt">${esc(rName(k))}</span>`}</button>`).join('')}</div>
+    <div class="cgrid" id="wgrid"></div>`;
+  const draw=()=>{
+    const q=($('#wq').value||'').trim().toLowerCase();
+    const list=codes.filter(c=>worldRegion==='all'||WORLD_COUNTRIES[c][0]===worldRegion).filter(c=>{
+      if(!q) return true;
+      return WORLD_COUNTRIES[c].slice(1).some(n=>n.toLowerCase().includes(q)) || M[c].some(id=>{ const r=byId(id); return r&&(r.title+' '+r.ingredients.join(' ')).toLowerCase().includes(q); });
+    }).sort((a,b)=>cName(a).localeCompare(cName(b),locale()));
+    $('#wgrid').innerHTML=list.length?list.map(c=>`<button class="card ctile" data-cc="${c}"><div class="fl">${flagOf(c)}</div><b class="nt">${esc(cName(c))}</b><small>${M[c].length===1?'1 rețetă':M[c].length+' rețete'}</small></button>`).join('')
+      :`<div class="empty" style="grid-column:1/-1">Nicio țară găsită.</div>`;
+    $('#wgrid').querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>go('world',b.dataset.cc));
+  };
+  $('#wq').oninput=draw;
+  V.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{ worldRegion=b.dataset.r; V.querySelectorAll('[data-r]').forEach(x=>x.classList.toggle('on',x===b)); draw(); });
+  draw();
+}
+$('#toWorld').onclick=()=>go('world');
+// link de forma ?w=w-it: deschide direct rețeta din catalog
+function openWorldFromUrl(){
+  const w=new URLSearchParams(location.search).get('w'); if(!w) return false;
+  history.replaceState(null,'',location.pathname);
+  if(!worldById(w)) return false;
+  track('link_open',null,'world'); go('detail',w); return true;
 }
 function closeShared(){
   SHARED=null;
@@ -1754,6 +2288,7 @@ async function openSharedFromUrl(){
       SHARED=cleanShared(data,{_shareId:q});
     }
     document.title=SHARED.title+' — Pas cu Gust';
+    track('link_open',null,h?'text':'link');
     go('detail','shared');
   }catch(e){
     if(e instanceof Error) console.error(e);
@@ -1763,9 +2298,9 @@ async function openSharedFromUrl(){
 }
 
 /* ---------- pornire ---------- */
-localizeSeeds(); applyTheme(); refreshPill(); renderHome(); startI18n();
+localizeSeeds(); applyTheme(); applyEasy(); updShop(); refreshPill(); renderHome(); startI18n(); track('open');
 const cloudReady=cloudInit();
-openShareTarget().then(done=>{ if(!done) openSharedFromUrl(); });
+openShareTarget().then(done=>{ if(!done && !openWorldFromUrl()) openSharedFromUrl(); });
 if(location.hash==='#adauga') go('edit');
 if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>

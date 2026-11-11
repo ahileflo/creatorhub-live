@@ -48,6 +48,21 @@ Linkul public de rețetă (`?r=…`) folosește tabelul `shared_recipes` și buc
 
 > ℹ️ Supabase afișează o avertizare pentru `delete_my_account`: utilizatorii logați o pot apela. E intenționat: funcția șterge doar contul celui care o apelează.
 
+## 2b. Creștere: Premium, invitații, statistici (✅ gata pe server)
+
+Deja făcut: profiluri, invitații pe 2 niveluri (30 + 30 + 7 zile Premium), statistici anonime, aprecieri și comentarii, panoul de creștere (doar pentru contul tău, din ☁️ Cont → 📊), plus funcțiile `premium-verify` și `gumroad-ping` (`supabase/functions/`, `supabase/migrations/20261108120000_growth.sql`).
+
+Ca să vinzi **Premium**:
+1. Gumroad → produs nou de tip **Membership** (ex. „Pas cu Gust Premium”, 4,99 $/lună și 39 $/an) → bifează **„Generate a unique license key per sale”**.
+2. Pune ID-ul produsului în baza de date (Supabase → SQL Editor):
+   ```sql
+   insert into private.config (key, value) values ('gumroad_product_id', 'ID-UL-PRODUSULUI')
+   on conflict (key) do update set value = excluded.value;
+   ```
+3. În `pascugust/index.html` pune adresa produsului în `RK_PREMIUM_URL`.
+4. Gumroad → Settings → Advanced → **Ping**: pune adresa `gumroad-ping` primită de la Claude, cu codul secret (`?k=…`). Așa apar în panou vânzările, venitul și comisioanele afiliaților, iar reînnoirile abonamentului prelungesc Premium automat.
+5. Comisioane în bani pentru creatori: Gumroad → **Affiliates**. Gumroad plătește singur comisionul, pe un singur nivel, pe vânzări reale.
+
 ## 3. Verifică înainte de magazine
 
 - Deschide aplicația pe telefon → instaleaz-o → adaugă o rețetă cu poză și clip → fă un GIF → intră în cont → verifică dacă apare și pe al doilea dispozitiv.

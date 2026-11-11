@@ -30,3 +30,8 @@ Clipuri verticale 9:16 (720×1280, H.264), montate cu ffmpeg din pozele de mai s
 - `s4.mp4` și `s5.mp4` nu au voce: ElevenLabs a blocat planul gratuit înainte să le pot genera. Aplicația afișează textul pașilor peste clip.
 - `*.jpg` din același folder sunt imaginile de previzualizare ale clipurilor.
 - Aceeași verificare de licență ca la poze: vocea ElevenLabs de pe planul gratuit poate avea restricții de folosire comercială.
+
+## Catalogul mondial (`w-*.jpg`)
+30 de coperte, câte una pentru fiecare rețetă din `world.js` (`w-it` = Italia, `w-jp` = Japonia etc.). Toate sunt **generate cu Figma AI · GPT Image 2.5 Sunburst**, pe 11 noiembrie 2026, în fișierul Figma „Pas cu Gust — poze rețete”, cu descrieri de tipul „fotografie realistă de mâncare, unghi de 45°, lumină naturală, fără text, logo-uri sau oameni”. 1200 px lățime, JPEG, ~175 KB. Aceeași notă despre termenii Figma AI de mai sus se aplică și aici.
+
+Textele rețetelor din catalog sunt scrise de noi și sunt CC0 (domeniu public).
