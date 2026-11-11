@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Liga Creioanelor — supereroi de colorat</title>
+<meta name="description" content="80 de pagini de colorat cu supereroi originali: pe tabletă, cu creionul digital, sau printate. Fără reclame, fără cont.">
+<meta property="og:title" content="Liga Creioanelor — supereroi de colorat">
+<meta property="og:description" content="Colorează pe tabletă sau printează. 80 de pagini, 7 serii, eroi noi la nesfârșit.">
+<meta property="og:image" content="icons/og.png">
+<meta name="theme-color" content="#ffd23f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{--ink:#141414;--paper:#fff7e3;--sun:#ffd23f;--red:#ff5a5f;--blue:#3a86ff;--mint:#2ec4b6;--card:#fff}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:ui-rounded,"Trebuchet MS","Segoe UI",Verdana,sans-serif;background:var(--paper);color:var(--ink);overscroll-behavior:none}
+button{font:inherit;color:inherit;cursor:pointer}
+.btn{border:3px solid var(--ink);background:var(--card);border-radius:14px;padding:10px 16px;font-weight:800;box-shadow:3px 3px 0 var(--ink);min-height:44px}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn.y{background:var(--sun)}.btn.r{background:var(--red);color:#fff}.btn.b{background:var(--blue);color:#fff}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px 60px}
+.top{display:flex;align-items:center;gap:10px;padding:14px 0;flex-wrap:wrap}
+.top h2{flex:1;font-size:clamp(1.1rem,3.4vw,1.6rem);min-width:0}
+.hero{background:var(--sun);border:4px solid var(--ink);border-radius:26px;box-shadow:6px 6px 0 var(--ink);padding:26px 22px;margin:8px 0 26px;position:relative;overflow:hidden;
+ background-image:radial-gradient(circle at 1px 1px,rgba(0,0,0,.13) 1.6px,transparent 0);background-size:14px 14px}
+.hero h1{font-size:clamp(2rem,8vw,4rem);line-height:.95;letter-spacing:-.02em;font-weight:900;-webkit-text-stroke:2px var(--ink);color:#fff;text-shadow:4px 4px 0 var(--ink);text-transform:uppercase}
+.hero p{font-weight:700;font-size:1.05rem;margin:14px 0 16px;max-width:560px}
+.hero .row{display:flex;gap:10px;flex-wrap:wrap}
+.lang{position:absolute;right:14px;top:14px}
+h3.sec{font-size:1.25rem;margin:26px 0 12px;text-transform:uppercase;letter-spacing:.04em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px}
+.grid.pg{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.card{background:var(--card);border:3px solid var(--ink);border-radius:18px;box-shadow:4px 4px 0 var(--ink);overflow:hidden;text-align:left;display:block;width:100%;position:relative}
+.card:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.card .th{aspect-ratio:8/11;background:#fff;border-bottom:3px solid var(--ink);overflow:hidden}
+.card.blk .th{aspect-ratio:8/7}
+.card .th svg{width:100%;display:block;pointer-events:none}
+.card.blk .th svg{margin-top:-30%}
+.card .tx{padding:10px 12px 12px}
+.card b{display:block;font-size:1rem;line-height:1.2}
+.card small{display:block;color:#555;font-weight:600;margin-top:3px}
+.tag{position:absolute;left:8px;top:8px;background:var(--mint);color:#fff;border:2.5px solid var(--ink);border-radius:99px;padding:2px 10px;font-weight:900;font-size:.75rem}
+.tag.l{background:var(--ink)}.tag.d{left:auto;right:8px;background:var(--red)}
+.card.lock .th{filter:grayscale(1) opacity(.45)}
+.note{background:#fff;border:3px dashed var(--ink);border-radius:18px;padding:16px 18px;margin-top:26px;font-weight:600;line-height:1.5}
+.note ul{margin:8px 0 0 20px}
+footer{margin-top:26px;font-size:.85rem;color:#555;text-align:center}
+footer a{color:inherit}
+/* editor */
+.ed{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr auto;background:#e9e2cf}
+.ed header{display:flex;gap:8px;align-items:center;padding:8px 10px;background:var(--sun);border-bottom:3px solid var(--ink)}
+.ed header b{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:1rem}
+.ed header .btn{padding:6px 12px;min-width:44px}
+.sw{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:8px}
+.stage{position:relative;background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.25);touch-action:none;user-select:none;-webkit-user-select:none}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:multiply}
+.tools{background:#fff;border-top:3px solid var(--ink);padding:8px 10px;display:flex;gap:10px;align-items:center;overflow-x:auto}
+.tl{display:flex;gap:6px}
+.tb{width:50px;height:50px;border:3px solid var(--ink);border-radius:14px;background:#fff;font-size:1.5rem;flex:none}
+.tb.on{background:var(--sun);box-shadow:inset 0 0 0 3px #fff}
+.pal{display:flex;gap:6px;flex-wrap:nowrap}
+.sw1{width:40px;height:40px;border-radius:50%;border:3px solid var(--ink);flex:none}
+.sw1.on{outline:4px solid var(--blue);outline-offset:2px}
+input[type=range]{width:110px;accent-color:var(--ink);flex:none}
+input[type=color]{width:44px;height:44px;border:3px solid var(--ink);border-radius:12px;padding:0;background:none;flex:none}
+@media (orientation:landscape) and (min-width:800px){
+ .ed{grid-template-rows:auto 1fr;grid-template-columns:1fr 196px}
+ .ed header{grid-column:1/3}
+ .tools{border-top:0;border-left:3px solid var(--ink);flex-direction:column;align-items:stretch;overflow-y:auto;overflow-x:hidden}
+ .tl{flex-wrap:wrap}.pal{flex-wrap:wrap}
+ input[type=range]{width:100%}
+}
+/* dialog */
+.ov{position:fixed;inset:0;background:rgba(20,20,20,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:9}
+.dlg{background:var(--paper);border:4px solid var(--ink);border-radius:22px;box-shadow:6px 6px 0 var(--ink);padding:22px;max-width:440px;width:100%}
+.dlg h3{font-size:1.4rem;margin-bottom:8px}
+.dlg p{font-weight:600;line-height:1.45;margin-bottom:12px}
+.dlg .col{display:flex;flex-direction:column;gap:10px}
+.dlg input[type=text]{border:3px solid var(--ink);border-radius:12px;padding:10px 12px;font:inherit;font-weight:800;text-transform:uppercase;width:100%}
+.err{color:#c1121f;font-weight:800}
+#print{display:none}
+@media print{
+ #app,.ov{display:none!important}
+ #print{display:block}
+ #print img{display:block;width:100%;height:auto;max-height:277mm;object-fit:contain;page-break-after:always;break-after:page}
+ #print img:last-child{page-break-after:auto;break-after:auto}
+ @page{size:A4 portrait;margin:8mm}
+ body{background:#fff}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="print"></div>
+<script src="art.js"></script>
+<script>
+'use strict';
+/* ---------- setări de vânzare ----------
+   BUY_URL: pagina produsului tău (Gumroad). Codul de deblocare îl primește cumpărătorul după plată.
+   CODES: amprentele SHA-256 ale codurilor valide (codul în sine NU stă în acest fișier). */
+const BUY_URL = 'https://woopsahile.gumroad.com';
+const CODES = ['9cbcd653279ff715d3448010ec20ea1a70ec1ee39334d7e4b60c2c1edd35f103'];
+const FREE_PAGES = 2, FREE_GEN = 3;
+
+const A = self.LigaArt, $ = (s, r) => (r || document).querySelector(s), app = $('#app');
+const LS = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+let lang = LS.get('liga_lang', (navigator.language || 'ro').slice(0, 2) === 'ro' ? 'ro' : 'en');
+const L = () => lang === 'en' ? 1 : 0;
+const T = {
+  tag: ['80 de pagini de colorat cu supereroi originali. Pe tabletă cu creionul digital sau printate pe hârtie.', '80 coloring pages with original superheroes. On your tablet with a stylus, or printed on paper.'],
+  start: ['Începe să colorezi', 'Start coloring'], unlock: ['Deblochează tot', 'Unlock everything'], pro: ['Ai acces complet ✓', 'Full access ✓'],
+  blocks: ['Programul de azi', 'Today\'s line-up'], free: ['GRATIS', 'FREE'], pages: ['pagini', 'pages'], colored: ['colorate', 'colored'],
+  fab: ['Fabrica de eroi', 'Hero Factory'], fabd: ['Un erou nou la fiecare apăsare. Nu se termină niciodată.', 'A brand-new hero at every tap. It never runs out.'],
+  newhero: ['⚡ Erou nou!', '⚡ New hero!'], mine: ['Eroii mei', 'My heroes'], left: ['eroi gratuiți rămași azi', 'free heroes left today'],
+  printAll: ['🖨 Printează tot blocul', '🖨 Print the whole block'], back: ['‹ Înapoi', '‹ Back'],
+  parents: ['Pentru părinți', 'For parents'],
+  p1: ['Fără reclame, fără cont, fără date despre copil. Desenele rămân doar pe acest dispozitiv.', 'No ads, no account, no data about your child. Drawings stay on this device only.'],
+  p2: ['Merge și fără internet după prima deschidere. Poți instala aplicația pe ecranul principal.', 'Works offline after the first visit. You can install it to your home screen.'],
+  p3: ['Fiecare pagină se poate printa A4, goală sau colorată.', 'Every page prints on A4, blank or colored.'],
+  sample: ['Descarcă gratuit primele 12 pagini (PDF)', 'Download the first 12 pages free (PDF)'],
+  lockT: ['Pagină din pachetul complet', 'Part of the full pack'],
+  lockP: ['Pachetul complet deschide toate cele 80 de pagini, printarea pe blocuri întregi și Fabrica de eroi fără limită. Se plătește o singură dată.', 'The full pack opens all 80 pages, whole-block printing and the unlimited Hero Factory. One-time payment.'],
+  buy: ['Cumpără pachetul complet', 'Buy the full pack'], have: ['Am deja un cod', 'I already have a code'], code: ['Codul primit după plată', 'Code you received after payment'],
+  ok: ['Deblochează', 'Unlock'], bad: ['Cod greșit. Verifică și încearcă din nou.', 'Wrong code. Check it and try again.'], yay: ['Gata! Toată Liga e a ta.', 'Done! The whole League is yours.'],
+  close: ['Închide', 'Close'], prT: ['Printează', 'Print'], prBlank: ['Doar conturul (de colorat pe hârtie)', 'Outline only (to color on paper)'], prMine: ['Așa cum am colorat-o eu', 'My colored version'],
+  clr: ['Ștergi tot ce ai colorat pe această pagină?', 'Erase everything you colored on this page?'], yes: ['Da, șterge', 'Yes, erase'], no: ['Nu', 'No'],
+  saved: ['Imagine salvată', 'Image saved']
+};
+const t = k => T[k][L()];
+const isPro = () => LS.get('liga_pro', 0) === 1;
+const done = () => LS.get('liga_done', {});
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ---------- stocare desene (IndexedDB, doar pe dispozitiv) ---------- */
+const dbp = new Promise((res, rej) => { try { const r = indexedDB.open('liga', 1); r.onupgradeneeded = () => r.result.createObjectStore('p'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); } });
+const idb = {
+  get: k => dbp.then(d => new Promise(r => { const q = d.transaction('p').objectStore('p').get(k); q.onsuccess = () => r(q.result || null); q.onerror = () => r(null); })).catch(() => null),
+  set: (k, v) => dbp.then(d => { d.transaction('p', 'readwrite').objectStore('p').put(v, k); }).catch(() => {})
+};
+
+/* ---------- navigare ---------- */
+function go(h) { if (location.hash === h) route(); else location.hash = h; }
+function route() {
+  const p = location.hash.replace(/^#\/?/, '').split('/');
+  document.documentElement.lang = lang;
+  if (p[0] === 's' && A.SERIES.some(s => s.id === p[1])) return viewSeries(p[1]);
+  if (p[0] === 'p' && A.SERIES.some(s => s.id === p[1])) return viewPage(p[1], +p[2] || 0);
+  if (p[0] === 'g' && p[1]) return viewGen(+p[1]);
+  if (p[0] === 'g') return viewFactory();
+  viewHome();
+}
+addEventListener('hashchange', route);
+const canOpen = (s, i) => s.free || isPro() || i < (s.comic ? 1 : FREE_PAGES);
+const pid = (sid, i) => sid + '-' + i;
+
+function applyFills(root, st) { if (!st || !st.fills) return; const els = root.querySelectorAll('.f'); for (const i in st.fills) if (els[i]) els[i].setAttribute('fill', st.fills[i]); }
+
+function viewHome() {
+  const d = done();
+  app.innerHTML = '<div class="wrap"><div class="hero"><button class="btn lang" id="lg">' + (lang === 'ro' ? 'EN' : 'RO') + '</button>' +
+    '<h1>Liga<br>Creioanelor</h1><p>' + t('tag') + '</p><div class="row"><button class="btn b" id="st">' + t('start') + '</button>' +
+    (isPro() ? '<span class="btn">' + t('pro') + '</span>' : '<button class="btn r" id="un">' + t('unlock') + '</button>') + '</div></div>' +
+    '<h3 class="sec">' + t('blocks') + '</h3><div class="grid">' +
+    A.SERIES.map(s => { const n = s.pages.filter((p, i) => d[pid(s.id, i)]).length;
+      return '<button class="card blk" data-s="' + s.id + '"><div class="th">' + A.render(s.id, 0, lang) + '</div>' + (s.free ? '<span class="tag">' + t('free') + '</span>' : isPro() ? '' : '<span class="tag l">🔒</span>') +
+        '<div class="tx"><b>' + esc(s.t[L()]) + '</b><small>' + esc(s.d[L()]) + '</small><small>' + s.pages.length + ' ' + t('pages') + (n ? ' · ' + n + ' ' + t('colored') : '') + '</small></div></button>'; }).join('') +
+    '<button class="card blk" data-s="*"><div class="th">' + A.genPage(7, lang).svg + '</div><span class="tag" style="background:var(--red)">∞</span><div class="tx"><b>' + t('fab') + '</b><small>' + t('fabd') + '</small></div></button></div>' +
+    '<div class="note"><b>' + t('parents') + '</b><ul><li>' + t('p1') + '</li><li>' + t('p2') + '</li><li>' + t('p3') + '</li></ul><p style="margin-top:12px"><a class="btn y" style="display:inline-block;text-decoration:none" href="print/liga-creioanelor-gratuit.pdf" download>⬇ ' + t('sample') + '</a></p></div>' +
+    '<footer>Liga Creioanelor · personaje și desene originale · <a href="../">CreatorHub</a> · © 2026</footer></div>';
+  $('#lg').onclick = () => { lang = lang === 'ro' ? 'en' : 'ro'; LS.set('liga_lang', lang); route(); };
+  $('#st').onclick = () => go('#/s/liga');
+  if ($('#un')) $('#un').onclick = () => unlockDlg();
+  app.querySelectorAll('[data-s]').forEach(b => b.onclick = () => go(b.dataset.s === '*' ? '#/g' : '#/s/' + b.dataset.s));
+  scrollTo(0, 0);
+}
+
+function viewSeries(sid) {
+  const s = A.SERIES.find(x => x.id === sid), d = done();
+  app.innerHTML = '<div class="wrap"><div class="top"><button class="btn" id="bk">' + t('back') + '</button><h2>' + esc(s.t[L()]) + '</h2><button class="btn y" id="pa">' + t('printAll') + '</button></div><div class="grid pg">' +
+    s.pages.map((p, i) => { const open = canOpen(s, i);
+      return '<button class="card' + (open ? '' : ' lock') + '" data-i="' + i + '"><div class="th" id="th' + i + '">' + A.render(sid, i, lang) + '</div>' + (open ? '' : '<span class="tag l">🔒</span>') + (d[pid(sid, i)] ? '<span class="tag d">✓</span>' : '') +
+        '<div class="tx"><b>' + (i + 1) + '. ' + esc(p.t[L()]) + '</b></div></button>'; }).join('') + '</div></div>';
+  $('#bk').onclick = () => go('#/');
+  $('#pa').onclick = () => { if (!isPro()) return unlockDlg(); printImgs(s.pages.map((p, i) => svgUrl(A.render(sid, i, lang)))); };
+  app.querySelectorAll('[data-i]').forEach(b => b.onclick = () => { const i = +b.dataset.i; canOpen(s, i) ? go('#/p/' + sid + '/' + i) : unlockDlg(); });
+  s.pages.forEach((p, i) => { if (d[pid(sid, i)]) idb.get(pid(sid, i)).then(st => { const el = $('#th' + i); if (el) applyFills(el, st); }); });
+  scrollTo(0, 0);
+}
+
+function genLeft() { const k = new Date().toISOString().slice(0, 10), g = LS.get('liga_gen', {}); return isPro() ? Infinity : Math.max(0, FREE_GEN - (g.d === k ? g.n : 0)); }
+function viewFactory() {
+  const mine = LS.get('liga_mine', []), left = genLeft();
+  app.innerHTML = '<div class="wrap"><div class="top"><button class="btn" id="bk">' + t('back') + '</button><h2>' + t('fab') + '</h2></div>' +
+    '<div class="hero"><p>' + t('fabd') + '</p><div class="row"><button class="btn r" id="nh">' + t('newhero') + '</button>' + (isPro() ? '' : '<span class="btn">' + left + ' ' + t('left') + '</span>') + '</div></div>' +
+    (mine.length ? '<h3 class="sec">' + t('mine') + '</h3><div class="grid pg">' + mine.map(sd => { const g = A.genPage(sd, lang); return '<button class="card" data-g="' + sd + '"><div class="th">' + g.svg + '</div><div class="tx"><b>' + esc(g.title) + '</b></div></button>'; }).join('') + '</div>' : '') + '</div>';
+  $('#bk').onclick = () => go('#/');
+  $('#nh').onclick = () => {
+    if (genLeft() <= 0) return unlockDlg();
+    const k = new Date().toISOString().slice(0, 10), g = LS.get('liga_gen', {}); LS.set('liga_gen', { d: k, n: (g.d === k ? g.n : 0) + 1 });
+    const sd = 1000 + Math.floor(Math.random() * 9e6); LS.set('liga_mine', [sd].concat(LS.get('liga_mine', [])).slice(0, 60)); go('#/g/' + sd);
+  };
+  app.querySelectorAll('[data-g]').forEach(b => b.onclick = () => go('#/g/' + b.dataset.g));
+  scrollTo(0, 0);
+}
+function viewPage(sid, i) {
+  const s = A.SERIES.find(x => x.id === sid);
+  if (!s.pages[i] || !canOpen(s, i)) return go('#/s/' + sid);
+  editor(pid(sid, i), A.render(sid, i, lang), s.pages[i].t[L()], '#/s/' + sid, () => A.render(sid, i, lang));
+}
+function viewGen(seed) { const g = A.genPage(seed, lang); editor('gen-' + seed, g.svg, g.title, '#/g', () => A.genPage(seed, lang).svg); }
+
+/* ---------- atelierul de colorat ---------- */
+const PAL = ['#ff3b30', '#ff9500', '#ffd60a', '#34c759', '#00c7be', '#32ade6', '#3a5bff', '#af52de', '#ff6fb5', '#a2845e', '#ffd8b1', '#c68642', '#8d5524', '#9aa0a6', '#3c3c43', '#ffffff'];
+const RES = 1.5;
+function editor(id, svg, title, backHash, fresh) {
+  let tool = LS.get('liga_tool', 'fill'), color = LS.get('liga_color', PAL[0]), size = LS.get('liga_size', 10);
+  let st = { fills: {}, strokes: [], ops: [] }, cur = null, penAt = 0, saveT = 0, alive = true;
+  app.innerHTML = '<div class="ed"><header><button class="btn" id="bk">‹</button><b>' + esc(title) + '</b>' +
+    '<button class="btn" id="un" title="undo">↶</button><button class="btn" id="cl">🗑</button><button class="btn" id="pr">🖨</button><button class="btn b" id="sv">⬇</button></header>' +
+    '<div class="sw" id="sw"><div class="stage" id="stage">' + svg + '<canvas id="cv"></canvas><canvas id="lv"></canvas></div></div>' +
+    '<div class="tools"><div class="tl">' + [['fill', '🪣'], ['pen', '✏️'], ['mark', '🖍'], ['era', '🧽']].map(x => '<button class="tb" data-t="' + x[0] + '">' + x[1] + '</button>').join('') + '</div>' +
+    '<input type="range" id="sz" min="3" max="40" value="' + size + '"><div class="pal">' + PAL.map(c => '<button class="sw1" data-c="' + c + '" style="background:' + c + '"></button>').join('') + '</div><input type="color" id="cc" value="' + color + '"></div></div>';
+  const stage = $('#stage'), sv = stage.querySelector('svg'), cv = $('#cv'), lv = $('#lv'), cx = cv.getContext('2d'), lx = lv.getContext('2d');
+  cv.width = lv.width = A.W * RES; cv.height = lv.height = A.H * RES;
+  const fEls = sv.querySelectorAll('.f');
+  function fit() { const b = $('#sw'); if (!b) return; const w = b.clientWidth - 16, h = b.clientHeight - 16, k = Math.min(w / A.W, h / A.H); stage.style.width = A.W * k + 'px'; stage.style.height = A.H * k + 'px'; }
+  fit(); const onRs = () => fit(); addEventListener('resize', onRs);
+  function ui() {
+    app.querySelectorAll('.tb').forEach(b => b.classList.toggle('on', b.dataset.t === tool));
+    app.querySelectorAll('.sw1').forEach(b => b.classList.toggle('on', b.dataset.c === color));
+    LS.set('liga_tool', tool); LS.set('liga_color', color); LS.set('liga_size', size);
+  }
+  app.querySelectorAll('.tb').forEach(b => b.onclick = () => { tool = b.dataset.t; ui(); });
+  app.querySelectorAll('.sw1').forEach(b => b.onclick = () => { color = b.dataset.c; if (tool === 'era') tool = 'fill'; ui(); });
+  $('#cc').oninput = e => { color = e.target.value; if (tool === 'era') tool = 'fill'; ui(); };
+  $('#sz').oninput = e => { size = +e.target.value; ui(); };
+  ui();
+
+  function seg(x, s, k, from) {
+    const p = s.pts; if (!p.length) return;
+    x.save(); x.lineCap = x.lineJoin = 'round'; x.strokeStyle = x.fillStyle = s.c;
+    if (s.t === 'era') x.globalCompositeOperation = 'destination-out';
+    if (s.t === 'mark') {
+      x.globalAlpha = .55; x.lineWidth = s.s * 2.4 * k; x.beginPath(); x.moveTo(p[0][0] * k, p[0][1] * k);
+      for (let i = 1; i < p.length; i++) x.lineTo(p[i][0] * k, p[i][1] * k);
+      if (p.length === 1) x.lineTo(p[0][0] * k + .1, p[0][1] * k); x.stroke();
+    } else {
+      const m = s.t === 'era' ? 2.6 : 1;
+      for (let i = Math.max(1, from || 1); i < p.length; i++) { x.lineWidth = s.s * m * (s.t === 'era' ? 1 : .35 + 1.3 * p[i][2]) * k; x.beginPath(); x.moveTo(p[i - 1][0] * k, p[i - 1][1] * k); x.lineTo(p[i][0] * k, p[i][1] * k); x.stroke(); }
+      if (p.length === 1) { x.beginPath(); x.arc(p[0][0] * k, p[0][1] * k, s.s * m * .5 * k, 0, 7); x.fill(); }
+    }
+    x.restore();
+  }
+  function redraw() { cx.clearRect(0, 0, cv.width, cv.height); st.strokes.forEach(s => seg(cx, s, RES)); }
+  function save() { clearTimeout(saveT); saveT = setTimeout(() => { idb.set(id, { fills: st.fills, strokes: st.strokes }); const d = done(), has = Object.keys(st.fills).length || st.strokes.length; if (has) d[id] = 1; else delete d[id]; LS.set('liga_done', d); }, 400); }
+  idb.get(id).then(v => { if (!alive || !v) return; st.fills = v.fills || {}; st.strokes = v.strokes || []; applyFills(sv, st); redraw(); });
+
+  function pt(e) { const r = stage.getBoundingClientRect(); return [Math.round((e.clientX - r.left) / r.width * A.W * 10) / 10, Math.round((e.clientY - r.top) / r.height * A.H * 10) / 10, e.pointerType === 'pen' ? Math.max(.08, e.pressure) : .5]; }
+  stage.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'pen') penAt = Date.now();
+    if (tool === 'fill') {
+      const el = e.target.closest && e.target.closest('.f'); if (!el || !sv.contains(el)) return;
+      const i = Array.prototype.indexOf.call(fEls, el), prev = st.fills[i] || null;
+      if (prev === color) return;
+      st.fills[i] = color; el.setAttribute('fill', color); st.ops.push({ k: 'f', i: i, prev: prev }); save(); return;
+    }
+    if (e.pointerType === 'touch' && Date.now() - penAt < 20000) return; // palma pe ecran cât desenezi cu creionul
+    e.preventDefault(); try { stage.setPointerCapture(e.pointerId); } catch (x) {}
+    cur = { t: tool, c: color, s: size, pts: [pt(e)], id: e.pointerId };
+    if (tool === 'era') seg(cx, cur, RES); else { lx.clearRect(0, 0, lv.width, lv.height); seg(lx, cur, RES); }
+  });
+  stage.addEventListener('pointermove', e => {
+    if (!cur || e.pointerId !== cur.id) return;
+    const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e], n = cur.pts.length;
+    (evs.length ? evs : [e]).forEach(ev => { const p = pt(ev), q = cur.pts[cur.pts.length - 1]; if (Math.abs(p[0] - q[0]) + Math.abs(p[1] - q[1]) > .6) cur.pts.push(p); });
+    if (cur.t === 'era') seg(cx, cur, RES, n);
+    else if (cur.t === 'mark') { lx.clearRect(0, 0, lv.width, lv.height); seg(lx, cur, RES); }
+    else seg(lx, cur, RES, n);
+  });
+  const end = e => {
+    if (!cur || e.pointerId !== cur.id) return;
+    const s = { t: cur.t, c: cur.c, s: cur.s, pts: cur.pts }; cur = null;
+    lx.clearRect(0, 0, lv.width, lv.height); if (s.t !== 'era') seg(cx, s, RES);
+    st.strokes.push(s); st.ops.push({ k: 's' }); save();
+  };
+  stage.addEventListener('pointerup', end); stage.addEventListener('pointercancel', end);
+
+  $('#un').onclick = () => {
+    const o = st.ops.pop();
+    if (!o) { if (st.strokes.length) { st.strokes.pop(); redraw(); save(); } return; }
+    if (o.k === 'f') { if (o.prev) { st.fills[o.i] = o.prev; fEls[o.i].setAttribute('fill', o.prev); } else { delete st.fills[o.i]; fEls[o.i].removeAttribute('fill'); } }
+    else { st.strokes.pop(); redraw(); }
+    save();
+  };
+  $('#cl').onclick = () => dialog('<h3>🗑</h3><p>' + t('clr') + '</p><div class="col"><button class="btn r" data-a="y">' + t('yes') + '</button><button class="btn" data-a="n">' + t('no') + '</button></div>', a => {
+    if (a !== 'y') return; st = { fills: {}, strokes: [], ops: [] }; fEls.forEach(el => el.removeAttribute('fill')); redraw(); save();
+  });
+  async function compose(k) {
+    const c = document.createElement('canvas'); c.width = A.W * k; c.height = A.H * k; const x = c.getContext('2d');
+    x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+    x.drawImage(await loadImg(svgUrl(new XMLSerializer().serializeToString(sv))), 0, 0, c.width, c.height);
+    const s = document.createElement('canvas'); s.width = c.width; s.height = c.height; const sx = s.getContext('2d'); st.strokes.forEach(q => seg(sx, q, k));
+    x.globalCompositeOperation = 'multiply'; x.drawImage(s, 0, 0); return c;
+  }
+  $('#sv').onclick = async () => {
+    const c = await compose(2), blob = await new Promise(r => c.toBlob(r, 'image/png')), name = 'liga-creioanelor-' + id + '.png';
+    const file = new File([blob], name, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: title }); return; } catch (e) { if (e.name === 'AbortError') return; } }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  };
+  $('#pr').onclick = () => dialog('<h3>🖨 ' + t('prT') + '</h3><div class="col"><button class="btn y" data-a="b">' + t('prBlank') + '</button><button class="btn b" data-a="m">' + t('prMine') + '</button><button class="btn" data-a="n">' + t('close') + '</button></div>', async a => {
+    if (a === 'b') printImgs([svgUrl(fresh())]); if (a === 'm') printImgs([(await compose(2.5)).toDataURL('image/png')]);
+  });
+  $('#bk').onclick = () => go(backHash);
+  const off = () => { alive = false; removeEventListener('resize', onRs); removeEventListener('hashchange', off); clearTimeout(saveT); idb.set(id, { fills: st.fills, strokes: st.strokes }); };
+  addEventListener('hashchange', off);
+}
+
+/* ---------- utilitare ---------- */
+const svgUrl = s => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
+const loadImg = u => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = u; });
+async function printImgs(urls) {
+  const box = $('#print'); box.innerHTML = '';
+  await Promise.all(urls.map(u => new Promise(r => { const i = new Image(); i.onload = i.onerror = r; i.src = u; box.appendChild(i); })));
+  setTimeout(() => print(), 60);
+}
+function dialog(html, cb) {
+  const o = document.createElement('div'); o.className = 'ov'; o.innerHTML = '<div class="dlg">' + html + '</div>'; document.body.appendChild(o);
+  o.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (e.target === o || b) { const a = b && b.dataset.a; if (a === 'stay') return; o.remove(); cb && cb(a); } });
+  return o;
+}
+async function sha(s) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return Array.from(new Uint8Array(b), x => x.toString(16).padStart(2, '0')).join(''); }
+function unlockDlg() {
+  const o = dialog('<h3>🔒 ' + t('lockT') + '</h3><p>' + t('lockP') + '</p><div class="col"><a class="btn r" style="text-align:center;text-decoration:none" target="_blank" rel="noopener" href="' + BUY_URL + '">' + t('buy') + '</a>' +
+    '<input type="text" id="kc" placeholder="LIGA-XXXX-XXXX" autocomplete="off" aria-label="' + t('code') + '"><div class="err" id="ke"></div><button class="btn y" data-a="stay" id="kb">' + t('ok') + '</button><button class="btn" data-a="n">' + t('close') + '</button></div>');
+  $('#kb', o).onclick = async () => {
+    const v = $('#kc', o).value.trim().toUpperCase().replace(/\s+/g, '');
+    let h = ''; try { h = await sha(v); } catch (e) {}
+    if (CODES.includes(h)) { LS.set('liga_pro', 1); o.remove(); dialog('<h3>🎉</h3><p>' + t('yay') + '</p><div class="col"><button class="btn y" data-a="n">OK</button></div>', () => route()); }
+    else $('#ke', o).textContent = t('bad');
+  };
+}
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+route();
+</script>
+</body>
+</html>
