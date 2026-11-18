@@ -1,0 +1,12 @@
+{
+  "Rules": [
+    { "ID": "delete-customer-originals-30d", "Status": "Enabled",
+      "Filter": { "Tag": { "Key": "retention", "Value": "customer-original" } },
+      "Expiration": { "Days": 30 } },
+    { "ID": "production-files-to-cold-storage", "Status": "Enabled",
+      "Filter": { "Prefix": "orders/" },
+      "Transitions": [ { "Days": 90, "StorageClass": "GLACIER_IR" } ] },
+    { "ID": "abort-incomplete-uploads", "Status": "Enabled",
+      "Filter": { "Prefix": "" }, "AbortIncompleteMultipartUpload": { "DaysAfterInitiation": 2 } }
+  ]
+}
